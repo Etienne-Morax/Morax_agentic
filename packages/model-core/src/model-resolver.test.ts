@@ -58,9 +58,9 @@ describe('resolveModel - épinglage finance (Opus toujours)', () => {
 })
 
 describe('resolveModel - routage par palier', () => {
-  it('palier base (économique), cerveau non-finance = gemini-3.1-pro via OpenRouter', () => {
+  it('palier base (économique), cerveau non-finance = gemini-3.1-pro-preview via OpenRouter', () => {
     const m = resolveModel({ tenantConfig: tenant('base'), role: 'cerveau' })
-    expect(m.model).toBe('gemini-3.1-pro')
+    expect(m.model).toBe('gemini-3.1-pro-preview')
     expect(m.provider).toBe('google')
     expect(m.endpoint).toContain('openrouter.ai')
     expect(m.financePinned).toBe(false)

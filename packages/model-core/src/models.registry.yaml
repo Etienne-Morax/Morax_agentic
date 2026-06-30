@@ -5,8 +5,8 @@
 # Pour promouvoir un nouveau modèle : modifier ce fichier + passer l'eval gate + merge.
 
 version: "2026-06"
-last_reviewed: "2026-06-29"
-next_review: "2026-07-29"   # vérification mensuelle obligatoire
+last_reviewed: "2026-06-30"
+next_review: "2026-07-30"   # vérification mensuelle obligatoire
 
 # ─────────────────────────────────────────────
 # PALIERS (tiers)
@@ -53,8 +53,8 @@ tiers:
   # ── Tier INTERMÉDIAIRE ────────────────────────────────────────────────────
   intermediaire:
     cerveau:
-      model: gemini-3.1-pro
-      openrouter_model: google/gemini-3.1-pro   # slug a confirmer sur le catalogue OpenRouter
+      model: gemini-3.1-pro-preview
+      openrouter_model: google/gemini-3.1-pro-preview   # slug confirme live 2026-06-30
       provider: google
       endpoint: https://openrouter.ai/api/v1    # passerelle Western-managed (contrainte 2 fournisseurs)
       max_context_tokens: 128000
@@ -66,28 +66,27 @@ tiers:
 
     workhorse:
       model: minimax-m3
-      openrouter_model: minimax/minimax-m3   # slug a confirmer sur le catalogue OpenRouter
+      openrouter_model: minimax/minimax-m3   # slug confirme live 2026-06-30
       provider: minimax
       endpoint: https://openrouter.ai/api/v1   # passerelle Western-managed obligatoire (origine chinoise)
       max_context_tokens: 512000
       price_in_usd_per_m: 0.30
       price_out_usd_per_m: 1.20
-      context_price_break_tokens: 512000   # ALERTE : prix double au-delà
       rgpd_note: >
         Endpoint Western-managed uniquement. Ne jamais router vers endpoint chinois.
         Aucune donnée sensible (finances, visages, emails) sans vérification de transfert.
       notes: >
-        Falaise à 512K tokens confirmée — le garde-fou max_context_per_call
-        doit être à 100K pour neutraliser ce risque.
+        Falaise 512K disparue du catalogue live (contexte m3 = 1M, tarif unique).
+        Le garde-fou max_context_per_call a 100K reste la protection active.
 
     micro:
       model: deepseek-v4-flash
-      openrouter_model: deepseek/deepseek-v4-flash   # slug a confirmer sur le catalogue OpenRouter
+      openrouter_model: deepseek/deepseek-v4-flash   # slug confirme live 2026-06-30
       provider: deepseek
       endpoint: https://openrouter.ai/api/v1   # passerelle Western-managed obligatoire (origine chinoise)
       max_context_tokens: 128000
-      price_in_usd_per_m: 0.14
-      price_out_usd_per_m: 0.28
+      price_in_usd_per_m: 0.10
+      price_out_usd_per_m: 0.20
       rgpd_note: >
         Loi de renseignement chinoise 2017 applicable à DeepSeek.
         Router UNIQUEMENT via endpoint Western-managed (Azure AI Foundry ou OpenRouter).
@@ -96,8 +95,8 @@ tiers:
   # ── Tier ÉCONOMIQUE ───────────────────────────────────────────────────────
   economique:
     cerveau:
-      model: gemini-3.1-pro
-      openrouter_model: google/gemini-3.1-pro   # slug a confirmer sur le catalogue OpenRouter
+      model: gemini-3.1-pro-preview
+      openrouter_model: google/gemini-3.1-pro-preview   # slug confirme live 2026-06-30
       provider: google
       endpoint: https://openrouter.ai/api/v1    # passerelle Western-managed (contrainte 2 fournisseurs)
       max_context_tokens: 128000
@@ -110,21 +109,21 @@ tiers:
 
     workhorse:
       model: minimax-m2.5
-      openrouter_model: minimax/minimax-m2.5   # slug a confirmer sur le catalogue OpenRouter
+      openrouter_model: minimax/minimax-m2.5   # slug confirme live 2026-06-30
       provider: minimax
       endpoint: https://openrouter.ai/api/v1   # passerelle Western-managed obligatoire (origine chinoise)
       max_context_tokens: 256000
-      price_in_usd_per_m: 0.30
-      price_out_usd_per_m: 1.20
+      price_in_usd_per_m: 0.12
+      price_out_usd_per_m: 0.48
       rgpd_note: >
         Même contrainte que M3 : Western-managed uniquement.
       notes: >
-        Prix confirmés 2026-06 via pricepertoken.com et minimax.io/docs/pricing.
+        Prix confirmés live OpenRouter 2026-06-30.
         M2.5 = version stable sans falaise 512K de M3.
 
     micro:
       model: gemini-2.5-flash-lite
-      openrouter_model: google/gemini-2.5-flash-lite   # slug a confirmer sur le catalogue OpenRouter
+      openrouter_model: google/gemini-2.5-flash-lite   # slug confirme live 2026-06-30
       provider: google
       endpoint: https://openrouter.ai/api/v1    # passerelle Western-managed (contrainte 2 fournisseurs)
       max_context_tokens: 128000
