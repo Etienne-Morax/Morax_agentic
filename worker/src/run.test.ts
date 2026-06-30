@@ -63,6 +63,11 @@ function makePorts(opts: { fresh?: boolean } = {}): { ports: Ports; rec: Recorde
       async setStatus() {},
       async saveExtracted() {},
     },
+    media: {
+      async getObject() {
+        return { bytes: new Uint8Array([1, 2, 3]), contentType: 'application/pdf' }
+      },
+    },
     jobRuns: {
       async begin() {
         return { jobRunId: 'jr-1', fresh }
@@ -110,6 +115,7 @@ function envelope(overrides: Partial<JobMessage> = {}, readCt = 1): QueueEnvelop
     tenant_id: 'morax-test',
     source: 'telegram',
     document_id: 'doc-1',
+    media_key: 'tenants/morax-test/postmark/k-1/facture.pdf',
     idempotency_key: 'k-1',
     enqueued_at: '2026-06-30T00:00:00Z',
     ...overrides,
@@ -117,7 +123,17 @@ function envelope(overrides: Partial<JobMessage> = {}, readCt = 1): QueueEnvelop
   return { msg_id: 42, read_ct: readCt, enqueued_at: message.enqueued_at, message }
 }
 
-const llm = new LlmClient({ anthropicApiKey: 'x', openrouterApiKey: 'y' })
+// fetchImpl injecte : evite tout appel reseau reel depuis processEnvelope (OCR finance-pinne -> Anthropic).
+const fakeFetch = (async () =>
+  new Response(
+    JSON.stringify({
+      content: [{ type: 'text', text: '{"montant":340,"devise":"GBP","date_echeance":"2026-07-15"}' }],
+      usage: { input_tokens: 50, output_tokens: 20 },
+    }),
+    { status: 200, headers: { 'content-type': 'application/json' } },
+  )) as typeof fetch
+
+const llm = new LlmClient({ anthropicApiKey: 'x', openrouterApiKey: 'y' }, fakeFetch)
 
 describe('processEnvelope', () => {
   it('traite un capture_document, comptabilise le crédit scan et acquitte', async () => {

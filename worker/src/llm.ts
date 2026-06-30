@@ -2,9 +2,6 @@
  * Morax worker - client LLM.
  * Dispatch par fournisseur : Anthropic en direct, tout le reste via OpenRouter.
  * Applique assertRgpdCompliance AVANT tout appel sortant.
- *
- * NOTE: l'appel HTTP réel est encapsulé dans `callProvider`. Au MVP il est
- * volontairement minimal ; brancher le SDK/HTTP réel lors de la Phase 3.
  */
 
 import { assertRgpdCompliance } from '@morax/model-core'
@@ -15,11 +12,18 @@ export interface LlmMessage {
   content: string
 }
 
+export interface LlmAttachment {
+  bytes: Uint8Array
+  mediaType: string
+}
+
 export interface LlmRequest {
   modelConfig: ModelConfig
   messages: LlmMessage[]
   hasPersonalData: boolean
   maxOutputTokens?: number
+  /** Pièces jointes multimodales (OCR). Attachées au premier message user. */
+  attachments?: LlmAttachment[]
 }
 
 export interface LlmResult {
@@ -34,6 +38,10 @@ export interface LlmCredentials {
   openrouterApiKey: string
 }
 
+const REQUEST_TIMEOUT_MS = 60_000
+const MAX_RETRIES = 1
+const RETRY_BACKOFF_MS = 500
+
 function estimateCostUsd(
   modelConfig: ModelConfig,
   tokensIn: number,
@@ -45,8 +53,97 @@ function estimateCostUsd(
   )
 }
 
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms))
+}
+
+function isRetryableStatus(status: number): boolean {
+  return status === 429 || status >= 500
+}
+
+async function safeReadText(res: Response): Promise<string> {
+  try {
+    return await res.text()
+  } catch {
+    return ''
+  }
+}
+
+interface AnthropicContentBlock {
+  type: string
+  text?: string
+}
+
+interface AnthropicMessage {
+  content: AnthropicContentBlock[]
+  usage: { input_tokens: number; output_tokens: number }
+}
+
+interface OpenRouterMessage {
+  choices: Array<{ message: { content: string } }>
+  usage: { prompt_tokens: number; completion_tokens: number }
+}
+
+function bytesToBase64(bytes: Uint8Array): string {
+  return Buffer.from(bytes).toString('base64')
+}
+
+function attachmentToAnthropicBlock(attachment: LlmAttachment): Record<string, unknown> {
+  const data = bytesToBase64(attachment.bytes)
+  const blockType = attachment.mediaType.startsWith('image/') ? 'image' : 'document'
+  return {
+    type: blockType,
+    source: { type: 'base64', media_type: attachment.mediaType, data },
+  }
+}
+
+function buildAnthropicBody(
+  req: LlmRequest,
+  modelName: string,
+): Record<string, unknown> {
+  const systemText = req.messages
+    .filter((m) => m.role === 'system')
+    .map((m) => m.content)
+    .join('\n\n')
+
+  let attached = false
+  const messages = req.messages
+    .filter((m) => m.role !== 'system')
+    .map((m) => {
+      if (!attached && m.role === 'user' && req.attachments && req.attachments.length > 0) {
+        attached = true
+        const blocks: unknown[] = req.attachments.map(attachmentToAnthropicBlock)
+        blocks.push({ type: 'text', text: m.content })
+        return { role: m.role, content: blocks }
+      }
+      return { role: m.role, content: m.content }
+    })
+
+  return {
+    model: modelName,
+    max_tokens: req.maxOutputTokens ?? 1024,
+    ...(systemText ? { system: systemText } : {}),
+    messages,
+  }
+}
+
+function buildOpenRouterBody(req: LlmRequest, modelName: string): Record<string, unknown> {
+  return {
+    model: modelName,
+    max_tokens: req.maxOutputTokens ?? 1024,
+    messages: req.messages.map((m) => ({ role: m.role, content: m.content })),
+  }
+}
+
 export class LlmClient {
-  constructor(private readonly creds: LlmCredentials) {}
+  private readonly fetchImpl: typeof fetch
+
+  constructor(
+    private readonly creds: LlmCredentials,
+    fetchImpl: typeof fetch = globalThis.fetch,
+  ) {
+    this.fetchImpl = fetchImpl
+  }
 
   async complete(req: LlmRequest): Promise<LlmResult> {
     // Garde-fou RGPD : refuse les modèles chinois sur endpoint non Western-managed.
@@ -59,27 +156,74 @@ export class LlmClient {
       ? req.modelConfig.model
       : (req.modelConfig.openrouterModel ?? req.modelConfig.model)
 
-    return this.callProvider(req, modelName, apiKey)
+    return this.callProvider(req, modelName, apiKey, isAnthropic)
   }
 
-  /**
-   * Appel sortant réel. Stub au MVP : à remplacer par fetch vers
-   * `${modelConfig.endpoint}` avec le payload du fournisseur.
-   */
+  private async fetchWithRetry(url: string, init: RequestInit): Promise<Response> {
+    let attempt = 0
+    for (;;) {
+      const controller = new AbortController()
+      const timer = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS)
+      try {
+        const res = await this.fetchImpl(url, { ...init, signal: controller.signal })
+        if (!res.ok && isRetryableStatus(res.status) && attempt < MAX_RETRIES) {
+          attempt += 1
+          await sleep(RETRY_BACKOFF_MS * attempt)
+          continue
+        }
+        if (!res.ok) {
+          const bodyText = await safeReadText(res)
+          throw new Error(`[llm] ${url} -> ${res.status} ${bodyText.slice(0, 200)}`)
+        }
+        return res
+      } finally {
+        clearTimeout(timer)
+      }
+    }
+  }
+
   private async callProvider(
     req: LlmRequest,
     modelName: string,
-    _apiKey: string,
+    apiKey: string,
+    isAnthropic: boolean,
   ): Promise<LlmResult> {
-    void modelName
-    // TODO Phase 3 : implémenter l'appel HTTP (Anthropic Messages API / OpenRouter).
-    const tokensIn = req.messages.reduce((n, m) => n + Math.ceil(m.content.length / 4), 0)
-    const tokensOut = 0
-    return {
-      text: '',
-      tokensIn,
-      tokensOut,
-      usdCost: estimateCostUsd(req.modelConfig, tokensIn, tokensOut),
+    if (isAnthropic) {
+      const body = buildAnthropicBody(req, modelName)
+      const res = await this.fetchWithRetry(`${req.modelConfig.endpoint}/messages`, {
+        method: 'POST',
+        headers: {
+          'content-type': 'application/json',
+          'x-api-key': apiKey,
+          'anthropic-version': '2023-06-01',
+        },
+        body: JSON.stringify(body),
+      })
+      const data = (await res.json()) as AnthropicMessage
+      const text = data.content
+        .filter((b) => b.type === 'text')
+        .map((b) => b.text ?? '')
+        .join('')
+      const tokensIn = data.usage.input_tokens
+      const tokensOut = data.usage.output_tokens
+      return { text, tokensIn, tokensOut, usdCost: estimateCostUsd(req.modelConfig, tokensIn, tokensOut) }
     }
+
+    const body = buildOpenRouterBody(req, modelName)
+    const res = await this.fetchWithRetry(`${req.modelConfig.endpoint}/chat/completions`, {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+        authorization: `Bearer ${apiKey}`,
+        'HTTP-Referer': 'https://morax.app',
+        'X-Title': 'Morax',
+      },
+      body: JSON.stringify(body),
+    })
+    const data = (await res.json()) as OpenRouterMessage
+    const text = data.choices[0]?.message.content ?? ''
+    const tokensIn = data.usage.prompt_tokens
+    const tokensOut = data.usage.completion_tokens
+    return { text, tokensIn, tokensOut, usdCost: estimateCostUsd(req.modelConfig, tokensIn, tokensOut) }
   }
 }

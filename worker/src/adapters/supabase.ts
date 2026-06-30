@@ -5,6 +5,7 @@
  */
 
 import { createClient, type SupabaseClient } from '@supabase/supabase-js'
+import { Langfuse } from 'langfuse'
 import type { Pack, TenantConfig } from '@morax/model-core'
 import type { WorkerConfig } from '../config.js'
 import type {
@@ -19,6 +20,7 @@ import type {
   Tracer,
 } from '../ports.js'
 import type { ExtractedFields, JobMessage, QueueEnvelope } from '../types.js'
+import { makeMedia } from './r2.js'
 
 const QUEUE_NAME = 'morax_jobs'
 
@@ -233,14 +235,35 @@ function makeNotifier(config: WorkerConfig, db: SupabaseClient): Notifier {
   }
 }
 
-function makeTracer(): Tracer {
-  // TODO Phase 1/3 : brancher le SDK Langfuse. Stub : exécute la fonction.
+let activeLangfuse: Langfuse | null = null
+
+function makeTracer(config: WorkerConfig): Tracer {
+  const client = new Langfuse({
+    publicKey: config.langfuse.publicKey,
+    secretKey: config.langfuse.secretKey,
+    baseUrl: config.langfuse.host,
+  })
+  activeLangfuse = client
+
   return {
-    async trace(name, _tags, fn) {
-      const traceId = `local-${name}-${Date.now()}`
-      return fn(traceId)
+    async trace(name, tags, fn) {
+      const trace = client.trace({ name, tags: Object.values(tags), metadata: tags })
+      try {
+        const result = await fn(trace.id)
+        trace.update({ output: 'done' })
+        return result
+      } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : 'Erreur inconnue'
+        trace.update({ output: { error: message } })
+        throw error
+      }
     },
   }
+}
+
+/** Vide la file d'évènements Langfuse. À appeler avant la sortie du process (Cloud Run scale-to-zero). */
+export async function flushTracing(): Promise<void> {
+  if (activeLangfuse) await activeLangfuse.flushAsync()
 }
 
 export function createPorts(config: WorkerConfig): Ports {
@@ -251,10 +274,11 @@ export function createPorts(config: WorkerConfig): Ports {
     queue: makeQueue(db),
     tenants: makeTenants(db),
     documents: makeDocuments(db),
+    media: makeMedia(config),
     jobRuns: makeJobRuns(db),
     credits: makeCredits(db),
     pendingActions: makePendingActions(db),
     notifier: makeNotifier(config, db),
-    tracer: makeTracer(),
+    tracer: makeTracer(config),
   }
 }

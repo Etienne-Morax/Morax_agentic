@@ -3,21 +3,15 @@
  * Valide, authentifie l'alias, acquitte vite, empile. JAMAIS d'IA ici.
  */
 
-import type { JobMessage } from '@morax/model-core'
 import {
   findTenantByEmailAlias,
   makeWebhookDeps,
   serviceClient,
 } from '../../../../lib/supabase-server.js'
+import { putObject } from '../../../../lib/r2.js'
+import { handlePostmarkInbound, type PostmarkDeps, type PostmarkInbound } from '../../../../lib/webhook-core.js'
 
 export const runtime = 'nodejs'
-
-interface PostmarkInbound {
-  MessageID: string
-  OriginalRecipient?: string
-  ToFull?: Array<{ Email: string }>
-  Subject?: string
-}
 
 export async function POST(request: Request): Promise<Response> {
   const secret = request.headers.get('x-morax-inbound-secret')
@@ -34,29 +28,14 @@ export async function POST(request: Request): Promise<Response> {
 
   try {
     const db = serviceClient()
-    const alias = payload.OriginalRecipient ?? payload.ToFull?.[0]?.Email ?? ''
-    const tenantId = alias ? await findTenantByEmailAlias(db, alias) : null
-    if (tenantId) {
-      const deps = makeWebhookDeps(db)
-      // TODO Phase 2 : extraire les pieces jointes et les deposer en R2.
-      const mediaKey = `postmark:${payload.MessageID}`
-      const { documentId } = await deps.createDocument({
-        tenantId,
-        source: 'email',
-        mediaKey,
-      })
-      const job: JobMessage = {
-        schema_version: 1,
-        type: 'capture_document',
-        tenant_id: tenantId,
-        source: 'email',
-        media_key: mediaKey,
-        document_id: documentId,
-        idempotency_key: `pm:${payload.MessageID}`,
-        enqueued_at: new Date().toISOString(),
-      }
-      await deps.enqueue(job)
+    const webhookDeps = makeWebhookDeps(db)
+    const deps: PostmarkDeps = {
+      findTenantByEmailAlias: (alias) => findTenantByEmailAlias(db, alias),
+      createDocument: webhookDeps.createDocument,
+      enqueue: webhookDeps.enqueue,
+      uploadAttachment: putObject,
     }
+    await handlePostmarkInbound(payload, deps, new Date().toISOString())
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : 'unknown'
     console.error(`[postmark] ${message}`)

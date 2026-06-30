@@ -5,7 +5,7 @@
 
 import { loadConfig } from './config.js'
 import { LlmClient } from './llm.js'
-import { createPorts } from './adapters/supabase.js'
+import { createPorts, flushTracing } from './adapters/supabase.js'
 import { runOnce, type RunConfig } from './run.js'
 
 const MAX_PASSES = 20
@@ -26,10 +26,15 @@ async function main(): Promise<void> {
   }
 
   let totalProcessed = 0
-  for (let pass = 0; pass < MAX_PASSES; pass++) {
-    const results = await runOnce(ports, llm, runConfig)
-    if (results.length === 0) break
-    totalProcessed += results.length
+  try {
+    for (let pass = 0; pass < MAX_PASSES; pass++) {
+      const results = await runOnce(ports, llm, runConfig)
+      if (results.length === 0) break
+      totalProcessed += results.length
+    }
+  } finally {
+    // Cloud Run Job scale-to-zero : flush obligatoire avant sortie du process.
+    await flushTracing()
   }
 
   console.log(`[worker] terminé. Jobs traités : ${totalProcessed}`)

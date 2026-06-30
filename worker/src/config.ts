@@ -18,6 +18,13 @@ export interface WorkerConfig {
     secretKey: string
     host: string
   }
+  r2: {
+    accountId: string
+    accessKeyId: string
+    secretAccessKey: string
+    bucket: string
+    endpoint: string
+  }
   telegramBotToken: string
   maxLoopsPerJob: number
   queueBatchSize: number
@@ -49,6 +56,13 @@ export function loadConfig(): WorkerConfig {
       publicKey: required('LANGFUSE_PUBLIC_KEY'),
       secretKey: required('LANGFUSE_SECRET_KEY'),
       host: process.env.LANGFUSE_HOST ?? 'https://cloud.langfuse.com',
+    },
+    r2: {
+      accountId: required('R2_ACCOUNT_ID'),
+      accessKeyId: required('R2_ACCESS_KEY_ID'),
+      secretAccessKey: required('R2_SECRET_ACCESS_KEY'),
+      bucket: required('R2_BUCKET'),
+      endpoint: required('R2_ENDPOINT'),
     },
     telegramBotToken: required('TELEGRAM_BOT_TOKEN'),
     maxLoopsPerJob: optionalNumber('MORAX_MAX_LOOPS_PER_JOB', 8),

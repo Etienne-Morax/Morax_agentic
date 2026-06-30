@@ -69,6 +69,11 @@ export interface PendingActionRepository {
   }): Promise<{ pendingActionId: string }>
 }
 
+/** Lecture des médias bruts (Cloudflare R2). */
+export interface MediaRepository {
+  getObject(key: string): Promise<{ bytes: Uint8Array; contentType: string }>
+}
+
 /** Notifications sortantes (Telegram au MVP). */
 export interface Notifier {
   ack(tenantId: string, text: string): Promise<void>
@@ -97,6 +102,7 @@ export interface Ports {
   queue: QueueClient
   tenants: TenantRepository
   documents: DocumentRepository
+  media: MediaRepository
   jobRuns: JobRunRepository
   credits: CreditsRepository
   pendingActions: PendingActionRepository

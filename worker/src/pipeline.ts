@@ -11,8 +11,9 @@ import { resolveModel } from '@morax/model-core'
 import type { ModelConfig, TenantConfig } from '@morax/model-core'
 import type { ActionCategory } from '@morax/model-core'
 import { creditCost } from '@morax/model-core'
-import type { LlmClient } from './llm.js'
+import type { LlmClient, LlmResult } from './llm.js'
 import type { Ports } from './ports.js'
+import { DRAFT_SYSTEM, OCR_INSTRUCTION, OCR_SYSTEM, PLANNER_SYSTEM, parseExtractedFields } from './prompts.js'
 import type { ExtractedFields, JobMessage } from './types.js'
 
 export interface StageOutcome {
@@ -50,8 +51,22 @@ export async function ocrDocument(
     actionRole: 'amount_verification',
   })
 
-  // TODO Phase 3 : prompt OCR réel via ctx.llm.complete(...) sur le média R2.
-  const extracted: ExtractedFields = {}
+  let extracted: ExtractedFields = {}
+  let llmResult: LlmResult | undefined
+  if (job.media_key) {
+    const media = await ctx.ports.media.getObject(job.media_key)
+    llmResult = await ctx.llm.complete({
+      modelConfig,
+      messages: [
+        { role: 'system', content: OCR_SYSTEM },
+        { role: 'user', content: OCR_INSTRUCTION },
+      ],
+      attachments: [{ bytes: media.bytes, mediaType: media.contentType }],
+      hasPersonalData: true,
+    })
+    extracted = parseExtractedFields(llmResult.text)
+  }
+
   const hasDeadline = Boolean(extracted.date_echeance)
   const status = hasDeadline ? 'extracted' : 'incomplete'
 
@@ -72,7 +87,7 @@ export async function ocrDocument(
     )
   }
 
-  return toOutcome('scan_document', modelConfig)
+  return toOutcome('scan_document', modelConfig, llmResult)
 }
 
 /** Décompose un brain dump en micro-actions < 5 min (Planificateur TDAH). */
@@ -81,26 +96,56 @@ export async function planTasks(
   job: JobMessage,
 ): Promise<StageOutcome> {
   const modelConfig = resolveModel({ tenantConfig: ctx.tenant, role: 'workhorse' })
-  void job
-  // TODO Phase 3 : décomposition réelle via ctx.llm.complete(...).
-  return toOutcome('classification', modelConfig)
+  if (!job.text) {
+    return toOutcome('classification', modelConfig)
+  }
+  const llmResult = await ctx.llm.complete({
+    modelConfig,
+    messages: [
+      { role: 'system', content: PLANNER_SYSTEM },
+      { role: 'user', content: job.text },
+    ],
+    hasPersonalData: true,
+  })
+  return toOutcome('classification', modelConfig, llmResult)
 }
 
 /** Brouillon de devis/facture dans la voix client (cerveau non-finance). */
 export async function draftDocument(
   ctx: PipelineContext,
+  job: JobMessage,
   category: Extract<
     ActionCategory,
     'brouillon_devis' | 'brouillon_facture' | 'devis_complexe'
   >,
 ): Promise<StageOutcome> {
   const modelConfig = resolveModel({ tenantConfig: ctx.tenant, role: 'cerveau' })
-  // TODO Phase 3 : génération réelle few-shot voix client via ctx.llm.complete(...).
-  return toOutcome(category, modelConfig)
+  if (!job.text) {
+    return toOutcome(category, modelConfig)
+  }
+  const llmResult = await ctx.llm.complete({
+    modelConfig,
+    messages: [
+      { role: 'system', content: DRAFT_SYSTEM },
+      { role: 'user', content: job.text },
+    ],
+    hasPersonalData: true,
+  })
+  return toOutcome(category, modelConfig, llmResult)
 }
 
-function toOutcome(category: ActionCategory, modelConfig: ModelConfig): StageOutcome {
-  return { category, modelConfig, usdCost: 0, tokensIn: 0, tokensOut: 0 }
+function toOutcome(
+  category: ActionCategory,
+  modelConfig: ModelConfig,
+  llmResult?: LlmResult,
+): StageOutcome {
+  return {
+    category,
+    modelConfig,
+    usdCost: llmResult?.usdCost ?? 0,
+    tokensIn: llmResult?.tokensIn ?? 0,
+    tokensOut: llmResult?.tokensOut ?? 0,
+  }
 }
 
 /** Crédits à comptabiliser pour une issue d'étage. */

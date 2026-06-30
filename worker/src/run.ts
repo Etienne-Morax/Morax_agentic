@@ -74,10 +74,10 @@ export async function processEnvelope(
             outcome = await planTasks(ctx, msg)
             break
           case 'draft_quote':
-            outcome = await draftDocument(ctx, 'brouillon_devis')
+            outcome = await draftDocument(ctx, msg, 'brouillon_devis')
             break
           case 'draft_invoice':
-            outcome = await draftDocument(ctx, 'brouillon_facture')
+            outcome = await draftDocument(ctx, msg, 'brouillon_facture')
             break
           default:
             throw new Error(`[run] Type de job inconnu : ${String(msg.type)}`)
