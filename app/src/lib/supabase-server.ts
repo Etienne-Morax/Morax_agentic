@@ -5,7 +5,7 @@
 
 import { createClient, type SupabaseClient } from '@supabase/supabase-js'
 import type { JobMessage } from '@morax/model-core'
-import type { WebhookDeps } from './webhook-core.js'
+import type { WebhookDeps } from './webhook-core'
 
 const QUEUE_NAME = 'morax_jobs'
 

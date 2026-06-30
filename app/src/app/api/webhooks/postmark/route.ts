@@ -7,9 +7,9 @@ import {
   findTenantByEmailAlias,
   makeWebhookDeps,
   serviceClient,
-} from '../../../../lib/supabase-server.js'
-import { putObject } from '../../../../lib/r2.js'
-import { handlePostmarkInbound, type PostmarkDeps, type PostmarkInbound } from '../../../../lib/webhook-core.js'
+} from '../../../../lib/supabase-server'
+import { putObject } from '../../../../lib/r2'
+import { handlePostmarkInbound, type PostmarkDeps, type PostmarkInbound } from '../../../../lib/webhook-core'
 
 export const runtime = 'nodejs'
 

@@ -1,0 +1,25 @@
+.track {
+  width: 100%;
+  height: 0.625rem;
+  border-radius: var(--radius-full);
+  background: var(--color-surface-sunken);
+  overflow: hidden;
+}
+
+.fill {
+  height: 100%;
+  border-radius: var(--radius-full);
+  transition: width var(--duration-normal) var(--ease-out-expo);
+}
+
+.green {
+  background: var(--color-success);
+}
+
+.orange {
+  background: var(--color-warning);
+}
+
+.red {
+  background: var(--color-danger);
+}

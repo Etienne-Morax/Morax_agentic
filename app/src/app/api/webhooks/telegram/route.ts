@@ -4,11 +4,11 @@
  * JAMAIS d'appel IA ici. Le worker fait le traitement en tache de fond.
  */
 
-import { makeWebhookDeps, serviceClient } from '../../../../lib/supabase-server.js'
+import { makeWebhookDeps, serviceClient } from '../../../../lib/supabase-server'
 import {
   handleTelegramUpdate,
   type TelegramUpdate,
-} from '../../../../lib/webhook-core.js'
+} from '../../../../lib/webhook-core'
 
 export const runtime = 'nodejs'
 
