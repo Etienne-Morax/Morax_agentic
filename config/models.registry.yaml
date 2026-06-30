@@ -1,0 +1,161 @@
+# Morax — Registre Central des Modèles LLM
+# version: 2026-06
+# Ce fichier est la source de vérité unique pour tous les modèles utilisés.
+# Le routeur ne connaît jamais un modèle en dur — il lit ce registre.
+# Pour promouvoir un nouveau modèle : modifier ce fichier + passer l'eval gate + merge.
+
+version: "2026-06"
+last_reviewed: "2026-06-29"
+next_review: "2026-07-29"   # vérification mensuelle obligatoire
+
+# ─────────────────────────────────────────────
+# PALIERS (tiers)
+# Chaque palier définit 3 rôles : cerveau / workhorse / micro
+# ─────────────────────────────────────────────
+
+tiers:
+
+  # ── Tier PREMIUM ──────────────────────────────────────────────────────────
+  # Stack mono-fournisseur Anthropic pour conserver le cache de prompt actif
+  premium:
+    cerveau:
+      model: claude-opus-4-8
+      provider: anthropic
+      endpoint: https://api.anthropic.com/v1
+      max_context_tokens: 200000
+      price_in_usd_per_m: 5.00
+      price_out_usd_per_m: 25.00
+      notes: >
+        Numéro 1-2 mondial confirmé juin 2026. Cache prompt disponible.
+        Utiliser pour rédaction voix client, lecture d'échéances et montants critiques.
+
+    workhorse:
+      model: claude-sonnet-4-6
+      provider: anthropic
+      endpoint: https://api.anthropic.com/v1
+      max_context_tokens: 200000
+      price_in_usd_per_m: 3.00
+      price_out_usd_per_m: 15.00
+      notes: >
+        Triage, extraction, parsing, OCR vision. Même fournisseur = cache partagé avec cerveau.
+
+    micro:
+      model: claude-haiku-4-5-20251001
+      provider: anthropic
+      endpoint: https://api.anthropic.com/v1
+      max_context_tokens: 200000
+      price_in_usd_per_m: 1.00
+      price_out_usd_per_m: 5.00
+      notes: >
+        Résumé, classification, rappels, traductions courtes.
+        Prix vérifiés 2026-06 — source docs.anthropic.com/pricing.
+
+  # ── Tier INTERMÉDIAIRE ────────────────────────────────────────────────────
+  intermediaire:
+    cerveau:
+      model: gemini-3.1-pro
+      provider: google
+      endpoint: https://generativelanguage.googleapis.com/v1beta
+      max_context_tokens: 128000
+      price_in_usd_per_m: 2.00
+      price_out_usd_per_m: 12.00
+      notes: >
+        Candidat à surveiller : Gemini 3.5 Flash (benchmark indique meilleur
+        sur agentic, 25% moins cher). À passer en eval gate avant promotion.
+
+    workhorse:
+      model: minimax-m3
+      provider: minimax
+      endpoint: https://api.minimax.chat/v1
+      max_context_tokens: 512000
+      price_in_usd_per_m: 0.30
+      price_out_usd_per_m: 1.20
+      context_price_break_tokens: 512000   # ALERTE : prix double au-delà
+      rgpd_note: >
+        Endpoint Western-managed uniquement. Ne jamais router vers endpoint chinois.
+        Aucune donnée sensible (finances, visages, emails) sans vérification de transfert.
+      notes: >
+        Falaise à 512K tokens confirmée — le garde-fou max_context_per_call
+        doit être à 100K pour neutraliser ce risque.
+
+    micro:
+      model: deepseek-v4-flash
+      provider: deepseek
+      endpoint: https://api.deepseek.com/v1   # via Western-managed proxy
+      max_context_tokens: 128000
+      price_in_usd_per_m: 0.14
+      price_out_usd_per_m: 0.28
+      rgpd_note: >
+        Loi de renseignement chinoise 2017 applicable à DeepSeek.
+        Router UNIQUEMENT via endpoint Western-managed (Azure AI Foundry ou OpenRouter).
+        Jamais de donnée personnelle identifiable.
+
+  # ── Tier ÉCONOMIQUE ───────────────────────────────────────────────────────
+  economique:
+    cerveau:
+      model: gemini-3.1-pro
+      provider: google
+      endpoint: https://generativelanguage.googleapis.com/v1beta
+      max_context_tokens: 128000
+      price_in_usd_per_m: 2.00
+      price_out_usd_per_m: 12.00
+      quota_monthly_tokens: 100000   # plafond cerveau sur ce palier
+      notes: >
+        Même modèle que intermédiaire mais avec quota mensuel plafonné.
+        Au-delà du quota : basculer vers workhorse + flag pour l'utilisateur.
+
+    workhorse:
+      model: minimax-m2.5
+      provider: minimax
+      endpoint: https://api.minimax.chat/v1
+      max_context_tokens: 256000
+      price_in_usd_per_m: 0.30
+      price_out_usd_per_m: 1.20
+      rgpd_note: >
+        Même contrainte que M3 : Western-managed uniquement.
+      notes: >
+        Prix confirmés 2026-06 via pricepertoken.com et minimax.io/docs/pricing.
+        M2.5 = version stable sans falaise 512K de M3.
+
+    micro:
+      model: gemini-2.5-flash-lite
+      provider: google
+      endpoint: https://generativelanguage.googleapis.com/v1beta
+      max_context_tokens: 128000
+      price_in_usd_per_m: 0.10
+      price_out_usd_per_m: 0.40
+      notes: >
+        Plus économique disponible, qualité suffisante pour classification et rappels.
+
+# ─────────────────────────────────────────────
+# GARDE-FOUS GLOBAUX
+# Appliqués par le resolver, indépendamment du palier
+# ─────────────────────────────────────────────
+
+guardrails:
+  # Au-delà de cette fenêtre, le resolver déclenche une stratégie de retrieval
+  # avant d'appeler le modèle. Neutralise la falaise de prix MiniMax M3.
+  max_context_tokens_per_call: 100000
+
+  # Ces rôles utilisent TOUJOURS le cerveau, quel que soit le palier du tenant.
+  # Raison : données financières critiques, segment ADHD = zéro hallucination tolérée.
+  finance_critical_roles:
+    - deadline_extraction
+    - amount_verification
+    - late_penalty_check
+    - invoice_amount_summary
+
+  # Ordre de fallback si le modèle primaire est indisponible ou hors quota
+  fallback_order:
+    1: intra_tier          # essayer l'autre modèle du même palier (workhorse → micro)
+    2: tier_upgrade        # monter d'un palier, plafonné par `fallback_quota` du tenant
+    3: reject              # refus explicite, jamais de fallback gratuit non borné
+
+  # Politique de promotion des nouveaux modèles
+  promotion_policy:
+    require_eval_gate: true
+    eval_gate_description: >
+      Tests dorés mesurés dans Langfuse (accuracy, latence, coût) + contrôle de coût
+      sur 100 requêtes réelles avant toute promotion en production.
+    auto_promotion: false    # jamais automatique
+    canary_traffic_pct: 5    # % du trafic envoyé au candidat avant promotion

@@ -1,0 +1,250 @@
+<svg viewBox="0 0 1600 1500" xmlns="http://www.w3.org/2000/svg" font-family="Helvetica, Arial, sans-serif">
+  <defs>
+    <marker id="arw" markerWidth="10" markerHeight="10" refX="7" refY="3.2" orient="auto">
+      <path d="M0,0 L7,3.2 L0,6.4 Z" fill="#6E2230"/>
+    </marker>
+    <marker id="arwd" markerWidth="10" markerHeight="10" refX="7" refY="3.2" orient="auto">
+      <path d="M0,0 L7,3.2 L0,6.4 Z" fill="#8A6A4E"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="1600" height="1500" fill="#F4EFE5"/>
+
+  <!-- header -->
+  <text x="40" y="52" font-family="Georgia, serif" font-size="30" font-weight="bold" fill="#17150F">Morax · Infrastructure détaillée</text>
+  <text x="40" y="80" font-size="15" fill="#6B6253">Produit commercial multi-tenant · 100 % cloud managé région UE · flux événementiel asynchrone</text>
+  <text x="1560" y="52" text-anchor="end" font-size="13" fill="#6B6253">ADR-001 · 30 juin 2026</text>
+
+  <!-- legend -->
+  <rect x="40" y="96" width="1520" height="34" rx="8" fill="#ECE4D5" stroke="#6E2230" stroke-width="1"/>
+  <text x="60" y="118" font-size="12.5" font-weight="bold" fill="#17150F">Légende :</text>
+  <circle cx="150" cy="113" r="5" fill="#6E2230"/>
+  <text x="162" y="118" font-size="12" fill="#17150F">payant</text>
+  <circle cx="252" cy="113" r="5" fill="none" stroke="#8A6A4E" stroke-width="1.5"/>
+  <text x="264" y="118" font-size="12" fill="#17150F">free tier (conforme UE)</text>
+  <text x="470" y="118" font-size="12" fill="#17150F">UE = région UE + DPA</text>
+  <text x="700" y="118" font-size="12" fill="#6E2230">→ flux de données</text>
+  <text x="880" y="118" font-size="12" fill="#8A6A4E">⇢ contrôle / observation / route modèle</text>
+  <text x="1200" y="118" font-size="12" fill="#6B6253">$ = coût mensuel par composant</text>
+
+  <!-- ===================== LEFT RAIL ===================== -->
+  <rect x="40" y="150" width="300" height="446" rx="12" fill="#FBF8F1" stroke="#17150F" stroke-width="1.5"/>
+  <text x="60" y="180" font-size="12" font-weight="bold" letter-spacing="0.5" fill="#6E2230">CONFORMITÉ RGPD &amp; SÉCURITÉ</text>
+  <text x="60" y="210" font-size="12.5" fill="#17150F">• 100 % cloud managé, région UE</text>
+  <text x="60" y="238" font-size="12.5" fill="#17150F">• DPA signé par sous-traitant</text>
+  <text x="60" y="266" font-size="12.5" fill="#17150F">• Chiffrement au repos + transit</text>
+  <text x="60" y="294" font-size="12.5" fill="#17150F">• Tokens OAuth chiffrés au repos</text>
+  <text x="60" y="322" font-size="12.5" fill="#17150F">• Modèles chinois →</text>
+  <text x="74" y="340" font-size="11.5" fill="#6B6253">endpoint Western-managed</text>
+  <text x="60" y="368" font-size="12.5" fill="#17150F">• Jamais finance/visage via</text>
+  <text x="74" y="386" font-size="11.5" fill="#6B6253">endpoint chinois direct</text>
+  <text x="60" y="414" font-size="12.5" fill="#17150F">• Modèle de DPA fourni aux clients</text>
+  <text x="60" y="442" font-size="12.5" fill="#17150F">• Registre sous-traitants + régions</text>
+  <text x="60" y="470" font-size="12.5" fill="#17150F">• Séparation interne / produit</text>
+
+  <rect x="40" y="612" width="300" height="388" rx="12" fill="#FBF8F1" stroke="#17150F" stroke-width="1.5"/>
+  <text x="60" y="642" font-size="12" font-weight="bold" letter-spacing="0.5" fill="#6E2230">GARDE-FOUS D'EXÉCUTION</text>
+  <text x="60" y="672" font-size="12.5" fill="#17150F">• max_context 100k → retrieval</text>
+  <text x="60" y="700" font-size="12.5" fill="#17150F">• Max Loops par job</text>
+  <text x="60" y="728" font-size="12.5" fill="#17150F">• Plafond de crédits / tenant</text>
+  <text x="60" y="756" font-size="12.5" fill="#17150F">• Fallback borné :</text>
+  <text x="74" y="774" font-size="11.5" fill="#6B6253">intra-tier → tier-up → rejet</text>
+  <text x="60" y="802" font-size="12.5" fill="#17150F">• Finance-critique → cerveau</text>
+  <text x="60" y="830" font-size="12.5" fill="#17150F">• Gate HIGH : validation</text>
+  <text x="74" y="848" font-size="11.5" fill="#6B6253">utilisateur, async, non bloquant</text>
+  <text x="60" y="876" font-size="12.5" fill="#17150F">• Jamais de paiement auto</text>
+
+  <!-- ===================== CENTER FLOW ===================== -->
+  <!-- 1 canaux -->
+  <rect x="370" y="150" width="780" height="94" rx="10" fill="#FBF8F1" stroke="#17150F" stroke-width="1.5"/>
+  <text x="390" y="178" font-size="11" font-weight="bold" letter-spacing="1.5" fill="#6E2230">CANAUX / CLIENTS</text>
+  <rect x="390" y="194" width="240" height="38" rx="7" fill="#ECE4D5" stroke="#17150F" stroke-width="1"/>
+  <text x="510" y="218" text-anchor="middle" font-size="12" fill="#17150F">Telegram · vocal + photo (actif)</text>
+  <rect x="648" y="194" width="240" height="38" rx="7" fill="#ECE4D5" stroke="#17150F" stroke-width="1"/>
+  <text x="768" y="218" text-anchor="middle" font-size="12" fill="#17150F">Email entrant · Postmark</text>
+  <rect x="906" y="194" width="224" height="38" rx="7" fill="#ECE4D5" stroke="#17150F" stroke-width="1"/>
+  <text x="1018" y="218" text-anchor="middle" font-size="12" fill="#6B6253">WhatsApp / Web (v1.1+)</text>
+
+  <line x1="760" y1="244" x2="760" y2="281" stroke="#6E2230" stroke-width="2.2" marker-end="url(#arw)"/>
+
+  <!-- 2 edge -->
+  <rect x="370" y="282" width="780" height="98" rx="10" fill="#FBF8F1" stroke="#17150F" stroke-width="1.5"/>
+  <text x="390" y="310" font-size="11" font-weight="bold" letter-spacing="1.5" fill="#6E2230">EDGE / INGESTION</text>
+  <text x="1130" y="310" text-anchor="end" font-size="11.5" fill="#6B6253">↳ Vercel · UE · $20 ●</text>
+  <text x="390" y="336" font-family="Georgia, serif" font-size="16" font-weight="bold" fill="#17150F">Webhook Edge (Next.js) + Front</text>
+  <text x="390" y="356" font-size="12.5" fill="#6B6253">valide · authentifie · accuse réception &lt;1s · empile</text>
+  <text x="390" y="374" font-size="12" font-style="italic" fill="#6E2230">jamais d'IA synchrone</text>
+
+  <line x1="760" y1="380" x2="760" y2="415" stroke="#6E2230" stroke-width="2.2" marker-end="url(#arw)"/>
+
+  <!-- 3 file -->
+  <rect x="370" y="416" width="780" height="66" rx="10" fill="#FBF8F1" stroke="#17150F" stroke-width="1.5"/>
+  <text x="390" y="444" font-size="11" font-weight="bold" letter-spacing="1.5" fill="#6E2230">FILE D'ATTENTE</text>
+  <text x="1130" y="444" text-anchor="end" font-size="11.5" fill="#6B6253">↳ Supabase · UE</text>
+  <text x="390" y="468" font-family="Georgia, serif" font-size="16" font-weight="bold" fill="#17150F">Supabase Queues (pgmq) · retries · idempotence · dead-letter</text>
+
+  <line x1="760" y1="482" x2="760" y2="517" stroke="#6E2230" stroke-width="2.2" marker-end="url(#arw)"/>
+
+  <!-- 4 worker -->
+  <rect x="370" y="518" width="780" height="330" rx="10" fill="#FBF8F1" stroke="#17150F" stroke-width="1.5"/>
+  <text x="390" y="546" font-size="11" font-weight="bold" letter-spacing="1.5" fill="#6E2230">TRAITEMENT (asynchrone)</text>
+  <text x="1130" y="546" text-anchor="end" font-size="11.5" fill="#6B6253">↳ Google Cloud Run · UE · free tier ~$0 ○</text>
+  <text x="390" y="570" font-family="Georgia, serif" font-size="16" font-weight="bold" fill="#17150F">Worker stateless · pipeline déterministe</text>
+  <text x="390" y="590" font-size="12" fill="#6B6253">Cloud Scheduler déclenche un Job qui draine la file · Max Loops borné</text>
+
+  <rect x="388" y="600" width="744" height="42" rx="7" fill="#F6F1E6" stroke="#E0D6C2" stroke-width="1"/>
+  <text x="402" y="626" font-size="12.5" fill="#17150F">1 · Réceptionniste · audio → JSON</text>
+  <text x="1118" y="626" text-anchor="end" font-size="11" font-weight="bold" fill="#6E2230">Gemini Flash batch · Google UE · micro</text>
+
+  <rect x="388" y="648" width="744" height="42" rx="7" fill="#F6F1E6" stroke="#E0D6C2" stroke-width="1"/>
+  <text x="402" y="674" font-size="12.5" fill="#17150F">2 · Planificateur TDAH · macro → micro-tâches &lt;5 min</text>
+  <text x="1118" y="674" text-anchor="end" font-size="11" font-weight="bold" fill="#6E2230">Claude Sonnet 4.6 · Anthropic UE · workhorse</text>
+
+  <rect x="388" y="696" width="744" height="42" rx="7" fill="#F6F1E6" stroke="#E0D6C2" stroke-width="1"/>
+  <text x="402" y="722" font-size="12.5" fill="#17150F">3 · Exécuteur · entités + brouillons</text>
+  <text x="1118" y="722" text-anchor="end" font-size="11" font-weight="bold" fill="#6E2230">DeepSeek V4-Flash · OpenRouter · micro</text>
+
+  <rect x="388" y="744" width="744" height="42" rx="7" fill="#F6F1E6" stroke="#E0D6C2" stroke-width="1"/>
+  <text x="402" y="770" font-size="12.5" fill="#17150F">4 · OCR facture/reçu + validation humaine</text>
+  <text x="1118" y="770" text-anchor="end" font-size="11" font-weight="bold" fill="#6E2230">Gemini 3.5 Flash · Google UE · workhorse</text>
+
+  <text x="390" y="812" font-size="11.5" font-weight="bold" fill="#6E2230">⚠ Finance-critique (date · montant · pénalité) → Cerveau Claude Opus 4.8, jamais un micro · Live API audio = premium</text>
+
+  <line x1="558" y1="848" x2="558" y2="881" stroke="#6E2230" stroke-width="2.2" marker-end="url(#arw)"/>
+  <line x1="962" y1="848" x2="962" y2="881" stroke="#6E2230" stroke-width="2.2" marker-end="url(#arw)"/>
+
+  <!-- 5 data -->
+  <rect x="370" y="882" width="376" height="120" rx="10" fill="#F0E7D6" stroke="#17150F" stroke-width="1.5"/>
+  <text x="388" y="910" font-size="11" font-weight="bold" letter-spacing="1" fill="#6E2230">BASE · SOURCE DE VÉRITÉ</text>
+  <text x="728" y="910" text-anchor="end" font-size="11" fill="#6B6253">Supabase · UE · $25 ●</text>
+  <text x="388" y="936" font-family="Georgia, serif" font-size="15" font-weight="bold" fill="#17150F">Postgres · RLS multi-tenant</text>
+  <text x="388" y="958" font-size="12" fill="#6B6253">Auth · pgmq · chiffré au repos</text>
+  <text x="388" y="978" font-size="12" fill="#6B6253">lecture produit = ici uniquement</text>
+
+  <rect x="774" y="882" width="376" height="120" rx="10" fill="#F0E7D6" stroke="#17150F" stroke-width="1.5"/>
+  <text x="792" y="910" font-size="11" font-weight="bold" letter-spacing="1" fill="#6E2230">MÉDIAS</text>
+  <text x="1132" y="910" text-anchor="end" font-size="11" fill="#6B6253">Cloudflare R2 · UE · free tier ○</text>
+  <text x="792" y="936" font-family="Georgia, serif" font-size="15" font-weight="bold" fill="#17150F">Object storage</text>
+  <text x="792" y="958" font-size="12" fill="#6B6253">audio + images · egress gratuit</text>
+  <text x="792" y="978" font-size="12" fill="#6B6253">10 Go/mois inclus · ~$0 au MVP</text>
+
+  <line x1="558" y1="1002" x2="558" y2="1035" stroke="#6E2230" stroke-width="2.2" marker-end="url(#arw)"/>
+  <text x="576" y="1024" font-size="12" font-style="italic" fill="#6E2230">lecture : zéro appel IA</text>
+
+  <!-- 6 restitution -->
+  <rect x="370" y="1036" width="780" height="96" rx="10" fill="#FBF8F1" stroke="#17150F" stroke-width="1.5"/>
+  <text x="390" y="1064" font-size="11" font-weight="bold" letter-spacing="1.5" fill="#6E2230">RESTITUTION (lecture)</text>
+  <text x="1130" y="1064" text-anchor="end" font-size="11.5" fill="#6B6253">↳ Vercel · UE</text>
+  <text x="390" y="1090" font-family="Georgia, serif" font-size="16" font-weight="bold" fill="#17150F">Web View read-only + compteur de crédits</text>
+  <text x="390" y="1110" font-size="12.5" fill="#6B6253">timeline · cartes · lecture = Supabase seul, zéro IA · rappels via Supabase Cron</text>
+
+  <!-- ===================== RIGHT RAIL ===================== -->
+  <rect x="1180" y="150" width="380" height="322" rx="12" fill="#FBF8F1" stroke="#17150F" stroke-width="1.5"/>
+  <text x="1200" y="180" font-size="11" font-weight="bold" letter-spacing="1.5" fill="#6E2230">ROUTEUR DE MODÈLES</text>
+  <text x="1200" y="204" font-family="Georgia, serif" font-size="16" font-weight="bold" fill="#17150F">registre YAML + eval gate</text>
+  <text x="1200" y="224" font-size="11.5" fill="#6B6253">aucun modèle en dur · prix $/M tok (in/out)</text>
+  <rect x="1200" y="238" width="12" height="12" rx="3" fill="#C9BBA6"/>
+  <text x="1218" y="249" font-size="12.5" font-weight="bold" fill="#17150F">Micro</text>
+  <text x="1200" y="268" font-size="11" fill="#6B6253">Gemini Flash-Lite $0.10/$0.40</text>
+  <text x="1200" y="285" font-size="11" fill="#6B6253">DeepSeek V4-Flash $0.14/$0.28</text>
+  <rect x="1200" y="302" width="12" height="12" rx="3" fill="#9C7A52"/>
+  <text x="1218" y="313" font-size="12.5" font-weight="bold" fill="#17150F">Workhorse</text>
+  <text x="1200" y="332" font-size="11" fill="#6B6253">Claude Sonnet 4.6 $3/$15</text>
+  <text x="1200" y="349" font-size="11" fill="#6B6253">MiniMax M2.5 $0.30/$1.20 (éco)</text>
+  <rect x="1200" y="366" width="12" height="12" rx="3" fill="#6E2230"/>
+  <text x="1218" y="377" font-size="12.5" font-weight="bold" fill="#6E2230">Cerveau · finance-critique</text>
+  <text x="1200" y="396" font-size="11" fill="#6B6253">Claude Opus 4.8 $5/$25</text>
+  <text x="1200" y="413" font-size="11" fill="#6B6253">Haiku 4.5 $1/$5 (micro premium)</text>
+  <text x="1200" y="440" font-size="11" font-style="italic" fill="#8A6A4E">promotion : tests dorés + canary 5 %</text>
+  <text x="1200" y="458" font-size="11" font-style="italic" fill="#8A6A4E">2 fournisseurs au lancement</text>
+
+  <rect x="1180" y="486" width="380" height="118" rx="12" fill="#FBF8F1" stroke="#17150F" stroke-width="1.5"/>
+  <text x="1200" y="514" font-size="11" font-weight="bold" letter-spacing="1" fill="#6E2230">FOURNISSEURS LLM · API-only</text>
+  <text x="1200" y="540" font-size="12.5" fill="#17150F">Anthropic · endpoint UE</text>
+  <text x="1200" y="562" font-size="12.5" fill="#17150F">Google (Gemini) · endpoint UE</text>
+  <text x="1200" y="584" font-size="12.5" fill="#17150F">OpenRouter · Western-managed (DeepSeek)</text>
+
+  <rect x="1180" y="618" width="380" height="110" rx="12" fill="#FBF8F1" stroke="#17150F" stroke-width="1.5"/>
+  <text x="1200" y="646" font-size="11" font-weight="bold" letter-spacing="1.5" fill="#6E2230">OBSERVABILITÉ</text>
+  <text x="1200" y="670" font-family="Georgia, serif" font-size="15" font-weight="bold" fill="#17150F">Langfuse Cloud · UE · $29 ●</text>
+  <text x="1200" y="692" font-size="11.5" fill="#6B6253">trace tous les appels LLM :</text>
+  <text x="1200" y="710" font-size="11.5" fill="#6B6253">coût · latence · rôle · tokens → audit COGS</text>
+
+  <rect x="1180" y="742" width="380" height="226" rx="12" fill="#FBF8F1" stroke="#17150F" stroke-width="1.5"/>
+  <text x="1200" y="770" font-size="11" font-weight="bold" letter-spacing="0.5" fill="#6E2230">OPS &amp; MONITORING · free tier ○</text>
+  <text x="1200" y="796" font-size="12.5" fill="#17150F">Status page + uptime →</text>
+  <text x="1214" y="814" font-size="11.5" fill="#6B6253">Better Stack / FlareWarden</text>
+  <text x="1200" y="840" font-size="12.5" fill="#17150F">Monitoring cron →</text>
+  <text x="1214" y="858" font-size="11.5" fill="#6B6253">cronitor / deadmanssnitch</text>
+  <text x="1200" y="884" font-size="12.5" fill="#17150F">Logs → openobserve (200 Go/mois)</text>
+  <text x="1200" y="910" font-size="12.5" fill="#17150F">Coût GCP → economize.cloud</text>
+  <text x="1200" y="944" font-size="11.5" font-weight="bold" fill="#6E2230">Status page = actif de vente B2B, ~$0</text>
+
+  <!-- cross-cutting connectors -->
+  <path d="M1180,330 C 1165,420 1160,540 1152,580" fill="none" stroke="#8A6A4E" stroke-width="1.6" stroke-dasharray="5 4" marker-end="url(#arwd)"/>
+  <text x="1156" y="450" font-size="11" fill="#8A6A4E">route</text>
+  <path d="M1150,720 C 1168,720 1174,678 1180,672" fill="none" stroke="#8A6A4E" stroke-width="1.6" stroke-dasharray="5 4" marker-end="url(#arwd)"/>
+  <text x="1152" y="712" font-size="11" fill="#8A6A4E">trace</text>
+  <path d="M340,690 C 356,650 360,615 370,600" fill="none" stroke="#8A6A4E" stroke-width="1.6" stroke-dasharray="5 4" marker-end="url(#arwd)"/>
+  <text x="300" y="650" font-size="11" fill="#8A6A4E" text-anchor="start">encadre</text>
+
+  <!-- ===================== SEPARATION BAR ===================== -->
+  <rect x="40" y="1160" width="1520" height="70" rx="10" fill="#EFE1DE" stroke="#6E2230" stroke-width="1"/>
+  <text x="60" y="1190" font-size="13" font-weight="bold" fill="#6E2230">PLATEFORME INTERNE OPENCLAW · hors périmètre produit</text>
+  <text x="60" y="1213" font-size="12.5" fill="#17150F">NAS Synology + Oracle Cloud Always Free (4 cœurs ARM / 24 Go) = dev, staging, agents de build. JAMAIS de donnée client. Strictement séparée du produit ci-dessus.</text>
+
+  <!-- ===================== COST BAND ===================== -->
+  <rect x="40" y="1250" width="490" height="232" rx="12" fill="#FBF8F1" stroke="#17150F" stroke-width="1.5"/>
+  <text x="60" y="1278" font-size="11" font-weight="bold" letter-spacing="0.5" fill="#6E2230">DÉPLOIEMENT · socle managé optimisé</text>
+  <text x="60" y="1306" font-family="Georgia, serif" font-size="19" font-weight="bold" fill="#17150F">≈ $90 / mois (≈ £71)</text>
+  <text x="60" y="1334" font-size="12.5" fill="#17150F">Vercel Pro</text>
+  <text x="510" y="1334" text-anchor="end" font-size="12.5" fill="#17150F">$20 ●</text>
+  <text x="60" y="1356" font-size="12.5" fill="#17150F">Supabase Pro</text>
+  <text x="510" y="1356" text-anchor="end" font-size="12.5" fill="#17150F">$25 ●</text>
+  <text x="60" y="1378" font-size="12.5" fill="#17150F">Worker Cloud Run (free tier)</text>
+  <text x="510" y="1378" text-anchor="end" font-size="12.5" fill="#17150F">~$0 ○</text>
+  <text x="60" y="1400" font-size="12.5" fill="#17150F">Cloudflare R2 (free tier)</text>
+  <text x="510" y="1400" text-anchor="end" font-size="12.5" fill="#17150F">~$0 ○</text>
+  <text x="60" y="1422" font-size="12.5" fill="#17150F">Postmark (ou SES ~$0)</text>
+  <text x="510" y="1422" text-anchor="end" font-size="12.5" fill="#17150F">$16.50</text>
+  <text x="60" y="1444" font-size="12.5" fill="#17150F">Langfuse Cloud</text>
+  <text x="510" y="1444" text-anchor="end" font-size="12.5" fill="#17150F">$29 ●</text>
+  <text x="60" y="1470" font-size="11" font-style="italic" fill="#8A6A4E">Descend à ~$45–74 : Langfuse self-host + email SES (plus d'ops)</text>
+
+  <rect x="550" y="1250" width="470" height="232" rx="12" fill="#FBF8F1" stroke="#17150F" stroke-width="1.5"/>
+  <text x="570" y="1278" font-size="11" font-weight="bold" letter-spacing="0.5" fill="#6E2230">COÛT / UTILISATEUR · 60 crédits/mois</text>
+  <text x="570" y="1306" font-family="Georgia, serif" font-size="19" font-weight="bold" fill="#17150F">$0.30 à $1.00 / mois</text>
+  <text x="570" y="1328" font-size="12" fill="#6B6253">(≈ £0.24–0.79) · dominé par le LLM</text>
+  <text x="570" y="1356" font-size="12.5" fill="#17150F">LLM tier économique</text>
+  <text x="1000" y="1356" text-anchor="end" font-size="12.5" fill="#17150F">~$0.30</text>
+  <text x="570" y="1380" font-size="12.5" fill="#17150F">LLM tier premium (Opus)</text>
+  <text x="1000" y="1380" text-anchor="end" font-size="12.5" fill="#17150F">~$1.00</text>
+  <text x="570" y="1404" font-size="12.5" fill="#17150F">Stockage R2 / user</text>
+  <text x="1000" y="1404" text-anchor="end" font-size="12.5" fill="#6B6253">négligeable</text>
+  <text x="570" y="1428" font-size="12.5" fill="#17150F">Email entrant / user</text>
+  <text x="1000" y="1428" text-anchor="end" font-size="12.5" fill="#6B6253">négligeable</text>
+  <text x="570" y="1458" font-size="12" font-weight="bold" fill="#6E2230">Reste &lt; 1 % du prix du plan Base (£25)</text>
+
+  <rect x="1040" y="1250" width="520" height="232" rx="12" fill="#FBF8F1" stroke="#17150F" stroke-width="1.5"/>
+  <text x="1060" y="1278" font-size="11" font-weight="bold" letter-spacing="0.5" fill="#6E2230">MARGE À L'ÉCHELLE · plan Base £25</text>
+  <text x="1060" y="1306" font-family="Georgia, serif" font-size="19" font-weight="bold" fill="#17150F">&gt; 90 % dès ~50 users</text>
+  <text x="1060" y="1334" font-size="12" font-weight="bold" fill="#6B6253">Users</text>
+  <text x="1380" y="1334" text-anchor="end" font-size="12" font-weight="bold" fill="#6B6253">Coût/user</text>
+  <text x="1540" y="1334" text-anchor="end" font-size="12" font-weight="bold" fill="#6B6253">Marge</text>
+  <text x="1060" y="1360" font-size="12.5" fill="#17150F">10</text>
+  <text x="1380" y="1360" text-anchor="end" font-size="12.5" fill="#17150F">≈ £7.3</text>
+  <text x="1540" y="1360" text-anchor="end" font-size="12.5" fill="#17150F">≈ 71 %</text>
+  <text x="1060" y="1384" font-size="12.5" fill="#17150F">50</text>
+  <text x="1380" y="1384" text-anchor="end" font-size="12.5" fill="#17150F">≈ £1.7</text>
+  <text x="1540" y="1384" text-anchor="end" font-size="12.5" fill="#17150F">≈ 93 %</text>
+  <text x="1060" y="1408" font-size="12.5" fill="#17150F">200</text>
+  <text x="1380" y="1408" text-anchor="end" font-size="12.5" fill="#17150F">≈ £0.6</text>
+  <text x="1540" y="1408" text-anchor="end" font-size="12.5" fill="#17150F">≈ 98 %</text>
+  <text x="1060" y="1432" font-size="12.5" fill="#17150F">1000</text>
+  <text x="1380" y="1432" text-anchor="end" font-size="12.5" fill="#17150F">≈ £0.3</text>
+  <text x="1540" y="1432" text-anchor="end" font-size="12.5" fill="#17150F">≈ 99 %</text>
+  <text x="1060" y="1462" font-size="11.5" font-weight="bold" fill="#6E2230">Vraie contrainte : coût humain (onboarding, support), pas l'infra</text>
+
+  <!-- footer -->
+  <text x="40" y="1496" font-size="11" fill="#6B6253">Prix infra vérifiés juin 2026 · modèles : registre Morax · change ≈ £1 = $1.27 · free tiers à confirmer (résidence UE + DPA + usage commercial) · source free-tier : github.com/ripienaar/free-for-dev</text>
+</svg>

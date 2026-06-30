@@ -1,0 +1,24 @@
+# dependencies
+node_modules/
+
+# next.js
+.next/
+out/
+build/
+
+# env & secrets
+.env
+.env.*
+!.env.example
+
+# vercel
+.vercel
+
+# supabase local
+supabase/.branches
+supabase/.temp
+
+# logs & os
+*.log
+.DS_Store
+Thumbs.db

@@ -1,0 +1,144 @@
+# Morax — Schéma de Configuration Tenant
+# Ce fichier est le schéma de référence (commenté).
+# Chaque tenant a son propre fichier tenant.yaml dans Supabase (table `tenants`).
+# Le resolver lit ce schéma pour valider les configs avant de router une requête.
+
+# ─────────────────────────────────────────────
+# IDENTITÉ DU TENANT
+# ─────────────────────────────────────────────
+
+tenant_id: ""              # slug unique, généré à l'onboarding (ex: morax-etienne-42)
+display_name: ""           # nom affiché dans le dashboard
+email: ""                  # email de contact principal
+created_at: ""             # ISO 8601
+locale: "en-GB"            # langue et format de dates/montants
+currency: "GBP"            # devise de facturation
+
+# ─────────────────────────────────────────────
+# OFFRE ET POLITIQUE MODÈLE
+# ─────────────────────────────────────────────
+
+offre: "base"              # base | intermediaire | premium
+                           # Détermine le palier LLM dans models.registry.yaml
+
+model_policy: "latest"     # latest : toujours le modèle promu dans le registre
+                           # pinned  : reste sur la version au moment de la souscription
+                           # (option pour clients B2B qui exigent de la stabilité)
+
+fallback_quota: true       # true : autorise la montée de palier en cas de fallback
+                           # false : reject si le modèle primaire est indisponible
+
+# ─────────────────────────────────────────────
+# QUOTAS D'ACTIONS (crédits)
+# ─────────────────────────────────────────────
+
+# Quota de base inclus dans l'offre (défini par l'offre + packs actifs)
+action_quota_monthly: 60   # crédits/mois — recalculé à chaque changement de pack
+
+# Seuil d'alerte upgrade (en % du quota)
+alert_threshold_pct: 80
+
+# Comportement à 100% du quota
+quota_exceeded_behavior: "queue"   # queue : mise en attente | reject : refus immédiat
+
+# ─────────────────────────────────────────────
+# PACKS ACTIFS
+# ─────────────────────────────────────────────
+
+packs_actifs:
+  - "base"                 # toujours présent (Admin Copilot de base)
+  # - "recus_depenses"     # +40 crédits, +£12/mois
+  # - "devis_facture"      # +40 crédits, +£15/mois
+  # - "voix"               # +20 crédits, +£10/mois
+  # - "tier_premium"       # bascule cerveau → Opus 4.8, +£20/mois
+
+# ─────────────────────────────────────────────
+# VOIX ET PERSONNALISATION
+# ─────────────────────────────────────────────
+
+voice_examples:            # 3 à 5 exemples de devis/factures du client
+  - ""                     # injectés en few-shot dans le prompt du cerveau
+  - ""                     # renseignés lors de l'onboarding
+
+brand_name: ""             # nom commercial du client (affiché dans les documents générés)
+brand_tagline: ""          # tagline optionnelle
+
+# ─────────────────────────────────────────────
+# INTÉGRATIONS
+# ─────────────────────────────────────────────
+
+integrations:
+  email_alias: ""           # alias Morax généré à l'onboarding (ex: morax-abc123@morax.app)
+  email_provider: "mailgun" # mailgun | postmark
+
+  # Intégrations comptables (v1.1+)
+  freeagent:
+    enabled: false
+    api_key_ref: ""         # référence au secret dans Supabase Vault, jamais la clé en clair
+
+  xero:
+    enabled: false
+    api_key_ref: ""
+
+  # Notifications
+  notifications:
+    email: true             # toujours activé
+    slack_webhook_url: ""   # optionnel
+    push_web: false         # v1.1
+
+# ─────────────────────────────────────────────
+# DONNÉES ET RGPD
+# ─────────────────────────────────────────────
+
+data_region: "eu-west"     # région Supabase et endpoints LLM à privilégier
+gdpr_dpa_signed: false     # à passer à true après signature du DPA
+personal_data_consent: false  # consentement explicite au traitement de données perso
+
+# ─────────────────────────────────────────────
+# MÉTERING (Langfuse)
+# ─────────────────────────────────────────────
+
+langfuse:
+  project_id: ""            # projet Langfuse dédié à ce tenant
+  trace_tags:               # tags ajoutés à chaque trace pour filtrage
+    - "tenant:{tenant_id}"
+    - "offre:{offre}"
+
+# ─────────────────────────────────────────────
+# EXEMPLE D'INSTANCE COMPLÈTE (décommentée)
+# ─────────────────────────────────────────────
+
+# tenant_id: "morax-demo-freelance-01"
+# display_name: "Sarah Chen Photography"
+# email: "sarah@sarahchenphotography.com"
+# created_at: "2026-07-01T00:00:00Z"
+# locale: "en-GB"
+# currency: "GBP"
+# offre: "base"
+# model_policy: "latest"
+# fallback_quota: true
+# action_quota_monthly: 60
+# alert_threshold_pct: 80
+# quota_exceeded_behavior: "queue"
+# packs_actifs:
+#   - "base"
+#   - "devis_facture"      # +40 crédits pour devis et factures
+# voice_examples:
+#   - "Thank you for considering Sarah Chen Photography for your project..."
+#   - "This proposal covers a half-day editorial shoot including..."
+# brand_name: "Sarah Chen Photography"
+# integrations:
+#   email_alias: "morax-sc4219@morax.app"
+#   email_provider: "mailgun"
+#   freeagent:
+#     enabled: false
+#   notifications:
+#     email: true
+# data_region: "eu-west"
+# gdpr_dpa_signed: true
+# personal_data_consent: true
+# langfuse:
+#   project_id: "lf-morax-demo-01"
+#   trace_tags:
+#     - "tenant:morax-demo-freelance-01"
+#     - "offre:base"
