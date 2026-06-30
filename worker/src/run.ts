@@ -1,0 +1,144 @@
+/**
+ * Morax worker - orchestration pure (testable avec des fakes).
+ * Garde-fous : idempotence, Max Loops par job, ack non bloquant,
+ * comptabilisation des crédits et du coût réel.
+ */
+
+import type { LlmClient } from './llm.js'
+import type { Ports } from './ports.js'
+import {
+  draftDocument,
+  ocrDocument,
+  outcomeCredits,
+  planTasks,
+  type PipelineContext,
+  type StageOutcome,
+} from './pipeline.js'
+import type { QueueEnvelope } from './types.js'
+
+export interface RunConfig {
+  maxLoopsPerJob: number
+  queueBatchSize: number
+  visibilityTimeoutSec: number
+}
+
+export interface ProcessResult {
+  status: 'done' | 'skipped_idempotent' | 'max_loops' | 'error'
+  msgId: number
+}
+
+export async function processEnvelope(
+  envelope: QueueEnvelope,
+  ports: Ports,
+  llm: LlmClient,
+  config: RunConfig,
+): Promise<ProcessResult> {
+  const msg = envelope.message
+
+  // Garde-fou Max Loops : un message relu trop de fois part en DLQ (archive).
+  if (envelope.read_ct > config.maxLoopsPerJob) {
+    await ports.queue.archive(envelope.msg_id)
+    return { status: 'max_loops', msgId: envelope.msg_id }
+  }
+
+  // Idempotence : un même évènement source ne produit qu'un job.
+  const begin = await ports.jobRuns.begin(msg.tenant_id, msg)
+  if (!begin.fresh) {
+    await ports.queue.delete(envelope.msg_id)
+    return { status: 'skipped_idempotent', msgId: envelope.msg_id }
+  }
+
+  try {
+    const result = await ports.tracer.trace(
+      `job:${msg.type}`,
+      { tenant: msg.tenant_id, type: msg.type, source: msg.source },
+      async (traceId) => {
+        const tenant = await ports.tenants.load(msg.tenant_id)
+        // Ack non bloquant immédiat (UX TDAH : "je m'en occupe").
+        await ports.notifier.ack(msg.tenant_id, 'Je m’en occupe.')
+
+        const ctx: PipelineContext = {
+          tenant,
+          ports,
+          llm,
+          jobRunId: begin.jobRunId,
+          traceId,
+        }
+
+        let outcome: StageOutcome
+        switch (msg.type) {
+          case 'capture_document':
+            outcome = await ocrDocument(ctx, msg, requireDocId(msg.document_id))
+            break
+          case 'capture_audio':
+            outcome = await planTasks(ctx, msg)
+            break
+          case 'draft_quote':
+            outcome = await draftDocument(ctx, 'brouillon_devis')
+            break
+          case 'draft_invoice':
+            outcome = await draftDocument(ctx, 'brouillon_facture')
+            break
+          default:
+            throw new Error(`[run] Type de job inconnu : ${String(msg.type)}`)
+        }
+
+        // Comptabilisation ferme : crédits + coût réel (COGS).
+        await ports.credits.record({
+          tenantId: msg.tenant_id,
+          jobRunId: begin.jobRunId,
+          actionCategory: outcome.category,
+          weight: outcomeCredits(outcome),
+          langfuseTraceId: traceId,
+        })
+        await ports.credits.recordCost({
+          tenantId: msg.tenant_id,
+          jobRunId: begin.jobRunId,
+          role: outcome.modelConfig.financePinned ? 'cerveau:finance' : 'pipeline',
+          model: outcome.modelConfig.model,
+          provider: outcome.modelConfig.provider,
+          tokensIn: outcome.tokensIn,
+          tokensOut: outcome.tokensOut,
+          usdCost: outcome.usdCost,
+          langfuseTraceId: traceId,
+        })
+        return outcome
+      },
+    )
+
+    void result
+    await ports.jobRuns.finish(begin.jobRunId, 'done')
+    await ports.queue.delete(envelope.msg_id)
+    return { status: 'done', msgId: envelope.msg_id }
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Erreur inconnue'
+    await ports.jobRuns.finish(begin.jobRunId, 'error', message)
+    // Si on a épuisé les tentatives, archive (DLQ) ; sinon laisse le message
+    // redevenir visible pour un retry borné.
+    if (envelope.read_ct + 1 > config.maxLoopsPerJob) {
+      await ports.queue.archive(envelope.msg_id)
+    }
+    return { status: 'error', msgId: envelope.msg_id }
+  }
+}
+
+/** Un passage : lit un lot et traite chaque message. Retourne le nombre traité. */
+export async function runOnce(
+  ports: Ports,
+  llm: LlmClient,
+  config: RunConfig,
+): Promise<ProcessResult[]> {
+  const batch = await ports.queue.read(config.queueBatchSize, config.visibilityTimeoutSec)
+  const results: ProcessResult[] = []
+  for (const envelope of batch) {
+    results.push(await processEnvelope(envelope, ports, llm, config))
+  }
+  return results
+}
+
+function requireDocId(documentId: string | undefined): string {
+  if (!documentId) {
+    throw new Error('[run] capture_document sans document_id')
+  }
+  return documentId
+}

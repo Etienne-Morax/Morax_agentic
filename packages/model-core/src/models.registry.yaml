@@ -54,8 +54,9 @@ tiers:
   intermediaire:
     cerveau:
       model: gemini-3.1-pro
+      openrouter_model: google/gemini-3.1-pro   # slug a confirmer sur le catalogue OpenRouter
       provider: google
-      endpoint: https://generativelanguage.googleapis.com/v1beta
+      endpoint: https://openrouter.ai/api/v1    # passerelle Western-managed (contrainte 2 fournisseurs)
       max_context_tokens: 128000
       price_in_usd_per_m: 2.00
       price_out_usd_per_m: 12.00
@@ -65,8 +66,9 @@ tiers:
 
     workhorse:
       model: minimax-m3
+      openrouter_model: minimax/minimax-m3   # slug a confirmer sur le catalogue OpenRouter
       provider: minimax
-      endpoint: https://api.minimax.chat/v1
+      endpoint: https://openrouter.ai/api/v1   # passerelle Western-managed obligatoire (origine chinoise)
       max_context_tokens: 512000
       price_in_usd_per_m: 0.30
       price_out_usd_per_m: 1.20
@@ -80,8 +82,9 @@ tiers:
 
     micro:
       model: deepseek-v4-flash
+      openrouter_model: deepseek/deepseek-v4-flash   # slug a confirmer sur le catalogue OpenRouter
       provider: deepseek
-      endpoint: https://api.deepseek.com/v1   # via Western-managed proxy
+      endpoint: https://openrouter.ai/api/v1   # passerelle Western-managed obligatoire (origine chinoise)
       max_context_tokens: 128000
       price_in_usd_per_m: 0.14
       price_out_usd_per_m: 0.28
@@ -94,8 +97,9 @@ tiers:
   economique:
     cerveau:
       model: gemini-3.1-pro
+      openrouter_model: google/gemini-3.1-pro   # slug a confirmer sur le catalogue OpenRouter
       provider: google
-      endpoint: https://generativelanguage.googleapis.com/v1beta
+      endpoint: https://openrouter.ai/api/v1    # passerelle Western-managed (contrainte 2 fournisseurs)
       max_context_tokens: 128000
       price_in_usd_per_m: 2.00
       price_out_usd_per_m: 12.00
@@ -106,8 +110,9 @@ tiers:
 
     workhorse:
       model: minimax-m2.5
+      openrouter_model: minimax/minimax-m2.5   # slug a confirmer sur le catalogue OpenRouter
       provider: minimax
-      endpoint: https://api.minimax.chat/v1
+      endpoint: https://openrouter.ai/api/v1   # passerelle Western-managed obligatoire (origine chinoise)
       max_context_tokens: 256000
       price_in_usd_per_m: 0.30
       price_out_usd_per_m: 1.20
@@ -119,8 +124,9 @@ tiers:
 
     micro:
       model: gemini-2.5-flash-lite
+      openrouter_model: google/gemini-2.5-flash-lite   # slug a confirmer sur le catalogue OpenRouter
       provider: google
-      endpoint: https://generativelanguage.googleapis.com/v1beta
+      endpoint: https://openrouter.ai/api/v1    # passerelle Western-managed (contrainte 2 fournisseurs)
       max_context_tokens: 128000
       price_in_usd_per_m: 0.10
       price_out_usd_per_m: 0.40
@@ -144,6 +150,13 @@ guardrails:
     - amount_verification
     - late_penalty_check
     - invoice_amount_summary
+
+  # Epinglage finance : contrainte dure "finance-critique = Opus 4.8, toujours".
+  # Le resolver route les roles finance_critical_roles vers ce palier/role,
+  # independamment de l'offre du tenant. Le surcout est absorbe en marge.
+  finance_critical_pin:
+    tier: premium
+    role: cerveau          # claude-opus-4-8
 
   # Ordre de fallback si le modèle primaire est indisponible ou hors quota
   fallback_order:

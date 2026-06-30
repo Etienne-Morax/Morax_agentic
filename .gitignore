@@ -1,5 +1,11 @@
 # dependencies
 node_modules/
+.pnpm-store/
+
+# build output
+dist/
+coverage/
+*.tsbuildinfo
 
 # next.js
 .next/

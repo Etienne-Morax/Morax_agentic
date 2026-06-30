@@ -1,0 +1,23 @@
+# Morax - configuration Supabase CLI (developpement local).
+# La production tourne sur un projet manage region UE distinct (jamais sur le NAS).
+project_id = "morax"
+
+[db]
+port = 54322
+major_version = 16
+
+[db.seed]
+enabled = true
+sql_paths = ["./seed.sql"]
+
+[api]
+port = 54321
+schemas = ["public"]
+extra_search_path = ["public", "pgmq"]
+
+[auth]
+enabled = true
+site_url = "http://localhost:3000"
+
+[studio]
+port = 54323
