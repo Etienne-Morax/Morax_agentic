@@ -3,6 +3,8 @@ import {
   assertRgpdCompliance,
   getFallbackRole,
   getUpgradedTier,
+  isFinanceCritical,
+  isPlannerCritical,
   mapOffreToTier,
   resolveModel,
   resolveModelWithFallback,
@@ -106,6 +108,7 @@ describe('assertRgpdCompliance', () => {
       priceInUsdPerM: 0.3,
       priceOutUsdPerM: 1.2,
       financePinned: false,
+      plannerPinned: false,
     }
     expect(() => assertRgpdCompliance(direct, true)).toThrow(/rgpd/)
   })
@@ -124,6 +127,7 @@ describe('assertRgpdCompliance', () => {
       priceInUsdPerM: 0.3,
       priceOutUsdPerM: 1.2,
       financePinned: false,
+      plannerPinned: false,
     }
     expect(() => assertRgpdCompliance(direct, false)).not.toThrow()
   })
@@ -147,5 +151,91 @@ describe('fallback borné', () => {
     expect(getUpgradedTier('intermediaire')).toBe('premium')
     expect(getUpgradedTier('premium')).toBeNull()
     expect(mapOffreToTier('base')).toBe('economique')
+  })
+})
+
+describe('resolveModel - épinglage planificateur (Sonnet toujours)', () => {
+  it('route task_decomposition vers Sonnet 4.6 sur le palier base', () => {
+    const m = resolveModel({
+      tenantConfig: tenant('base'),
+      role: 'micro',
+      actionRole: 'task_decomposition',
+    })
+    expect(m.model).toBe('claude-sonnet-4-6')
+    expect(m.provider).toBe('anthropic')
+    expect(m.plannerPinned).toBe(true)
+    expect(m.financePinned).toBe(false)
+  })
+
+  it('route task_decomposition vers Sonnet sur le palier intermediaire', () => {
+    const m = resolveModel({
+      tenantConfig: tenant('intermediaire'),
+      role: 'cerveau',
+      actionRole: 'task_decomposition',
+    })
+    expect(m.model).toBe('claude-sonnet-4-6')
+    expect(m.plannerPinned).toBe(true)
+  })
+
+  it('route task_decomposition vers Sonnet même sur le palier premium', () => {
+    const m = resolveModel({
+      tenantConfig: tenant('premium'),
+      role: 'micro',
+      actionRole: 'task_decomposition',
+    })
+    expect(m.model).toBe('claude-sonnet-4-6')
+    expect(m.plannerPinned).toBe(true)
+  })
+
+  it('le planificateur ne se dégrade jamais dans le fallback', () => {
+    const m = resolveModelWithFallback({
+      tenantConfig: tenant('base'),
+      role: 'micro',
+      actionRole: 'task_decomposition',
+    })
+    expect(m.model).toBe('claude-sonnet-4-6')
+    expect(m.plannerPinned).toBe(true)
+  })
+
+  it('isPlannerCritical détecte task_decomposition', () => {
+    expect(
+      isPlannerCritical({ tenantConfig: tenant('base'), role: 'micro', actionRole: 'task_decomposition' }),
+    ).toBe(true)
+    expect(
+      isPlannerCritical({ tenantConfig: tenant('base'), role: 'micro', actionRole: 'deadline_extraction' }),
+    ).toBe(false)
+  })
+
+  it('routage normal sans actionRole planificateur reste non pinné', () => {
+    const m = resolveModel({ tenantConfig: tenant('base'), role: 'workhorse' })
+    expect(m.plannerPinned).toBe(false)
+    expect(m.financePinned).toBe(false)
+  })
+
+  it('finance-critique prime sur le planificateur si les deux sont demandés', () => {
+    const m = resolveModel({
+      tenantConfig: tenant('base'),
+      role: 'micro',
+      financeCritical: true,
+      actionRole: 'task_decomposition',
+    })
+    expect(m.model).toBe('claude-opus-4-8')
+    expect(m.financePinned).toBe(true)
+    expect(m.plannerPinned).toBe(false)
+  })
+})
+
+describe('isFinanceCritical et isPlannerCritical', () => {
+  it('isFinanceCritical via financeCritical flag', () => {
+    expect(isFinanceCritical({ tenantConfig: tenant('base'), role: 'micro', financeCritical: true })).toBe(true)
+  })
+
+  it('isFinanceCritical via actionRole sémantique', () => {
+    expect(isFinanceCritical({ tenantConfig: tenant('base'), role: 'micro', actionRole: 'amount_verification' })).toBe(true)
+  })
+
+  it('ni finance ni planificateur = false', () => {
+    expect(isFinanceCritical({ tenantConfig: tenant('base'), role: 'micro' })).toBe(false)
+    expect(isPlannerCritical({ tenantConfig: tenant('base'), role: 'micro' })).toBe(false)
   })
 })

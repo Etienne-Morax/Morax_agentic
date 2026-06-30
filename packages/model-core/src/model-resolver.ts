@@ -5,9 +5,10 @@
  *
  * Garde-fous appliqués ici :
  *  - finance-critique -> TOUJOURS Opus 4.8 (premium.cerveau), quel que soit le palier.
+ *  - planificateur -> TOUJOURS Sonnet 4.6 (premium.workhorse), quel que soit le palier.
  *  - plafond de contexte 100k (MIN avec le registre) pour neutraliser la falaise MiniMax.
  *  - fallback borné : intra-tier -> tier-up plafonné -> rejet. Jamais de fallback libre.
- *  - finance-critique ne se dégrade jamais : Opus ou rejet.
+ *  - finance-critique et planificateur ne se dégradent jamais : modèle épinglé ou rejet.
  */
 
 import { guardrails, registry } from './registry.js'
@@ -28,6 +29,8 @@ export interface ModelConfig {
   rgpdNote?: string
   /** Vrai si la résolution a été forcée vers le cerveau finance (Opus). */
   financePinned: boolean
+  /** Vrai si la résolution a été forcée vers le workhorse planificateur (Sonnet). */
+  plannerPinned: boolean
 }
 
 export interface ResolveModelParams {
@@ -45,6 +48,8 @@ export interface ResolveModelParams {
 const MAX_CONTEXT_TOKENS = guardrails.max_context_tokens_per_call
 const FINANCE_CRITICAL_ROLES = new Set(guardrails.finance_critical_roles)
 const FINANCE_PIN = guardrails.finance_critical_pin
+const PLANNER_ROLES = new Set(guardrails.planner_roles)
+const PLANNER_PIN = guardrails.planner_pin
 
 // ─── Resolver principal ───────────────────────────────────────────────────────
 
@@ -54,9 +59,15 @@ export function isFinanceCritical(params: ResolveModelParams): boolean {
   return false
 }
 
+export function isPlannerCritical(params: ResolveModelParams): boolean {
+  if (params.actionRole && PLANNER_ROLES.has(params.actionRole)) return true
+  return false
+}
+
 function toModelConfig(
   roleConfig: RegistryRoleConfig,
   financePinned: boolean,
+  plannerPinned: boolean,
 ): ModelConfig {
   return {
     model: roleConfig.model,
@@ -69,6 +80,7 @@ function toModelConfig(
     contextPriceBreakTokens: roleConfig.context_price_break_tokens,
     rgpdNote: roleConfig.rgpd_note,
     financePinned,
+    plannerPinned,
   }
 }
 
@@ -88,13 +100,19 @@ export function resolveModel(params: ResolveModelParams): ModelConfig {
   // 1. Finance-critique : épinglage dur sur le cerveau finance (Opus), tout palier confondu.
   if (isFinanceCritical(params)) {
     const pinned = readRoleConfig(FINANCE_PIN.tier, FINANCE_PIN.role)
-    return toModelConfig(pinned, true)
+    return toModelConfig(pinned, true, false)
   }
 
-  // 2. Routage normal par palier du tenant.
+  // 2. Planificateur : épinglage dur sur le workhorse planificateur (Sonnet), tout palier confondu.
+  if (isPlannerCritical(params)) {
+    const pinned = readRoleConfig(PLANNER_PIN.tier, PLANNER_PIN.role)
+    return toModelConfig(pinned, false, true)
+  }
+
+  // 3. Routage normal par palier du tenant.
   const tier = mapOffreToTier(params.tenantConfig.offre)
   const roleConfig = readRoleConfig(tier, params.role)
-  return toModelConfig(roleConfig, false)
+  return toModelConfig(roleConfig, false, false)
 }
 
 // ─── Fallback borné ───────────────────────────────────────────────────────────
@@ -122,6 +140,11 @@ export function resolveModelWithFallback(
 
   // Finance-critique : pas de dégradation. Opus ou erreur.
   if (isFinanceCritical(params)) {
+    return resolveModel(params)
+  }
+
+  // Planificateur : pas de dégradation. Sonnet ou erreur.
+  if (isPlannerCritical(params)) {
     return resolveModel(params)
   }
 

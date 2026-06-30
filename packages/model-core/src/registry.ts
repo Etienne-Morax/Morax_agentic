@@ -43,6 +43,8 @@ export interface Guardrails {
   max_context_tokens_per_call: number
   finance_critical_roles: string[]
   finance_critical_pin: FinanceCriticalPin
+  planner_roles: string[]
+  planner_pin: FinanceCriticalPin
   fallback_order: Record<string, string>
   promotion_policy: PromotionPolicy
 }
@@ -92,6 +94,12 @@ function validateRegistry(raw: unknown): Registry {
   }
   if (!g.finance_critical_pin || typeof g.finance_critical_pin !== 'object') {
     throw new Error('[registry] guardrails.finance_critical_pin manquant.')
+  }
+  if (!Array.isArray(g.planner_roles)) {
+    throw new Error('[registry] guardrails.planner_roles manquant.')
+  }
+  if (!g.planner_pin || typeof g.planner_pin !== 'object') {
+    throw new Error('[registry] guardrails.planner_pin manquant.')
   }
   return raw as Registry
 }

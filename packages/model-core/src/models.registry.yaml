@@ -158,6 +158,16 @@ guardrails:
     tier: premium
     role: cerveau          # claude-opus-4-8
 
+  # Epinglage planificateur : contrainte dure "planificateur = Sonnet 4.6, toujours".
+  # Garantit une decomposition de taches coherente et robuste quel que soit le palier.
+  # Non degradable : si Sonnet indisponible, rejet (pas de bascule vers Haiku).
+  planner_roles:
+    - task_decomposition
+
+  planner_pin:
+    tier: premium
+    role: workhorse        # claude-sonnet-4-6
+
   # Ordre de fallback si le modèle primaire est indisponible ou hors quota
   fallback_order:
     1: intra_tier          # essayer l'autre modèle du même palier (workhorse → micro)
