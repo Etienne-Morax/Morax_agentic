@@ -69,7 +69,7 @@ brand_tagline: ""          # tagline optionnelle
 
 integrations:
   email_alias: ""           # alias Morax généré à l'onboarding (ex: morax-abc123@morax.app)
-  email_provider: "mailgun" # mailgun | postmark
+  email_provider: "postmark" # mailgun | postmark
 
   # Intégrations comptables (v1.1+)
   freeagent:
@@ -129,7 +129,7 @@ langfuse:
 # brand_name: "Sarah Chen Photography"
 # integrations:
 #   email_alias: "morax-sc4219@morax.app"
-#   email_provider: "mailgun"
+#   email_provider: "postmark"
 #   freeagent:
 #     enabled: false
 #   notifications:

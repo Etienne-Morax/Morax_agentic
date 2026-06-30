@@ -2,6 +2,9 @@
  * Morax worker - configuration et secrets.
  * Validation au démarrage : fail-fast si un secret requis manque.
  * Les clés LLM ne vivent QUE dans le worker (jamais edge/client).
+ *
+ * Déclenchement (ADR 2026-06-30) : poll Cloud Run Scheduler ~1 min.
+ * pg_net push écarté (complexité opérationnelle, pas de priorité v1).
  */
 
 export interface WorkerConfig {
