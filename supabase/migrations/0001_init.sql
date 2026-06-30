@@ -6,8 +6,40 @@
 create extension if not exists pgcrypto;   -- gen_random_uuid()
 create extension if not exists pgmq;        -- file de jobs
 
+-- ─── Hook Auth : injection du claim tenant_id dans le JWT ─────────────────────
+-- Appele par Supabase Auth apres chaque mint de token. Lit tenant_id depuis users
+-- et l'injecte dans les claims. La ligne users (avec tenant_id) doit exister avant
+-- le premier mint -- l'onboarding cree tenant + users en service_role avant la session.
+create or replace function public.custom_access_token_hook(event jsonb)
+returns jsonb
+language plpgsql
+stable
+security definer
+set search_path = public
+as $$
+declare
+  claims jsonb;
+  user_tenant_id text;
+begin
+  select tenant_id into user_tenant_id
+  from public.users
+  where id = (event->>'user_id')::uuid;
+
+  claims := event->'claims';
+  if user_tenant_id is not null then
+    claims := jsonb_set(claims, '{tenant_id}', to_jsonb(user_tenant_id));
+  end if;
+
+  return jsonb_set(event, '{claims}', claims);
+end;
+$$;
+
+grant execute on function public.custom_access_token_hook(jsonb) to supabase_auth_admin;
+revoke execute on function public.custom_access_token_hook(jsonb) from public, authenticated, anon;
+
 -- ─── Fonction d'isolation tenant ──────────────────────────────────────────────
--- Lit le tenant de l'utilisateur Auth courant. Null hors session Auth -> RLS deny.
+-- Lit le tenant depuis le claim JWT injecte par custom_access_token_hook.
+-- Null hors session Auth (claim absent) -> RLS deny.
 create or replace function public.current_tenant_id()
 returns text
 language sql
@@ -15,7 +47,7 @@ stable
 security definer
 set search_path = public
 as $$
-  select tenant_id from public.users where id = auth.uid()
+  select auth.jwt() ->> 'tenant_id'
 $$;
 
 -- ─── Tables ───────────────────────────────────────────────────────────────────
