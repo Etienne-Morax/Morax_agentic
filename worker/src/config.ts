@@ -26,6 +26,8 @@ export interface WorkerConfig {
     endpoint: string
   }
   telegramBotToken: string
+  postmarkServerToken: string
+  mailFrom: string
   maxLoopsPerJob: number
   queueBatchSize: number
 }
@@ -65,6 +67,8 @@ export function loadConfig(): WorkerConfig {
       endpoint: required('R2_ENDPOINT'),
     },
     telegramBotToken: required('TELEGRAM_BOT_TOKEN'),
+    postmarkServerToken: required('POSTMARK_SERVER_TOKEN'),
+    mailFrom: required('POSTMARK_FROM_EMAIL'),
     maxLoopsPerJob: optionalNumber('MORAX_MAX_LOOPS_PER_JOB', 8),
     queueBatchSize: optionalNumber('MORAX_QUEUE_BATCH_SIZE', 10),
   }

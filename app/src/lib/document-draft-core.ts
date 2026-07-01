@@ -23,6 +23,7 @@ export interface DraftFields {
   docNumber?: string
   clientName?: string
   clientAddress?: string
+  clientEmail?: string
   currency?: string
   vatRate: number
   issueDate?: string
@@ -36,6 +37,7 @@ export type DraftFormInput = {
   docNumber?: string
   clientName?: string
   clientAddress?: string
+  clientEmail?: string
   currency?: string
   vatRate?: string | number
   issueDate?: string
@@ -73,6 +75,7 @@ const draftSchema = z.object({
   docNumber: z.preprocess(emptyToUndefined, z.string().min(1).optional()),
   clientName: z.preprocess(emptyToUndefined, z.string().min(1).optional()),
   clientAddress: z.preprocess(emptyToUndefined, z.string().min(1).optional()),
+  clientEmail: z.preprocess(emptyToUndefined, z.string().email().optional()),
   currency: z.preprocess(emptyToUndefined, z.string().length(3).optional()),
   vatRate: z.coerce.number().min(0).max(100),
   issueDate: z.preprocess(emptyToUndefined, z.string().regex(ISO_DATE_REGEX).optional()),

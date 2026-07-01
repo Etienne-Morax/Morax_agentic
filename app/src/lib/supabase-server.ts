@@ -23,6 +23,15 @@ export function serviceClient(): SupabaseClient {
   )
 }
 
+/** Empile un job pgmq via le RPC service_role. Partage par les webhooks et les server actions. */
+export async function enqueueJob(db: SupabaseClient, message: JobMessage): Promise<void> {
+  const { error } = await db.rpc('morax_queue_send', {
+    p_queue: QUEUE_NAME,
+    p_message: message,
+  })
+  if (error) throw new Error(`[enqueue] ${error.message}`)
+}
+
 export function makeWebhookDeps(db: SupabaseClient): WebhookDeps {
   return {
     async findTenantByTelegram(chatId) {
@@ -51,11 +60,19 @@ export function makeWebhookDeps(db: SupabaseClient): WebhookDeps {
       return { documentId: (data as { id: string }).id }
     },
     async enqueue(message: JobMessage) {
-      const { error } = await db.rpc('morax_queue_send', {
-        p_queue: QUEUE_NAME,
-        p_message: message,
-      })
-      if (error) throw new Error(`[enqueue] ${error.message}`)
+      await enqueueJob(db, message)
+    },
+    async decidePendingAction(tenantId, pendingActionId, decision, decidedBy) {
+      const status = decision === 'approve' ? 'approved' : 'rejected'
+      const { data, error } = await db
+        .from('pending_actions')
+        .update({ status, decided_at: new Date().toISOString(), decided_by: decidedBy })
+        .eq('tenant_id', tenantId)
+        .eq('id', pendingActionId)
+        .eq('status', 'pending')
+        .select('id')
+      if (error) throw new Error(`[decidePendingAction] ${error.message}`)
+      return (data ?? []).length > 0
     },
   }
 }

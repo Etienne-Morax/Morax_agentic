@@ -11,9 +11,11 @@ import type { WorkerConfig } from '../config.js'
 import type {
   CreditsRepository,
   DocumentRepository,
+  DraftStatusRepository,
   JobRunRepository,
   Notifier,
   PendingActionRepository,
+  PendingActionRow,
   Ports,
   QueueClient,
   TenantRepository,
@@ -21,6 +23,8 @@ import type {
 } from '../ports.js'
 import type { ExtractedFields, JobMessage, QueueEnvelope } from '../types.js'
 import { makeMedia } from './r2.js'
+import { makeMailer } from './postmark.js'
+import { buildApprovalKeyboard, type InlineKeyboard } from '../action-gate-core.js'
 
 const QUEUE_NAME = 'morax_jobs'
 
@@ -201,6 +205,38 @@ function makePendingActions(db: SupabaseClient): PendingActionRepository {
       if (error) throw new Error(`[pendingActions.enqueue] ${error.message}`)
       return { pendingActionId: (data as { id: string }).id }
     },
+    async load(tenantId, pendingActionId) {
+      const { data, error } = await db
+        .from('pending_actions')
+        .select('id, status, payload')
+        .eq('tenant_id', tenantId)
+        .eq('id', pendingActionId)
+        .maybeSingle()
+      if (error) throw new Error(`[pendingActions.load] ${error.message}`)
+      if (!data) return null
+      return data as PendingActionRow
+    },
+    async markExecuted(tenantId, pendingActionId) {
+      const { error } = await db
+        .from('pending_actions')
+        .update({ status: 'executed' })
+        .eq('tenant_id', tenantId)
+        .eq('id', pendingActionId)
+      if (error) throw new Error(`[pendingActions.markExecuted] ${error.message}`)
+    },
+  }
+}
+
+function makeDrafts(db: SupabaseClient): DraftStatusRepository {
+  return {
+    async markSent(tenantId, draftId) {
+      const { error } = await db
+        .from('document_drafts')
+        .update({ status: 'sent' })
+        .eq('tenant_id', tenantId)
+        .eq('id', draftId)
+      if (error) throw new Error(`[drafts.markSent] ${error.message}`)
+    },
   }
 }
 
@@ -216,23 +252,32 @@ function makeNotifier(config: WorkerConfig, db: SupabaseClient): Notifier {
     return data ? (data as { external_id: string }).external_id : null
   }
 
-  async function sendTelegram(tenantId: string, text: string): Promise<void> {
+  async function sendTelegram(
+    tenantId: string,
+    text: string,
+    replyMarkup?: InlineKeyboard,
+  ): Promise<void> {
     const chatId = await chatIdFor(tenantId)
     if (!chatId) return
     await fetch(`https://api.telegram.org/bot${config.telegramBotToken}/sendMessage`, {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ chat_id: chatId, text }),
+      body: JSON.stringify({
+        chat_id: chatId,
+        text,
+        ...(replyMarkup ? { reply_markup: replyMarkup } : {}),
+      }),
     })
   }
 
   return {
     ack: (tenantId, text) => sendTelegram(tenantId, text),
     proposeApproval: (tenantId, pendingActionId, summary) =>
-      sendTelegram(tenantId, `Action a approuver (${pendingActionId}) : ${summary}`),
+      sendTelegram(tenantId, summary, buildApprovalKeyboard(pendingActionId)),
     proposeReminderValidation: (tenantId, documentId, summary) =>
       sendTelegram(tenantId, `${summary} (doc ${documentId})`),
     notifyReminderDue: (tenantId, text) => sendTelegram(tenantId, text),
+    notifyActionResult: (tenantId, text) => sendTelegram(tenantId, text),
   }
 }
 
@@ -275,7 +320,9 @@ export function createPorts(config: WorkerConfig): Ports {
     queue: makeQueue(db),
     tenants: makeTenants(db),
     documents: makeDocuments(db),
+    drafts: makeDrafts(db),
     media: makeMedia(config),
+    mailer: makeMailer(config),
     jobRuns: makeJobRuns(db),
     credits: makeCredits(db),
     pendingActions: makePendingActions(db),

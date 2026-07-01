@@ -3,6 +3,7 @@ import type { JobMessage } from '@morax/model-core'
 import {
   handlePostmarkInbound,
   handleTelegramUpdate,
+  parseActionCallback,
   type PostmarkDeps,
   type PostmarkInbound,
   type TelegramUpdate,
@@ -11,12 +12,21 @@ import {
 
 const NOW = '2026-06-30T12:00:00Z'
 
-function makeDeps(opts: { tenantId?: string | null } = {}): {
+function makeDeps(
+  opts: { tenantId?: string | null; decide?: boolean } = {},
+): {
   deps: WebhookDeps
   enqueued: JobMessage[]
   createdDocs: number
+  decisions: Array<{ tenantId: string; pendingActionId: string; decision: string; decidedBy: string }>
 } {
   const enqueued: JobMessage[] = []
+  const decisions: Array<{
+    tenantId: string
+    pendingActionId: string
+    decision: string
+    decidedBy: string
+  }> = []
   let createdDocs = 0
   const deps: WebhookDeps = {
     async findTenantByTelegram() {
@@ -29,14 +39,24 @@ function makeDeps(opts: { tenantId?: string | null } = {}): {
     async enqueue(message) {
       enqueued.push(message)
     },
+    async decidePendingAction(tenantId, pendingActionId, decision, decidedBy) {
+      decisions.push({ tenantId, pendingActionId, decision, decidedBy })
+      return opts.decide ?? true
+    },
   }
   return {
     deps,
     enqueued,
+    decisions,
     get createdDocs() {
       return createdDocs
     },
-  } as { deps: WebhookDeps; enqueued: JobMessage[]; createdDocs: number }
+  } as {
+    deps: WebhookDeps
+    enqueued: JobMessage[]
+    createdDocs: number
+    decisions: Array<{ tenantId: string; pendingActionId: string; decision: string; decidedBy: string }>
+  }
 }
 
 function photoUpdate(): TelegramUpdate {
@@ -100,6 +120,113 @@ describe('handleTelegramUpdate', () => {
     expect(res.status).toBe(200)
     expect(res.enqueued).toBe(false)
     expect(res.reason).toBe('no_message')
+  })
+})
+
+describe('parseActionCallback', () => {
+  it('parse un callback_data approve valide', () => {
+    expect(parseActionCallback('act:abc-123:approve')).toEqual({
+      pendingActionId: 'abc-123',
+      decision: 'approve',
+    })
+  })
+
+  it('parse un callback_data reject valide', () => {
+    expect(parseActionCallback('act:abc-123:reject')).toEqual({
+      pendingActionId: 'abc-123',
+      decision: 'reject',
+    })
+  })
+
+  it('rejette un callback_data absent', () => {
+    expect(parseActionCallback(undefined)).toBeNull()
+  })
+
+  it('rejette un callback_data malforme', () => {
+    expect(parseActionCallback('nope')).toBeNull()
+    expect(parseActionCallback('act:abc-123:maybe')).toBeNull()
+  })
+})
+
+describe('handleTelegramUpdate callback_query', () => {
+  function callbackUpdate(overrides: Partial<TelegramUpdate['callback_query']> = {}): TelegramUpdate {
+    return {
+      update_id: 10,
+      callback_query: {
+        id: 'cbq-1',
+        from: { id: 42 },
+        data: 'act:pa-1:approve',
+        message: { chat: { id: 111111111 } },
+        ...overrides,
+      },
+    }
+  }
+
+  it('approve : decide puis empile action_execute', async () => {
+    const h = makeDeps()
+    const res = await handleTelegramUpdate(callbackUpdate(), h.deps, NOW)
+    expect(res.status).toBe(200)
+    expect(res.enqueued).toBe(true)
+    expect(h.decisions).toEqual([
+      { tenantId: 'morax-test', pendingActionId: 'pa-1', decision: 'approve', decidedBy: '42' },
+    ])
+    expect(h.enqueued).toHaveLength(1)
+    const job = h.enqueued[0]!
+    expect(job.type).toBe('action_execute')
+    expect(job.source).toBe('telegram')
+    expect(job.action).toEqual({ pending_action_id: 'pa-1' })
+    expect(job.idempotency_key).toBe('act-exec:pa-1')
+  })
+
+  it('reject : decide puis empile action_execute', async () => {
+    const h = makeDeps()
+    const res = await handleTelegramUpdate(
+      callbackUpdate({ data: 'act:pa-1:reject' }),
+      h.deps,
+      NOW,
+    )
+    expect(res.enqueued).toBe(true)
+    expect(h.decisions[0]?.decision).toBe('reject')
+  })
+
+  it('chat inconnu : acquitte sans decider ni empiler', async () => {
+    const h = makeDeps({ tenantId: null })
+    const res = await handleTelegramUpdate(callbackUpdate(), h.deps, NOW)
+    expect(res.status).toBe(200)
+    expect(res.enqueued).toBe(false)
+    expect(res.reason).toBe('unknown_chat')
+    expect(h.decisions).toHaveLength(0)
+    expect(h.enqueued).toHaveLength(0)
+  })
+
+  it('callback_data malforme : acquitte sans decider ni empiler', async () => {
+    const h = makeDeps()
+    const res = await handleTelegramUpdate(callbackUpdate({ data: 'nope' }), h.deps, NOW)
+    expect(res.status).toBe(200)
+    expect(res.enqueued).toBe(false)
+    expect(res.reason).toBe('bad_callback')
+    expect(h.decisions).toHaveLength(0)
+    expect(h.enqueued).toHaveLength(0)
+  })
+
+  it('action deja decidee : pas d empilage', async () => {
+    const h = makeDeps({ decide: false })
+    const res = await handleTelegramUpdate(callbackUpdate(), h.deps, NOW)
+    expect(res.status).toBe(200)
+    expect(res.enqueued).toBe(false)
+    expect(res.reason).toBe('already_decided')
+    expect(h.enqueued).toHaveLength(0)
+  })
+
+  it('non-regression : un message texte normal reste route comme avant', async () => {
+    const h = makeDeps()
+    const update: TelegramUpdate = {
+      update_id: 11,
+      message: { chat: { id: 111111111 }, text: 'brain dump' },
+    }
+    const res = await handleTelegramUpdate(update, h.deps, NOW)
+    expect(res.enqueued).toBe(true)
+    expect(h.enqueued[0]!.type).toBe('capture_audio')
   })
 })
 

@@ -9,17 +9,25 @@ import { notFound } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import type { DraftFields } from '@/lib/document-draft-core'
 import { DocumentDraftForm } from './document-draft-form'
+import { FinalizeDraftForm } from './finalize-draft-form'
 import styles from './page.module.css'
 
 export const dynamic = 'force-dynamic'
 
+const STATUS_LABEL: Record<string, string> = {
+  draft: 'Brouillon',
+  finalized: 'Finalise',
+  sent: 'Envoye',
+}
+
 interface DraftDetailRow {
   id: string
   kind: 'quote' | 'invoice'
-  status: 'draft' | 'finalized'
+  status: 'draft' | 'finalized' | 'sent'
   doc_number: string | null
   client_name: string | null
   client_address: string | null
+  client_email: string | null
   currency: string
   vat_rate: number
   line_items: DraftFields['lineItems']
@@ -40,7 +48,7 @@ export default async function DocumentDraftPage({
   const { data, error } = await supabase
     .from('document_drafts')
     .select(
-      'id, kind, status, doc_number, client_name, client_address, currency, vat_rate, line_items, notes, issue_date, due_date, created_at',
+      'id, kind, status, doc_number, client_name, client_address, client_email, currency, vat_rate, line_items, notes, issue_date, due_date, created_at',
     )
     .eq('id', id)
     .maybeSingle()
@@ -57,9 +65,12 @@ export default async function DocumentDraftPage({
           {draft.kind === 'quote' ? 'Devis' : 'Facture'}
           {draft.doc_number ? ` — ${draft.doc_number}` : ''}
         </h1>
-        <a className={styles.pdfLink} href={`/documents/${draft.id}/pdf`}>
-          Telecharger le PDF
-        </a>
+        <div className={styles.fieldRow}>
+          <span className={styles.badge}>{STATUS_LABEL[draft.status] ?? draft.status}</span>
+          <a className={styles.pdfLink} href={`/documents/${draft.id}/pdf`}>
+            Telecharger le PDF
+          </a>
+        </div>
       </div>
       <p className={styles.meta}>
         Cree le {new Date(draft.created_at).toLocaleString('en-GB')}
@@ -67,11 +78,13 @@ export default async function DocumentDraftPage({
 
       <DocumentDraftForm
         draftId={draft.id}
+        readOnly={draft.status !== 'draft'}
         initial={{
           kind: draft.kind,
           docNumber: draft.doc_number ?? undefined,
           clientName: draft.client_name ?? undefined,
           clientAddress: draft.client_address ?? undefined,
+          clientEmail: draft.client_email ?? undefined,
           currency: draft.currency,
           vatRate: draft.vat_rate,
           issueDate: draft.issue_date ?? undefined,
@@ -80,6 +93,8 @@ export default async function DocumentDraftPage({
           lineItems: draft.line_items ?? [],
         }}
       />
+
+      {draft.status === 'draft' && <FinalizeDraftForm draftId={draft.id} />}
     </section>
   )
 }

@@ -6,10 +6,9 @@
  */
 
 import { notFound } from 'next/navigation'
-import { renderToBuffer } from '@react-pdf/renderer'
 import { createClient } from '@/lib/supabase/server'
 import type { DraftFields } from '@/lib/document-draft-core'
-import { DraftPdf } from '@/lib/pdf/draft-pdf'
+import { renderDraftPdf } from '@/lib/pdf/render-draft-pdf'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -56,7 +55,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
     lineItems: row.line_items ?? [],
   }
 
-  const buffer = await renderToBuffer(<DraftPdf draft={draft} />)
+  const buffer = await renderDraftPdf(draft)
   const filename = `${draft.kind}-${row.doc_number ?? id}.pdf`
 
   return new Response(

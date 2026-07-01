@@ -184,4 +184,43 @@ describe('validateDraft', () => {
     // Assert
     expect(result.success).toBe(false)
   })
+
+  test('accepts a valid client email', () => {
+    // Arrange
+    const input = { kind: 'quote', clientEmail: 'client@x.com', vatRate: '20', lineItems: [] }
+
+    // Act
+    const result = validateDraft(input)
+
+    // Assert
+    expect(result.success).toBe(true)
+    if (result.success) {
+      expect(result.data.clientEmail).toBe('client@x.com')
+    }
+  })
+
+  test('rejects an invalid client email', () => {
+    // Arrange
+    const input = { kind: 'quote', clientEmail: 'not-an-email', vatRate: '20', lineItems: [] }
+
+    // Act
+    const result = validateDraft(input)
+
+    // Assert
+    expect(result.success).toBe(false)
+  })
+
+  test('treats an empty client email as absent, not an error', () => {
+    // Arrange
+    const input = { kind: 'quote', clientEmail: '', vatRate: '20', lineItems: [] }
+
+    // Act
+    const result = validateDraft(input)
+
+    // Assert
+    expect(result.success).toBe(true)
+    if (result.success) {
+      expect(result.data.clientEmail).toBeUndefined()
+    }
+  })
 })

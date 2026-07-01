@@ -18,6 +18,8 @@ function fakeConfig(): WorkerConfig {
       endpoint: 'https://acc1.r2.cloudflarestorage.com',
     },
     telegramBotToken: 'tg',
+    postmarkServerToken: 'pm-token',
+    mailFrom: 'factures@morax.app',
     maxLoopsPerJob: 8,
     queueBatchSize: 10,
   }

@@ -18,9 +18,17 @@ export interface TelegramMessage {
   document?: { file_id: string; mime_type?: string }
 }
 
+export interface TelegramCallbackQuery {
+  id: string
+  from: { id: number }
+  data?: string
+  message?: { chat: TelegramChat }
+}
+
 export interface TelegramUpdate {
   update_id: number
   message?: TelegramMessage
+  callback_query?: TelegramCallbackQuery
 }
 
 export interface WebhookDeps {
@@ -35,6 +43,17 @@ export interface WebhookDeps {
   }): Promise<{ documentId: string }>
   /** Empile le job (pgmq via RPC service_role). */
   enqueue(message: JobMessage): Promise<void>
+  /**
+   * Decide (approve/reject) une pending_action tenant-scopee, transition
+   * conditionnelle depuis status='pending'. Retourne true si une ligne a
+   * transitionne (false = deja decidee entre-temps).
+   */
+  decidePendingAction(
+    tenantId: string,
+    pendingActionId: string,
+    decision: 'approve' | 'reject',
+    decidedBy: string,
+  ): Promise<boolean>
 }
 
 export interface WebhookResult {
@@ -69,11 +88,70 @@ function classify(message: TelegramMessage): {
   return { type: 'capture_audio' }
 }
 
+const ACTION_CALLBACK_REGEX = /^act:(.+):(approve|reject)$/
+
+/** Parse `act:{pendingActionId}:approve|reject`. null si absent/malforme. */
+export function parseActionCallback(
+  data: string | undefined,
+): { pendingActionId: string; decision: 'approve' | 'reject' } | null {
+  if (!data) return null
+  const match = ACTION_CALLBACK_REGEX.exec(data)
+  if (!match) return null
+  const [, pendingActionId, decision] = match
+  return { pendingActionId: pendingActionId as string, decision: decision as 'approve' | 'reject' }
+}
+
+async function handleCallbackQuery(
+  callbackQuery: TelegramCallbackQuery,
+  deps: WebhookDeps,
+  now: string,
+): Promise<WebhookResult> {
+  const chat = callbackQuery.message?.chat
+  const parsed = parseActionCallback(callbackQuery.data)
+  if (!chat || !parsed) {
+    return { status: 200, enqueued: false, reason: 'bad_callback' }
+  }
+
+  const chatId = String(chat.id)
+  const tenantId = await deps.findTenantByTelegram(chatId)
+  if (!tenantId) {
+    // Chat inconnu : decision = Etienne uniquement (chat verifie du tenant).
+    return { status: 200, enqueued: false, reason: 'unknown_chat' }
+  }
+
+  const decided = await deps.decidePendingAction(
+    tenantId,
+    parsed.pendingActionId,
+    parsed.decision,
+    String(callbackQuery.from.id),
+  )
+  if (!decided) {
+    // Deja approuvee/rejetee entre-temps : rien a re-executer.
+    return { status: 200, enqueued: false, reason: 'already_decided' }
+  }
+
+  const jobMessage: JobMessage = {
+    schema_version: 1,
+    type: 'action_execute',
+    tenant_id: tenantId,
+    source: 'telegram',
+    action: { pending_action_id: parsed.pendingActionId },
+    idempotency_key: `act-exec:${parsed.pendingActionId}`,
+    enqueued_at: now,
+  }
+  await deps.enqueue(jobMessage)
+  return ACK_OK
+}
+
 export async function handleTelegramUpdate(
   update: TelegramUpdate,
   deps: WebhookDeps,
   now: string,
 ): Promise<WebhookResult> {
+  if (update.callback_query) {
+    return handleCallbackQuery(update.callback_query, deps, now)
+  }
+
   const message = update.message
   if (!message) {
     return { status: 200, enqueued: false, reason: 'no_message' }

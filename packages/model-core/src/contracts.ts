@@ -3,7 +3,7 @@
  * Le contrat de message de la file est versionné.
  */
 
-export type JobSource = 'telegram' | 'email' | 'upload' | 'cron'
+export type JobSource = 'telegram' | 'email' | 'upload' | 'cron' | 'app'
 
 export type JobType =
   | 'capture_document'
@@ -11,6 +11,8 @@ export type JobType =
   | 'draft_quote'
   | 'draft_invoice'
   | 'reminder_notify'
+  | 'action_propose'
+  | 'action_execute'
 
 export interface ReminderNotifyPayload {
   id: string
@@ -18,6 +20,21 @@ export interface ReminderNotifyPayload {
   due_date: string
   amount?: number
   currency?: string
+}
+
+/** Payload de `pending_actions.payload` pour action_type='send_email' (devis/facture). */
+export interface SendEmailActionPayload {
+  draft_id: string
+  kind: 'quote' | 'invoice'
+  doc_number: string
+  client_email: string
+  pdf_key: string
+  total: number
+  currency: string
+}
+
+export interface ActionJobPayload {
+  pending_action_id: string
 }
 
 export interface JobMessage {
@@ -29,6 +46,7 @@ export interface JobMessage {
   document_id?: string
   text?: string
   reminder?: ReminderNotifyPayload
+  action?: ActionJobPayload
   idempotency_key: string
   enqueued_at: string
 }

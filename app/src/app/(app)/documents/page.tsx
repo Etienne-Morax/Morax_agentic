@@ -14,7 +14,7 @@ export const dynamic = 'force-dynamic'
 interface DraftListRow {
   id: string
   kind: 'quote' | 'invoice'
-  status: 'draft' | 'finalized'
+  status: 'draft' | 'finalized' | 'sent'
   doc_number: string | null
   client_name: string | null
   created_at: string
@@ -23,6 +23,12 @@ interface DraftListRow {
 const KIND_LABEL: Record<DraftListRow['kind'], string> = {
   quote: 'Devis',
   invoice: 'Facture',
+}
+
+const STATUS_LABEL: Record<DraftListRow['status'], string> = {
+  draft: 'Brouillon',
+  finalized: 'Finalise',
+  sent: 'Envoye',
 }
 
 export default async function DocumentsPage() {
@@ -70,7 +76,7 @@ export default async function DocumentsPage() {
                   {draft.doc_number ? ` — ${draft.doc_number}` : ''}
                   {draft.client_name ? ` (${draft.client_name})` : ''}
                 </span>
-                <span className={styles.itemStatus}>{draft.status}</span>
+                <span className={styles.itemStatus}>{STATUS_LABEL[draft.status]}</span>
               </Link>
             </li>
           ))}

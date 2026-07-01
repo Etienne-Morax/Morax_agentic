@@ -12,16 +12,18 @@ const EMPTY_LINE_ITEM: LineItem = { description: '', quantity: 1, unitPrice: 0 }
 interface DocumentDraftFormProps {
   draftId: string
   initial: DraftFields
+  readOnly?: boolean
 }
 
 function formatMoney(value: number, currency: string): string {
   return new Intl.NumberFormat('en-GB', { style: 'currency', currency }).format(value)
 }
 
-export function DocumentDraftForm({ draftId, initial }: DocumentDraftFormProps) {
+export function DocumentDraftForm({ draftId, initial, readOnly = false }: DocumentDraftFormProps) {
   const [values, setValues] = useState<DraftFields>(initial)
   const [lastSaved, setLastSaved] = useState<DraftFields>(initial)
-  const [state, formAction, isPending] = useActionState(updateDraftAction, INITIAL_STATE)
+  const [state, formAction, isSubmitting] = useActionState(updateDraftAction, INITIAL_STATE)
+  const isPending = isSubmitting || readOnly
 
   useEffect(() => {
     if (state.success) {
@@ -119,6 +121,20 @@ export function DocumentDraftForm({ draftId, initial }: DocumentDraftFormProps) 
             className={styles.input}
             value={values.clientAddress ?? ''}
             onChange={(event) => updateField('clientAddress', event.target.value)}
+            disabled={isPending}
+          />
+        </div>
+        <div className={styles.field}>
+          <label className={styles.label} htmlFor="clientEmail">
+            Email client
+          </label>
+          <input
+            id="clientEmail"
+            name="clientEmail"
+            type="email"
+            className={styles.input}
+            value={values.clientEmail ?? ''}
+            onChange={(event) => updateField('clientEmail', event.target.value)}
             disabled={isPending}
           />
         </div>
@@ -267,9 +283,11 @@ export function DocumentDraftForm({ draftId, initial }: DocumentDraftFormProps) 
         </ul>
       )}
 
-      <button className={styles.submit} type="submit" disabled={isPending}>
-        {isPending ? 'Enregistrement...' : 'Enregistrer'}
-      </button>
+      {!readOnly && (
+        <button className={styles.submit} type="submit" disabled={isPending}>
+          {isSubmitting ? 'Enregistrement...' : 'Enregistrer'}
+        </button>
+      )}
 
       {state.success && state.message && (
         <p className={styles.success} role="status">

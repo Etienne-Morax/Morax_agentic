@@ -60,13 +60,41 @@ export interface CreditsRepository {
   consumedThisPeriod(tenantId: string): Promise<number>
 }
 
-/** Gate HIGH : écrit une action en attente d'approbation humaine. */
+export type PendingActionStatus = 'pending' | 'approved' | 'rejected' | 'executed' | 'expired'
+
+export interface PendingActionRow {
+  id: string
+  status: PendingActionStatus
+  payload: Record<string, unknown>
+}
+
+/** Gate HIGH : écrit/lit une action en attente d'approbation humaine. */
 export interface PendingActionRepository {
   enqueue(action: {
     tenantId: string
     actionType: 'send_email' | 'expense' | 'third_party_write'
     payload: Record<string, unknown>
   }): Promise<{ pendingActionId: string }>
+  /** Charge une action pending_actions tenant-scopee, ou null si introuvable. */
+  load(tenantId: string, pendingActionId: string): Promise<PendingActionRow | null>
+  /** Marque l'action comme executee (email envoye). */
+  markExecuted(tenantId: string, pendingActionId: string): Promise<void>
+}
+
+/** Statut des brouillons devis/facture (document_drafts). */
+export interface DraftStatusRepository {
+  /** Passe le draft en statut 'sent' apres envoi reussi. */
+  markSent(tenantId: string, draftId: string): Promise<void>
+}
+
+/** Envoi d'email sortant avec piece jointe (Postmark). */
+export interface Mailer {
+  sendDocumentEmail(input: {
+    to: string
+    subject: string
+    textBody: string
+    attachment: { filename: string; contentBase64: string; contentType: string }
+  }): Promise<{ messageId: string }>
 }
 
 /** Lecture des médias bruts (Cloudflare R2). */
@@ -88,6 +116,8 @@ export interface Notifier {
     summary: string,
   ): Promise<void>
   notifyReminderDue(tenantId: string, text: string): Promise<void>
+  /** Notifie le resultat d'une action HIGH decidee (envoye / annule). */
+  notifyActionResult(tenantId: string, text: string): Promise<void>
 }
 
 /** Tracing Langfuse. */
@@ -103,7 +133,9 @@ export interface Ports {
   queue: QueueClient
   tenants: TenantRepository
   documents: DocumentRepository
+  drafts: DraftStatusRepository
   media: MediaRepository
+  mailer: Mailer
   jobRuns: JobRunRepository
   credits: CreditsRepository
   pendingActions: PendingActionRepository

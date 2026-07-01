@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import type { TenantConfig } from '@morax/model-core'
 import { LlmClient } from './llm.js'
-import type { Ports } from './ports.js'
+import type { PendingActionRow, PendingActionStatus, Ports } from './ports.js'
 import { processEnvelope, type RunConfig } from './run.js'
 import type { JobMessage, QueueEnvelope } from './types.js'
 
@@ -31,9 +31,36 @@ interface Recorded {
   acks: string[]
   finishes: Array<{ status: string }>
   reminderNotifs: Array<{ tenantId: string; text: string }>
+  approvals: Array<{ tenantId: string; pendingActionId: string; summary: string }>
+  actionResults: Array<{ tenantId: string; text: string }>
+  emails: Array<{ to: string; subject: string; filename: string }>
+  markedExecuted: string[]
+  markedSent: string[]
 }
 
-function makePorts(opts: { fresh?: boolean } = {}): { ports: Ports; rec: Recorded } {
+function actionRow(
+  status: PendingActionStatus,
+  payloadOverrides: Record<string, unknown> = {},
+): PendingActionRow {
+  return {
+    id: 'pa-1',
+    status,
+    payload: {
+      draft_id: 'draft-1',
+      kind: 'invoice',
+      doc_number: 'INV-001',
+      client_email: 'client@x.com',
+      pdf_key: 'tenants/morax-test/drafts/draft-1/INV-001.pdf',
+      total: 340,
+      currency: 'GBP',
+      ...payloadOverrides,
+    },
+  }
+}
+
+function makePorts(
+  opts: { fresh?: boolean; action?: PendingActionRow | null } = {},
+): { ports: Ports; rec: Recorded } {
   const rec: Recorded = {
     deleted: [],
     archived: [],
@@ -42,8 +69,14 @@ function makePorts(opts: { fresh?: boolean } = {}): { ports: Ports; rec: Recorde
     acks: [],
     finishes: [],
     reminderNotifs: [],
+    approvals: [],
+    actionResults: [],
+    emails: [],
+    markedExecuted: [],
+    markedSent: [],
   }
   const fresh = opts.fresh ?? true
+  const action = opts.action === undefined ? actionRow('pending') : opts.action
   const ports: Ports = {
     queue: {
       async read() {
@@ -65,9 +98,20 @@ function makePorts(opts: { fresh?: boolean } = {}): { ports: Ports; rec: Recorde
       async setStatus() {},
       async saveExtracted() {},
     },
+    drafts: {
+      async markSent(_tenantId, draftId) {
+        rec.markedSent.push(draftId)
+      },
+    },
     media: {
       async getObject() {
         return { bytes: new Uint8Array([1, 2, 3]), contentType: 'application/pdf' }
+      },
+    },
+    mailer: {
+      async sendDocumentEmail(input) {
+        rec.emails.push({ to: input.to, subject: input.subject, filename: input.attachment.filename })
+        return { messageId: 'msg-1' }
       },
     },
     jobRuns: {
@@ -93,15 +137,26 @@ function makePorts(opts: { fresh?: boolean } = {}): { ports: Ports; rec: Recorde
       async enqueue() {
         return { pendingActionId: 'pa-1' }
       },
+      async load() {
+        return action
+      },
+      async markExecuted(_tenantId, pendingActionId) {
+        rec.markedExecuted.push(pendingActionId)
+      },
     },
     notifier: {
       async ack(_t, text) {
         rec.acks.push(text)
       },
-      async proposeApproval() {},
+      async proposeApproval(tenantId, pendingActionId, summary) {
+        rec.approvals.push({ tenantId, pendingActionId, summary })
+      },
       async proposeReminderValidation() {},
       async notifyReminderDue(tenantId, text) {
         rec.reminderNotifs.push({ tenantId, text })
+      },
+      async notifyActionResult(tenantId, text) {
+        rec.actionResults.push({ tenantId, text })
       },
     },
     tracer: {
@@ -140,6 +195,24 @@ function reminderEnvelope(overrides: Partial<JobMessage> = {}, readCt = 1): Queu
     ...overrides,
   }
   return { msg_id: 99, read_ct: readCt, enqueued_at: message.enqueued_at, message }
+}
+
+function actionEnvelope(
+  type: 'action_propose' | 'action_execute',
+  overrides: Partial<JobMessage> = {},
+  readCt = 1,
+): QueueEnvelope {
+  const message: JobMessage = {
+    schema_version: 1,
+    type,
+    tenant_id: 'morax-test',
+    source: 'app',
+    idempotency_key: type === 'action_propose' ? 'act-prop:pa-1' : 'act-exec:pa-1',
+    enqueued_at: '2026-07-08T09:00:00Z',
+    action: { pending_action_id: 'pa-1' },
+    ...overrides,
+  }
+  return { msg_id: 7, read_ct: readCt, enqueued_at: message.enqueued_at, message }
 }
 
 // fetchImpl injecte : evite tout appel reseau reel depuis processEnvelope (OCR finance-pinne -> Anthropic).
@@ -239,5 +312,90 @@ describe('processEnvelope reminder_notify', () => {
     expect(res.status).toBe('error')
     expect(rec.finishes[0]?.status).toBe('error')
     expect(rec.reminderNotifs).toHaveLength(0)
+  })
+})
+
+describe('processEnvelope action_propose/action_execute', () => {
+  it('propose : envoie proposeApproval avec le resume, sans credit/LLM/ack', async () => {
+    const { ports, rec } = makePorts({ action: actionRow('pending') })
+    const res = await processEnvelope(actionEnvelope('action_propose'), ports, llm, RUN_CONFIG)
+    expect(res.status).toBe('done')
+    expect(rec.deleted).toContain(7)
+    expect(rec.approvals).toEqual([
+      {
+        tenantId: 'morax-test',
+        pendingActionId: 'pa-1',
+        summary: 'Envoyer la facture INV-001 (340 GBP TTC) a client@x.com ?',
+      },
+    ])
+    expect(rec.acks).toHaveLength(0)
+    expect(rec.credits).toHaveLength(0)
+    expect(rec.finishes).toEqual([{ status: 'done' }])
+  })
+
+  it('propose sur une action deja decidee : done sans notification', async () => {
+    const { ports, rec } = makePorts({ action: actionRow('approved') })
+    const res = await processEnvelope(actionEnvelope('action_propose'), ports, llm, RUN_CONFIG)
+    expect(res.status).toBe('done')
+    expect(rec.approvals).toHaveLength(0)
+  })
+
+  it('execute approuvee : envoie l\'email avec la piece jointe R2, marque executed + sent', async () => {
+    const { ports, rec } = makePorts({ action: actionRow('approved') })
+    const res = await processEnvelope(actionEnvelope('action_execute'), ports, llm, RUN_CONFIG)
+    expect(res.status).toBe('done')
+    expect(rec.emails).toEqual([
+      { to: 'client@x.com', subject: 'Facture INV-001', filename: 'INV-001.pdf' },
+    ])
+    expect(rec.markedExecuted).toEqual(['pa-1'])
+    expect(rec.markedSent).toEqual(['draft-1'])
+    expect(rec.actionResults).toEqual([
+      { tenantId: 'morax-test', text: 'Email envoye : facture INV-001 a client@x.com.' },
+    ])
+  })
+
+  it('execute rejetee : notifie seulement, pas d\'email', async () => {
+    const { ports, rec } = makePorts({ action: actionRow('rejected') })
+    const res = await processEnvelope(actionEnvelope('action_execute'), ports, llm, RUN_CONFIG)
+    expect(res.status).toBe('done')
+    expect(rec.emails).toHaveLength(0)
+    expect(rec.actionResults).toEqual([
+      { tenantId: 'morax-test', text: 'Envoi annule : facture INV-001.' },
+    ])
+  })
+
+  it('execute deja executee : idempotent, pas de double email', async () => {
+    const { ports, rec } = makePorts({ action: actionRow('executed') })
+    const res = await processEnvelope(actionEnvelope('action_execute'), ports, llm, RUN_CONFIG)
+    expect(res.status).toBe('done')
+    expect(rec.emails).toHaveLength(0)
+    expect(rec.actionResults).toHaveLength(0)
+  })
+
+  it('idempotence : job deja vu -> skip', async () => {
+    const { ports, rec } = makePorts({ fresh: false })
+    const res = await processEnvelope(actionEnvelope('action_propose'), ports, llm, RUN_CONFIG)
+    expect(res.status).toBe('skipped_idempotent')
+    expect(rec.deleted).toContain(7)
+    expect(rec.approvals).toHaveLength(0)
+  })
+
+  it('finit en erreur si pending_action_id absent', async () => {
+    const { ports, rec } = makePorts()
+    const res = await processEnvelope(
+      actionEnvelope('action_propose', { action: undefined }),
+      ports,
+      llm,
+      RUN_CONFIG,
+    )
+    expect(res.status).toBe('error')
+    expect(rec.finishes[0]?.status).toBe('error')
+  })
+
+  it('finit en erreur si le pending_action est introuvable', async () => {
+    const { ports, rec } = makePorts({ action: null })
+    const res = await processEnvelope(actionEnvelope('action_execute'), ports, llm, RUN_CONFIG)
+    expect(res.status).toBe('error')
+    expect(rec.finishes[0]?.status).toBe('error')
   })
 })
