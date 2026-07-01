@@ -14,7 +14,8 @@ import {
   type PipelineContext,
   type StageOutcome,
 } from './pipeline.js'
-import type { QueueEnvelope } from './types.js'
+import { formatReminderMessage } from './reminder-notify-core.js'
+import type { JobMessage, QueueEnvelope } from './types.js'
 
 export interface RunConfig {
   maxLoopsPerJob: number
@@ -39,6 +40,11 @@ export async function processEnvelope(
   if (envelope.read_ct > config.maxLoopsPerJob) {
     await ports.queue.archive(envelope.msg_id)
     return { status: 'max_loops', msgId: envelope.msg_id }
+  }
+
+  // reminder_notify : voie dediee, ce n'est pas un job IA (ni LLM, ni credits/COGS, ni ack).
+  if (msg.type === 'reminder_notify') {
+    return processReminderNotify(envelope, msg, ports, config)
   }
 
   // Idempotence : un même évènement source ne produit qu'un job.
@@ -115,6 +121,37 @@ export async function processEnvelope(
     await ports.jobRuns.finish(begin.jobRunId, 'error', message)
     // Si on a épuisé les tentatives, archive (DLQ) ; sinon laisse le message
     // redevenir visible pour un retry borné.
+    if (envelope.read_ct + 1 > config.maxLoopsPerJob) {
+      await ports.queue.archive(envelope.msg_id)
+    }
+    return { status: 'error', msgId: envelope.msg_id }
+  }
+}
+
+/**
+ * reminder_notify : relai texte vers Telegram, sans pipeline IA. Idempotence propre
+ * (job_runs) car la voie precoce court-circuite le begin() partage plus bas.
+ */
+async function processReminderNotify(
+  envelope: QueueEnvelope,
+  msg: JobMessage,
+  ports: Ports,
+  config: RunConfig,
+): Promise<ProcessResult> {
+  const begin = await ports.jobRuns.begin(msg.tenant_id, msg)
+  if (!begin.fresh) {
+    await ports.queue.delete(envelope.msg_id)
+    return { status: 'skipped_idempotent', msgId: envelope.msg_id }
+  }
+
+  try {
+    await ports.notifier.notifyReminderDue(msg.tenant_id, formatReminderMessage(msg.reminder))
+    await ports.jobRuns.finish(begin.jobRunId, 'done')
+    await ports.queue.delete(envelope.msg_id)
+    return { status: 'done', msgId: envelope.msg_id }
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Erreur inconnue'
+    await ports.jobRuns.finish(begin.jobRunId, 'error', message)
     if (envelope.read_ct + 1 > config.maxLoopsPerJob) {
       await ports.queue.archive(envelope.msg_id)
     }

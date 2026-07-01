@@ -232,6 +232,7 @@ function makeNotifier(config: WorkerConfig, db: SupabaseClient): Notifier {
       sendTelegram(tenantId, `Action a approuver (${pendingActionId}) : ${summary}`),
     proposeReminderValidation: (tenantId, documentId, summary) =>
       sendTelegram(tenantId, `${summary} (doc ${documentId})`),
+    notifyReminderDue: (tenantId, text) => sendTelegram(tenantId, text),
   }
 }
 

@@ -30,6 +30,7 @@ interface Recorded {
   costs: Array<{ model: string; provider: string; role: string }>
   acks: string[]
   finishes: Array<{ status: string }>
+  reminderNotifs: Array<{ tenantId: string; text: string }>
 }
 
 function makePorts(opts: { fresh?: boolean } = {}): { ports: Ports; rec: Recorded } {
@@ -40,6 +41,7 @@ function makePorts(opts: { fresh?: boolean } = {}): { ports: Ports; rec: Recorde
     costs: [],
     acks: [],
     finishes: [],
+    reminderNotifs: [],
   }
   const fresh = opts.fresh ?? true
   const ports: Ports = {
@@ -98,6 +100,9 @@ function makePorts(opts: { fresh?: boolean } = {}): { ports: Ports; rec: Recorde
       },
       async proposeApproval() {},
       async proposeReminderValidation() {},
+      async notifyReminderDue(tenantId, text) {
+        rec.reminderNotifs.push({ tenantId, text })
+      },
     },
     tracer: {
       async trace(_name, _tags, fn) {
@@ -121,6 +126,20 @@ function envelope(overrides: Partial<JobMessage> = {}, readCt = 1): QueueEnvelop
     ...overrides,
   }
   return { msg_id: 42, read_ct: readCt, enqueued_at: message.enqueued_at, message }
+}
+
+function reminderEnvelope(overrides: Partial<JobMessage> = {}, readCt = 1): QueueEnvelope {
+  const message: JobMessage = {
+    schema_version: 1,
+    type: 'reminder_notify',
+    tenant_id: 'morax-test',
+    source: 'cron',
+    idempotency_key: 'remind:rem-1:j7',
+    enqueued_at: '2026-07-08T07:00:00Z',
+    reminder: { id: 'rem-1', milestone: 'j7', due_date: '2026-07-15', amount: 340, currency: 'GBP' },
+    ...overrides,
+  }
+  return { msg_id: 99, read_ct: readCt, enqueued_at: message.enqueued_at, message }
 }
 
 // fetchImpl injecte : evite tout appel reseau reel depuis processEnvelope (OCR finance-pinne -> Anthropic).
@@ -183,5 +202,42 @@ describe('processEnvelope', () => {
     )
     expect(res.status).toBe('error')
     expect(rec.finishes[0]?.status).toBe('error')
+  })
+})
+
+describe('processEnvelope reminder_notify', () => {
+  it('notifie Telegram sans LLM, credits ni ack', async () => {
+    const { ports, rec } = makePorts()
+    const res = await processEnvelope(reminderEnvelope(), ports, llm, RUN_CONFIG)
+    expect(res.status).toBe('done')
+    expect(rec.deleted).toContain(99)
+    expect(rec.reminderNotifs).toEqual([
+      { tenantId: 'morax-test', text: 'Rappel : echeance dans 7 jours (15/07/2026) — 340 GBP.' },
+    ])
+    expect(rec.acks).toHaveLength(0)
+    expect(rec.credits).toHaveLength(0)
+    expect(rec.costs).toHaveLength(0)
+    expect(rec.finishes).toEqual([{ status: 'done' }])
+  })
+
+  it('saute un rappel deja notifie (idempotence)', async () => {
+    const { ports, rec } = makePorts({ fresh: false })
+    const res = await processEnvelope(reminderEnvelope(), ports, llm, RUN_CONFIG)
+    expect(res.status).toBe('skipped_idempotent')
+    expect(rec.deleted).toContain(99)
+    expect(rec.reminderNotifs).toHaveLength(0)
+  })
+
+  it('finit en erreur si le payload reminder est absent', async () => {
+    const { ports, rec } = makePorts()
+    const res = await processEnvelope(
+      reminderEnvelope({ reminder: undefined }),
+      ports,
+      llm,
+      RUN_CONFIG,
+    )
+    expect(res.status).toBe('error')
+    expect(rec.finishes[0]?.status).toBe('error')
+    expect(rec.reminderNotifs).toHaveLength(0)
   })
 })

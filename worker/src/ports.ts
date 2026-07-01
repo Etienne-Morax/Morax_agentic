@@ -87,6 +87,7 @@ export interface Notifier {
     documentId: string,
     summary: string,
   ): Promise<void>
+  notifyReminderDue(tenantId: string, text: string): Promise<void>
 }
 
 /** Tracing Langfuse. */
