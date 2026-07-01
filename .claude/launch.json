@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "morax-app-dev",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["--filter", "@morax/app", "dev"],
+      "port": 3000
+    }
+  ]
+}

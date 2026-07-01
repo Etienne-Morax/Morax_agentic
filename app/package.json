@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@morax/model-core": "workspace:*",
+    "@react-pdf/renderer": "^4.5.1",
     "@supabase/ssr": "^0.5.2",
     "@supabase/supabase-js": "^2.47.0",
     "aws4fetch": "^1.0.20",
