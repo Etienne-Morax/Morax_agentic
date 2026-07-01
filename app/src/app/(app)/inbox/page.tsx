@@ -9,6 +9,7 @@ import { createClient } from '@/lib/supabase/server'
 import { buildInbox, type DocumentRow, type InboxRows, type ReminderRow } from '@/lib/inbox-core'
 import { statusTone } from '@/lib/status-tone'
 import { StatusPill } from '@/components/status-pill'
+import { ReminderActions } from '../calendar/reminder-actions'
 import styles from './page.module.css'
 
 export const dynamic = 'force-dynamic'
@@ -79,6 +80,7 @@ export default async function InboxPage() {
               <time className={styles.timestamp} dateTime={reminder.due_date}>
                 Echeance : {new Date(reminder.due_date).toLocaleDateString('en-GB')}
               </time>
+              <ReminderActions reminderId={reminder.id} status={reminder.status} />
             </li>
           ))}
         </ul>

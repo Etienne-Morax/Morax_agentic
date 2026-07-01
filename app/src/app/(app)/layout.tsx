@@ -6,6 +6,7 @@ import styles from './shell.module.css'
 const NAV_ITEMS = [
   { href: '/', label: 'Timeline' },
   { href: '/inbox', label: 'Inbox' },
+  { href: '/calendar', label: 'Calendrier' },
   { href: '/credits', label: 'Credits' },
 ]
 
