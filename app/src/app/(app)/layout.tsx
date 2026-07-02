@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
+import { PasskeyRegisterButton } from './passkey-register-button'
 import styles from './shell.module.css'
 
 const NAV_ITEMS = [
@@ -30,6 +31,7 @@ export default async function AppShellLayout({ children }: { children: ReactNode
         </nav>
         <div className={styles.account}>
           {user?.email && <span className={styles.email}>{user.email}</span>}
+          <PasskeyRegisterButton />
           <form action="/auth/signout" method="post">
             <button className={styles.signOut} type="submit">
               Se deconnecter

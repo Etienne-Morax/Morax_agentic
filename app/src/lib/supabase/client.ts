@@ -14,5 +14,7 @@ export function createClient(): SupabaseClient {
   if (!url) throw new Error('[supabase] env manquante : NEXT_PUBLIC_SUPABASE_URL')
   if (!anonKey) throw new Error('[supabase] env manquante : NEXT_PUBLIC_SUPABASE_ANON_KEY')
 
-  return createBrowserClient(url, anonKey)
+  return createBrowserClient(url, anonKey, {
+    auth: { experimental: { passkey: true } },
+  })
 }
