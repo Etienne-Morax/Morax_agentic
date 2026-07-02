@@ -4,6 +4,7 @@
  * comptabilisation des crédits et du coût réel.
  */
 
+import { creditCost } from '@morax/model-core'
 import type { LlmClient } from './llm.js'
 import type { PendingActionRow, Ports } from './ports.js'
 import {
@@ -196,7 +197,7 @@ async function processActionGate(
     if (msg.type === 'action_propose') {
       await processActionPropose(msg.tenant_id, action, ports)
     } else {
-      await processActionExecute(msg.tenant_id, action, ports)
+      await processActionExecute(msg.tenant_id, action, ports, begin.jobRunId)
     }
 
     await ports.jobRuns.finish(begin.jobRunId, 'done')
@@ -227,6 +228,7 @@ async function processActionExecute(
   tenantId: string,
   action: PendingActionRow,
   ports: Ports,
+  jobRunId: string,
 ): Promise<void> {
   // Deja envoyee : idempotence, pas de double email.
   if (action.status === 'executed') return
@@ -238,6 +240,11 @@ async function processActionExecute(
     return
   }
 
+  if (action.status === 'expired') {
+    await ports.notifier.notifyActionResult(tenantId, formatActionResult('expired', payload))
+    return
+  }
+
   if (action.status !== 'approved') {
     throw new Error(`[run] action_execute sur pending_action au statut inattendu : ${action.status}`)
   }
@@ -246,8 +253,10 @@ async function processActionExecute(
   const email = formatDocumentEmail(payload)
   await ports.mailer.sendDocumentEmail({
     to: payload.client_email,
+    ...(payload.cc ? { cc: payload.cc } : {}),
     subject: email.subject,
     textBody: email.textBody,
+    htmlBody: email.htmlBody,
     attachment: {
       filename: email.filename,
       contentBase64: Buffer.from(bytes).toString('base64'),
@@ -256,6 +265,14 @@ async function processActionExecute(
   })
   await ports.pendingActions.markExecuted(tenantId, action.id)
   await ports.drafts.markSent(tenantId, payload.draft_id)
+  // Poids symbolique de suivi d'usage (pas de LLM ici) : jamais bloquant, le
+  // gate Telegram est le seul controle sur l'envoi.
+  await ports.credits.record({
+    tenantId,
+    jobRunId,
+    actionCategory: 'envoi_document',
+    weight: creditCost('envoi_document'),
+  })
   await ports.notifier.notifyActionResult(tenantId, formatActionResult('executed', payload))
 }
 

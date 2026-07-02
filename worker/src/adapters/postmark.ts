@@ -22,8 +22,10 @@ export function makeMailer(
         body: JSON.stringify({
           From: config.mailFrom,
           To: input.to,
+          ...(input.cc ? { Cc: input.cc } : {}),
           Subject: input.subject,
           TextBody: input.textBody,
+          ...(input.htmlBody ? { HtmlBody: input.htmlBody } : {}),
           Attachments: [
             {
               Name: input.attachment.filename,

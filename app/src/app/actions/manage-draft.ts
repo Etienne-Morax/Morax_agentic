@@ -16,6 +16,7 @@ import { validateDraft, type DraftFields, type DraftFormInput } from '@/lib/docu
 import {
   buildPdfKey,
   buildSendEmailPayload,
+  isDocNumberConflictError,
   validateFinalizeDraft,
 } from '@/lib/finalize-draft-core'
 import { renderDraftPdf } from '@/lib/pdf/render-draft-pdf'
@@ -162,11 +163,14 @@ export async function finalizeDraftAction(
   }
   const row = data as FinalizeDraftRow
 
+  const cc = String(formData.get('cc') ?? '').trim() || undefined
+
   const validation = validateFinalizeDraft({
     status: row.status,
     kind: row.kind,
     docNumber: row.doc_number ?? undefined,
     clientEmail: row.client_email ?? undefined,
+    cc,
     lineItems: row.line_items ?? [],
   })
   if (!validation.success) {
@@ -199,6 +203,13 @@ export async function finalizeDraftAction(
     .select('id')
 
   if (finalizeError) {
+    if (isDocNumberConflictError(finalizeError.code)) {
+      return {
+        success: false,
+        errors: { docNumber: 'Numero de document deja utilise.' },
+        message: 'Numero de document deja utilise.',
+      }
+    }
     return { success: false, message: `Finalisation impossible : ${finalizeError.message}` }
   }
   if (!finalized || finalized.length === 0) {
@@ -210,6 +221,7 @@ export async function finalizeDraftAction(
     kind: row.kind,
     docNumber: row.doc_number as string,
     clientEmail: row.client_email as string,
+    cc,
     pdfKey,
     currency: row.currency,
     lineItems: row.line_items ?? [],

@@ -28,6 +28,7 @@ export interface SendEmailActionPayload {
   kind: 'quote' | 'invoice'
   doc_number: string
   client_email: string
+  cc?: string
   pdf_key: string
   total: number
   currency: string

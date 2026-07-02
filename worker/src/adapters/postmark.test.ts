@@ -62,6 +62,52 @@ describe('makeMailer (adapter Postmark)', () => {
     expect(result.messageId).toBe('msg-1')
   })
 
+  it('ajoute HtmlBody et Cc au payload quand fournis', async () => {
+    const fetchImpl = vi.fn().mockResolvedValue(
+      new Response(JSON.stringify({ MessageID: 'msg-2' }), {
+        status: 200,
+        headers: { 'content-type': 'application/json' },
+      }),
+    )
+    const mailer = makeMailer(fakeConfig(), fetchImpl)
+
+    await mailer.sendDocumentEmail({
+      to: 'client@x.com',
+      cc: 'copy@x.com',
+      subject: 'Facture INV-001',
+      textBody: 'Bonjour...',
+      htmlBody: '<p>Bonjour...</p>',
+      attachment: { filename: 'INV-001.pdf', contentBase64: 'YWJj', contentType: 'application/pdf' },
+    })
+
+    const [, init] = fetchImpl.mock.calls[0] as [string, RequestInit]
+    const body = JSON.parse(init.body as string)
+    expect(body.Cc).toBe('copy@x.com')
+    expect(body.HtmlBody).toBe('<p>Bonjour...</p>')
+  })
+
+  it('omet HtmlBody et Cc quand absents', async () => {
+    const fetchImpl = vi.fn().mockResolvedValue(
+      new Response(JSON.stringify({ MessageID: 'msg-3' }), {
+        status: 200,
+        headers: { 'content-type': 'application/json' },
+      }),
+    )
+    const mailer = makeMailer(fakeConfig(), fetchImpl)
+
+    await mailer.sendDocumentEmail({
+      to: 'client@x.com',
+      subject: 'Facture INV-001',
+      textBody: 'Bonjour...',
+      attachment: { filename: 'INV-001.pdf', contentBase64: 'YWJj', contentType: 'application/pdf' },
+    })
+
+    const [, init] = fetchImpl.mock.calls[0] as [string, RequestInit]
+    const body = JSON.parse(init.body as string)
+    expect(body.Cc).toBeUndefined()
+    expect(body.HtmlBody).toBeUndefined()
+  })
+
   it('jette une erreur explicite sur un statut non-2xx', async () => {
     const fetchImpl = vi.fn().mockResolvedValue(new Response('bad request', { status: 422 }))
     const mailer = makeMailer(fakeConfig(), fetchImpl)

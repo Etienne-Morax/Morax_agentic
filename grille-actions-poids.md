@@ -25,6 +25,7 @@ Chaque catégorie d'action a un poids fixe en "crédits d'action". Ce poids refl
 | **Relance client** | 2 | cerveau | Ton nuancé, voix client, contexte relationnel |
 | **Brouillon de devis** | 3 | cerveau | Long, structuré, voix client + contexte projet |
 | **Devis complexe** (plusieurs postes, négociation) | 5 | cerveau | Usage étendu du brain model, itérations |
+| **Envoi de document** (devis/facture, gate HIGH) | 0,5 | aucun | Pas de LLM (relai Telegram/Postmark), poids symbolique de suivi d'usage |
 
 ### Règle financier critique (garde-fou ADHD)
 > Toute action qui lit ou produit une **date d'échéance, un montant, ou une pénalité** utilise **obligatoirement le cerveau**, quel que soit le palier du tenant. Ce surcoût est absorbé dans la marge, jamais répercuté en crédits supplémentaires.

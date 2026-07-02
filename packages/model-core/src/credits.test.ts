@@ -16,10 +16,11 @@ describe('poids des actions (grille-actions-poids.md)', () => {
     expect(creditCost('brouillon_facture')).toBe(2)
     expect(creditCost('brouillon_devis')).toBe(3)
     expect(creditCost('devis_complexe')).toBe(5)
+    expect(creditCost('envoi_document')).toBe(0.5)
   })
 
-  it('couvre les 10 catégories', () => {
-    expect(Object.keys(ACTION_WEIGHTS)).toHaveLength(10)
+  it('couvre les 11 catégories', () => {
+    expect(Object.keys(ACTION_WEIGHTS)).toHaveLength(11)
   })
 })
 

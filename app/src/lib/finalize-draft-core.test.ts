@@ -2,6 +2,7 @@ import { describe, expect, test } from 'vitest'
 import {
   buildPdfKey,
   buildSendEmailPayload,
+  isDocNumberConflictError,
   validateFinalizeDraft,
   type FinalizeCheckInput,
 } from './finalize-draft-core.js'
@@ -56,6 +57,29 @@ describe('validateFinalizeDraft', () => {
       expect(result.errors.form).toMatch(/Au moins une ligne requise/)
     }
   })
+
+  test('accepts a draft without cc (optional)', () => {
+    const result = validateFinalizeDraft(input({ cc: undefined }))
+    expect(result.success).toBe(true)
+  })
+
+  test('accepts a valid cc email', () => {
+    const result = validateFinalizeDraft(input({ cc: 'copy@x.com' }))
+    expect(result.success).toBe(true)
+  })
+
+  test('rejects an invalid cc email', () => {
+    const result = validateFinalizeDraft(input({ cc: 'not-an-email' }))
+    expect(result.success).toBe(false)
+    if (!result.success) {
+      expect(result.errors.form).toMatch(/Cc invalide/)
+    }
+  })
+
+  test('accepts an empty string cc as absent', () => {
+    const result = validateFinalizeDraft(input({ cc: '' }))
+    expect(result.success).toBe(true)
+  })
 })
 
 describe('buildPdfKey', () => {
@@ -69,6 +93,17 @@ describe('buildPdfKey', () => {
     expect(buildPdfKey('morax-test', 'draft-1', 'INV/2026 #01')).toBe(
       'tenants/morax-test/drafts/draft-1/INV-2026--01.pdf',
     )
+  })
+})
+
+describe('isDocNumberConflictError', () => {
+  test('detects a Postgres unique violation code', () => {
+    expect(isDocNumberConflictError('23505')).toBe(true)
+  })
+
+  test('rejects other error codes', () => {
+    expect(isDocNumberConflictError('23503')).toBe(false)
+    expect(isDocNumberConflictError(undefined)).toBe(false)
   })
 })
 
@@ -94,5 +129,32 @@ describe('buildSendEmailPayload', () => {
       total: 120,
       currency: 'GBP',
     })
+  })
+
+  test('includes cc only when provided', () => {
+    const payload = buildSendEmailPayload({
+      draftId: 'draft-1',
+      kind: 'invoice',
+      docNumber: 'INV-001',
+      clientEmail: 'client@x.com',
+      cc: 'copy@x.com',
+      pdfKey: 'tenants/morax-test/drafts/draft-1/INV-001.pdf',
+      currency: 'GBP',
+      lineItems: [{ description: 'Item', quantity: 2, unitPrice: 50 }],
+      vatRate: 20,
+    })
+    expect(payload.cc).toBe('copy@x.com')
+
+    const withoutCc = buildSendEmailPayload({
+      draftId: 'draft-1',
+      kind: 'invoice',
+      docNumber: 'INV-001',
+      clientEmail: 'client@x.com',
+      pdfKey: 'tenants/morax-test/drafts/draft-1/INV-001.pdf',
+      currency: 'GBP',
+      lineItems: [{ description: 'Item', quantity: 2, unitPrice: 50 }],
+      vatRate: 20,
+    })
+    expect(withoutCc.cc).toBeUndefined()
   })
 })

@@ -17,6 +17,7 @@ export type ActionCategory =
   | 'relance_client'
   | 'brouillon_devis'
   | 'devis_complexe'
+  | 'envoi_document'
 
 /** Poids en crédits par catégorie d'action (grille-actions-poids.md). */
 export const ACTION_WEIGHTS: Readonly<Record<ActionCategory, number>> = {
@@ -30,6 +31,7 @@ export const ACTION_WEIGHTS: Readonly<Record<ActionCategory, number>> = {
   relance_client: 2,
   brouillon_devis: 3,
   devis_complexe: 5,
+  envoi_document: 0.5,
 }
 
 /** Crédits ajoutés par pack. Le pack `base` fixe le socle. */

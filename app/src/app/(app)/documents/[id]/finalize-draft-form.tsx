@@ -22,6 +22,18 @@ export function FinalizeDraftForm({ draftId }: FinalizeDraftFormProps) {
   return (
     <form className={styles.finalizeForm} action={formAction}>
       <input type="hidden" name="draftId" value={draftId} />
+      <div className={styles.field}>
+        <label className={styles.label} htmlFor="cc">
+          Copie (Cc, optionnel)
+        </label>
+        <input
+          id="cc"
+          name="cc"
+          type="email"
+          placeholder="copie@exemple.com"
+          className={styles.input}
+        />
+      </div>
       <button className={styles.submit} type="submit" disabled={isPending}>
         {isPending ? 'Finalisation...' : 'Finaliser et proposer l\'envoi'}
       </button>

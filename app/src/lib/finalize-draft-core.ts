@@ -12,6 +12,7 @@ export interface FinalizeCheckInput {
   kind: 'quote' | 'invoice'
   docNumber?: string
   clientEmail?: string
+  cc?: string
   lineItems: LineItem[]
 }
 
@@ -26,6 +27,10 @@ export interface FinalizeValidationFailure {
 
 export type FinalizeValidationResult = FinalizeValidationSuccess | FinalizeValidationFailure
 
+function emptyToUndefined(value: unknown): unknown {
+  return typeof value === 'string' && value.trim() === '' ? undefined : value
+}
+
 const finalizeSchema = z.object({
   status: z.literal('draft', { errorMap: () => ({ message: 'Brouillon deja finalise.' }) }),
   docNumber: z
@@ -34,6 +39,7 @@ const finalizeSchema = z.object({
   clientEmail: z
     .string({ required_error: 'Email client requis pour envoyer.' })
     .email('Email client requis pour envoyer.'),
+  cc: z.preprocess(emptyToUndefined, z.string().email('Cc invalide.').optional()),
   lineItems: z.array(z.unknown()).min(1, 'Au moins une ligne requise.'),
 })
 
@@ -45,6 +51,14 @@ export function validateFinalizeDraft(input: FinalizeCheckInput): FinalizeValida
     return { success: false, errors: { form: message } }
   }
   return { success: true }
+}
+
+/** Code Postgres d'une violation de contrainte unique (index doc_number partiel). */
+const POSTGRES_UNIQUE_VIOLATION = '23505'
+
+/** Vrai si l'erreur Postgres d'une finalisation vient du verrou doc_number unique. */
+export function isDocNumberConflictError(errorCode: string | undefined): boolean {
+  return errorCode === POSTGRES_UNIQUE_VIOLATION
 }
 
 const PDF_KEY_UNSAFE_CHARS = /[^A-Za-z0-9._-]/g
@@ -61,6 +75,7 @@ export function buildSendEmailPayload(input: {
   kind: 'quote' | 'invoice'
   docNumber: string
   clientEmail: string
+  cc?: string
   pdfKey: string
   currency: string
   lineItems: LineItem[]
@@ -72,6 +87,7 @@ export function buildSendEmailPayload(input: {
     kind: input.kind,
     doc_number: input.docNumber,
     client_email: input.clientEmail,
+    ...(input.cc ? { cc: input.cc } : {}),
     pdf_key: input.pdfKey,
     total: totals.total,
     currency: input.currency,

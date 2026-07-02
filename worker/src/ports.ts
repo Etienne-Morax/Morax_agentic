@@ -91,8 +91,10 @@ export interface DraftStatusRepository {
 export interface Mailer {
   sendDocumentEmail(input: {
     to: string
+    cc?: string
     subject: string
     textBody: string
+    htmlBody?: string
     attachment: { filename: string; contentBase64: string; contentType: string }
   }): Promise<{ messageId: string }>
 }

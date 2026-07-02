@@ -33,7 +33,7 @@ interface Recorded {
   reminderNotifs: Array<{ tenantId: string; text: string }>
   approvals: Array<{ tenantId: string; pendingActionId: string; summary: string }>
   actionResults: Array<{ tenantId: string; text: string }>
-  emails: Array<{ to: string; subject: string; filename: string }>
+  emails: Array<{ to: string; cc?: string; subject: string; filename: string; htmlBody?: string }>
   markedExecuted: string[]
   markedSent: string[]
 }
@@ -110,7 +110,13 @@ function makePorts(
     },
     mailer: {
       async sendDocumentEmail(input) {
-        rec.emails.push({ to: input.to, subject: input.subject, filename: input.attachment.filename })
+        rec.emails.push({
+          to: input.to,
+          cc: input.cc,
+          subject: input.subject,
+          filename: input.attachment.filename,
+          htmlBody: input.htmlBody,
+        })
         return { messageId: 'msg-1' }
       },
     },
@@ -344,14 +350,18 @@ describe('processEnvelope action_propose/action_execute', () => {
     const { ports, rec } = makePorts({ action: actionRow('approved') })
     const res = await processEnvelope(actionEnvelope('action_execute'), ports, llm, RUN_CONFIG)
     expect(res.status).toBe('done')
-    expect(rec.emails).toEqual([
-      { to: 'client@x.com', subject: 'Facture INV-001', filename: 'INV-001.pdf' },
-    ])
+    expect(rec.emails).toHaveLength(1)
+    expect(rec.emails[0]?.to).toBe('client@x.com')
+    expect(rec.emails[0]?.subject).toBe('Facture INV-001')
+    expect(rec.emails[0]?.filename).toBe('INV-001.pdf')
+    expect(rec.emails[0]?.cc).toBeUndefined()
+    expect(rec.emails[0]?.htmlBody).toContain('INV-001')
     expect(rec.markedExecuted).toEqual(['pa-1'])
     expect(rec.markedSent).toEqual(['draft-1'])
     expect(rec.actionResults).toEqual([
       { tenantId: 'morax-test', text: 'Email envoye : facture INV-001 a client@x.com.' },
     ])
+    expect(rec.credits).toEqual([{ category: 'envoi_document', weight: 0.5 }])
   })
 
   it('execute rejetee : notifie seulement, pas d\'email', async () => {
@@ -362,6 +372,30 @@ describe('processEnvelope action_propose/action_execute', () => {
     expect(rec.actionResults).toEqual([
       { tenantId: 'morax-test', text: 'Envoi annule : facture INV-001.' },
     ])
+    expect(rec.credits).toHaveLength(0)
+  })
+
+  it('execute approuvee avec cc : transmet le cc au mailer', async () => {
+    const { ports, rec } = makePorts({
+      action: actionRow('approved', { cc: 'copy@x.com' }),
+    })
+    const res = await processEnvelope(actionEnvelope('action_execute'), ports, llm, RUN_CONFIG)
+    expect(res.status).toBe('done')
+    expect(rec.emails[0]?.cc).toBe('copy@x.com')
+  })
+
+  it('execute expiree (72h) : notifie seulement, pas d\'email', async () => {
+    const { ports, rec } = makePorts({ action: actionRow('expired') })
+    const res = await processEnvelope(actionEnvelope('action_execute'), ports, llm, RUN_CONFIG)
+    expect(res.status).toBe('done')
+    expect(rec.emails).toHaveLength(0)
+    expect(rec.actionResults).toEqual([
+      {
+        tenantId: 'morax-test',
+        text: 'Proposition expiree (72h) : facture INV-001. Relancer un nouvel envoi si besoin.',
+      },
+    ])
+    expect(rec.credits).toHaveLength(0)
   })
 
   it('execute deja executee : idempotent, pas de double email', async () => {
@@ -370,6 +404,7 @@ describe('processEnvelope action_propose/action_execute', () => {
     expect(res.status).toBe('done')
     expect(rec.emails).toHaveLength(0)
     expect(rec.actionResults).toHaveLength(0)
+    expect(rec.credits).toHaveLength(0)
   })
 
   it('idempotence : job deja vu -> skip', async () => {

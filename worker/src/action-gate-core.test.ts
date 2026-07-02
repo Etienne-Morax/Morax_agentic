@@ -33,6 +33,12 @@ describe('formatApprovalSummary', () => {
       'Envoyer le devis Q-042 (340 GBP TTC) a client@x.com ?',
     )
   })
+
+  it('mentionne le cc quand present', () => {
+    expect(formatApprovalSummary(payload({ cc: 'copy@x.com' }))).toBe(
+      'Envoyer la facture INV-001 (340 GBP TTC) a client@x.com (cc copy@x.com) ?',
+    )
+  })
 })
 
 describe('buildApprovalKeyboard', () => {
@@ -60,11 +66,13 @@ describe('buildApprovalKeyboard', () => {
 })
 
 describe('formatDocumentEmail', () => {
-  it('construit subject/textBody/filename pour une facture', () => {
+  it('construit subject/textBody/htmlBody/filename pour une facture', () => {
     const email = formatDocumentEmail(payload())
     expect(email.subject).toBe('Facture INV-001')
     expect(email.textBody).toContain('INV-001')
     expect(email.textBody).toContain('340 GBP')
+    expect(email.htmlBody).toContain('<p>')
+    expect(email.htmlBody).toContain('INV-001')
     expect(email.filename).toBe('INV-001.pdf')
   })
 
@@ -72,6 +80,12 @@ describe('formatDocumentEmail', () => {
     const email = formatDocumentEmail(payload({ kind: 'quote', doc_number: 'Q-042' }))
     expect(email.subject).toBe('Devis Q-042')
     expect(email.filename).toBe('Q-042.pdf')
+  })
+
+  it('echappe le html dans le doc_number (anti-injection)', () => {
+    const email = formatDocumentEmail(payload({ doc_number: '<script>alert(1)</script>' }))
+    expect(email.htmlBody).not.toContain('<script>')
+    expect(email.htmlBody).toContain('&lt;script&gt;')
   })
 })
 
@@ -85,6 +99,12 @@ describe('formatActionResult', () => {
   it('formate le resultat rejected', () => {
     expect(formatActionResult('rejected', payload({ kind: 'quote', doc_number: 'Q-042' }))).toBe(
       'Envoi annule : devis Q-042.',
+    )
+  })
+
+  it('formate le resultat expired', () => {
+    expect(formatActionResult('expired', payload())).toBe(
+      'Proposition expiree (72h) : facture INV-001. Relancer un nouvel envoi si besoin.',
     )
   })
 })
@@ -105,6 +125,18 @@ describe('parseSendEmailPayload', () => {
 
   it('leve si kind est invalide', () => {
     expect(() => parseSendEmailPayload({ ...payload(), kind: 'other' })).toThrow(
+      /payload send_email invalide/,
+    )
+  })
+
+  it('accepte un cc optionnel', () => {
+    expect(parseSendEmailPayload(payload({ cc: 'copy@x.com' }))).toEqual(
+      payload({ cc: 'copy@x.com' }),
+    )
+  })
+
+  it('leve si cc est present mais vide', () => {
+    expect(() => parseSendEmailPayload({ ...payload(), cc: '' })).toThrow(
       /payload send_email invalide/,
     )
   })
