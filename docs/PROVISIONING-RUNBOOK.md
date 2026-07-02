@@ -130,9 +130,26 @@ suivante), bucket confirmé `morax-media | EU`.
   → `"ok":true`, message reçu par Etienne. Bot Telegram fonctionnel de bout en bout.
 - `setWebhook` différé au step 7 (nécessite l'URL publique Vercel).
 
-## 4. Langfuse Cloud UE
+## 4. Langfuse Cloud UE — TERMINÉ ET VÉRIFIÉ LIVE
 
-_À dérouler._
+- **Etienne** : signup `cloud.langfuse.com` région UE, projet créé →
+  `LANGFUSE_PUBLIC_KEY` (`pk-lf-...`) / `LANGFUSE_SECRET_KEY` (`sk-lf-...`)
+  fournies.
+- **Piège évité** : clés collées initialement aussi dans `app/.env.local` (0
+  import Langfuse côté app, confirmé par grep) — retirées, Langfuse reste
+  **worker-only**. **Écrit dans** : `worker/.env.local` + `.env.local`
+  (racine) uniquement.
+- Pas de `LANGFUSE_HOST` à définir : `worker/src/config.ts` défaut sur
+  `https://cloud.langfuse.com` = région UE. Init exacte dans
+  `worker/src/adapters/supabase.ts:287` (`new Langfuse({ publicKey, secretKey, baseUrl })`).
+- **Vérif réussie (2026-07-02)** : script jetable dans `worker/` — (1) GET
+  Basic-auth `https://cloud.langfuse.com/api/public/projects` → **200**
+  (contrôle déterministe, le SDK avale les erreurs d'auth silencieusement) ;
+  (2) `client.trace(...)` + `trace.update(...)` + `await client.flushAsync()`
+  → trace visible côté Langfuse, aucune erreur. Script jetable supprimé après
+  usage.
+- Worker passe à **12/14** vars requises (`worker/src/config.ts`). Restent
+  vides : `POSTMARK_SERVER_TOKEN`, `POSTMARK_FROM_EMAIL` (step 8).
 
 ## 5. Clés LLM + validation live — TERMINÉ ET VÉRIFIÉ LIVE
 
@@ -161,18 +178,57 @@ tokens). Script jetable supprimé après vérif.
 avec `ECONNRESET` / `TLS socket disconnected` — confirmé transitoire (retry
 immédiat réussi). Pas un bug applicatif ni un problème de clé/config.
 
-## 6. Déploiement Vercel
+## 6. Déploiement Vercel — TERMINÉ ET VÉRIFIÉ LIVE
 
-`app/vercel.json` créé (région `fra1`, UE). Route PDF (`documents/[id]/pdf/route.tsx`)
-déclare déjà `export const runtime = 'nodejs'` dans le code — pas besoin de
-config supplémentaire dans `vercel.json` pour ça.
+`app/vercel.json` : région `fra1` (UE) + `buildCommand` explicite
+(`pnpm --filter @morax/model-core build && pnpm build` — `packages/model-core/dist/`
+n'est pas git-tracké, doit être construit avant `next build`, sinon la
+résolution du package `@morax/model-core` échoue au build). Route PDF
+(`documents/[id]/pdf/route.tsx`) déclare déjà `export const runtime = 'nodejs'`.
 
-_Reste à dérouler : configuration Root Directory = `app` côté projet Vercel
-(monorepo pnpm), variables d'env du projet, déploiement._
+- Projet Vercel créé : `morax-app`, team `moraxs-projects-87e060cc` (`Morax's
+  projects`), via Vercel CLI (déjà authentifié localement, `etienne0moreau-4100`).
+- **Piège trouvé** : `vercel link` exécuté depuis `app/` (sous-répertoire) ne
+  fait remonter QUE le contenu de `app/` au déploiement CLI (75 fichiers,
+  ~330 Ko) — le `pnpm-lock.yaml`/`pnpm-workspace.yaml` racine et
+  `packages/model-core` ne sont pas inclus, donc pnpm n'est jamais détecté et
+  le build tente `npm install`, qui échoue sur `workspace:*`
+  (`EUNSUPPORTEDPROTOCOL`). **Root Directory** (setting projet, pas
+  `vercel.json`) n'est pas exposé par la CLI (`vercel link`/`vercel project`)
+  ni par le MCP Vercel connecté → posé via un appel REST direct
+  `PATCH /v9/projects/{id}?teamId=...` avec `{"rootDirectory":"app"}`, token
+  réutilisé depuis le store local de la CLI (`~/Library/Application
+  Support/com.vercel.cli/auth.json`, jamais affiché).
+- **Piège lié** : une fois `rootDirectory=app` posé côté projet, la CLI
+  interprète ce chemin comme **relatif au `cwd` du lien** — relancer depuis
+  `app/` cherche alors `app/app` (inexistant). Correction : relier
+  (`vercel link`) et déployer **depuis la racine du repo**, pas depuis `app/`.
+  Le `.vercel/` de `app/` a été déplacé (pas supprimé) hors du repo.
+- Une fois relié depuis la racine avec `rootDirectory=app` posé : upload
+  205 fichiers (tout le monorepo), pnpm détecté (`pnpm-lock.yaml` v9), scope
+  workspace 4 projets, `@morax/model-core` build puis `next build` — succès.
+- **10 variables d'env production** posées via `vercel env add <NOM>
+  production --value ... --yes` (valeurs lues depuis les `.env.local` locaux,
+  jamais retapées) : `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+  (public), `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`,
+  `TELEGRAM_WEBHOOK_SECRET`, `POSTMARK_INBOUND_SECRET`, `R2_ACCESS_KEY_ID`,
+  `R2_SECRET_ACCESS_KEY`, `R2_BUCKET`, `R2_ENDPOINT` (serveur) + `MORAX_ENV=prod`.
+  Exclu volontairement : clés LLM et Langfuse (worker-only).
+- `POSTMARK_INBOUND_SECRET` était vide (`app/.env.local` + racine) — généré
+  (`openssl`-équivalent, 32 octets hex) et écrit avant le déploiement (route
+  `app/src/app/api/webhooks/postmark/route.ts` compare déjà correctement
+  contre une valeur non-vide, aucune faille avec le secret vide, juste
+  incohérent à laisser vide).
+- **URL production** : `https://morax-app.vercel.app`. Déploiement `READY`,
+  0 erreur runtime (`get_runtime_errors`, fenêtre 1h).
 
-## 7. setWebhook Telegram
+## 7. setWebhook Telegram — TERMINÉ ET VÉRIFIÉ LIVE
 
-_À dérouler._
+- `POST https://api.telegram.org/bot<TELEGRAM_BOT_TOKEN>/setWebhook` avec
+  `url=https://morax-app.vercel.app/api/webhooks/telegram` et
+  `secret_token=<TELEGRAM_WEBHOOK_SECRET>` → `{"ok":true,"result":true}`.
+- **Vérif** `getWebhookInfo` : URL posée confirmée, `pending_update_count:0`,
+  pas de `last_error_message`.
 
 ## 8. Domaine `morax.app` + Postmark
 
