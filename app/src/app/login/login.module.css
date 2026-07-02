@@ -11,9 +11,26 @@
   width: 100%;
   max-width: 24rem;
   padding: var(--space-lg);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-xl);
   background: var(--color-surface-raised);
-  box-shadow: var(--shadow-card);
+  box-shadow: var(--shadow-raised);
+}
+
+.brandMark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  margin-bottom: var(--space-sm);
+  border-radius: var(--radius-md);
+  background: var(--color-accent);
+  color: var(--color-accent-contrast);
+}
+
+.brandMark > :global(svg) {
+  width: 55%;
+  height: 55%;
 }
 
 .title {
@@ -91,7 +108,7 @@
 
 .errorText {
   margin: 0;
-  color: var(--color-danger);
+  color: var(--color-danger-ink);
   font-size: var(--text-sm);
 }
 

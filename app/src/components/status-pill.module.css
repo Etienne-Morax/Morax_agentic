@@ -1,6 +1,7 @@
 .pill {
   display: inline-flex;
   align-items: center;
+  gap: 0.25rem;
   padding: var(--space-2xs) var(--space-xs);
   border-radius: var(--radius-full);
   font-size: var(--text-xs);
@@ -10,24 +11,35 @@
   white-space: nowrap;
 }
 
+.icon {
+  display: inline-flex;
+  width: 0.875rem;
+  height: 0.875rem;
+}
+
+.icon > :global(svg) {
+  width: 100%;
+  height: 100%;
+}
+
 .success {
   background: var(--color-success-soft);
-  color: var(--color-success);
+  color: var(--color-success-ink);
 }
 
 .warning {
   background: var(--color-warning-soft);
-  color: var(--color-warning);
+  color: var(--color-warning-ink);
 }
 
 .danger {
   background: var(--color-danger-soft);
-  color: var(--color-danger);
+  color: var(--color-danger-ink);
 }
 
 .info {
   background: var(--color-info-soft);
-  color: var(--color-info);
+  color: var(--color-info-ink);
 }
 
 .neutral {

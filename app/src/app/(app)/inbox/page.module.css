@@ -1,44 +1,40 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+
 .title {
   font-size: var(--text-2xl);
-  margin-bottom: var(--space-lg);
 }
 
-.sectionTitle {
-  font-size: var(--text-lg);
-  color: var(--color-text-muted);
-  margin: var(--space-lg) 0 var(--space-sm);
+.grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-md);
+  align-items: start;
 }
 
-.sectionTitle:first-of-type {
-  margin-top: 0;
-}
-
-.empty {
-  color: var(--color-text-muted);
-  font-size: var(--text-base);
+@media (min-width: 768px) {
+  .grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
 .list {
   display: flex;
   flex-direction: column;
-  gap: var(--space-xs);
-}
-
-.item {
-  border-radius: var(--radius-md);
-  background: var(--color-surface-raised);
-  box-shadow: var(--shadow-card);
+  gap: var(--space-2xs);
 }
 
 .itemLink {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   gap: var(--space-sm);
-  padding: var(--space-sm) var(--space-md);
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: var(--radius-md);
   text-decoration: none;
   color: inherit;
-  border-radius: inherit;
   transition: background var(--duration-fast) var(--ease-out-expo);
 }
 
@@ -46,23 +42,43 @@
   background: var(--color-surface-sunken);
 }
 
-.itemRow {
+.itemBody {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.sourceIcon {
+  width: 1rem;
+  height: 1rem;
+  color: var(--color-text-faint);
+  flex-shrink: 0;
+}
+
+.chevron {
+  width: 1rem;
+  height: 1rem;
+  color: var(--color-text-faint);
+  flex-shrink: 0;
+}
+
+.reminderItem {
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: var(--radius-md);
+}
+
+.reminderRow {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: var(--space-sm);
-  padding: var(--space-sm) var(--space-md);
 }
 
-.itemTitle {
-  font-size: var(--text-base);
-  font-weight: 500;
+.amount {
+  font-size: var(--text-lg);
+  font-weight: 600;
   color: var(--color-text);
-}
-
-.timestamp {
-  display: block;
-  padding: 0 var(--space-md) var(--space-sm);
-  font-size: var(--text-xs);
-  color: var(--color-text-faint);
+  font-variant-numeric: tabular-nums;
 }

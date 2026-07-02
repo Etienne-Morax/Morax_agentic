@@ -6,11 +6,15 @@
 
 import type { SupabaseClient } from '@supabase/supabase-js'
 import Link from 'next/link'
+import { CalendarDays, ChevronLeft, ChevronRight, CircleCheck, TriangleAlert } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { buildCalendarMonth, type CalendarReminder } from '@/lib/calendar-core'
 import type { ReminderRow } from '@/lib/timeline-core'
 import { statusTone } from '@/lib/status-tone'
+import { toneIcon } from '@/lib/status-tone-icon'
 import { StatusPill } from '@/components/status-pill'
+import { SectionCard } from '@/components/section-card'
+import { EmptyState } from '@/components/empty-state'
 import { ReminderActions } from './reminder-actions'
 import styles from './page.module.css'
 
@@ -19,6 +23,7 @@ export const dynamic = 'force-dynamic'
 const ROW_LIMIT = 200
 const MONTH_PARAM_REGEX = /^\d{4}-\d{2}$/
 const WEEKDAY_LABELS = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim']
+const DESKTOP_AMOUNT_LIMIT = 2
 
 interface CalendarPageProps {
   searchParams: Promise<{ month?: string }>
@@ -57,6 +62,19 @@ function amountLabel(reminder: Pick<CalendarReminder, 'amount' | 'currency'>): s
   return reminder.amount != null ? `${reminder.amount} ${reminder.currency}` : reminder.currency
 }
 
+/** Couleur du point calendrier : le retard prime sur le statut. */
+function dotColor(reminder: CalendarReminder): string {
+  if (reminder.isOverdue) return 'var(--color-danger)'
+  if (reminder.status === 'paid') return 'var(--color-success)'
+  if (reminder.status === 'dismissed') return 'var(--color-border-strong)'
+  return 'var(--kind-reminder-vivid)'
+}
+
+function cellAriaLabel(day: number, reminders: readonly CalendarReminder[]): string | undefined {
+  if (reminders.length === 0) return undefined
+  return `${day} : ${reminders.length} echeance${reminders.length > 1 ? 's' : ''}`
+}
+
 export default async function CalendarPage({ searchParams }: CalendarPageProps) {
   const params = await searchParams
   const supabase = await createClient()
@@ -67,26 +85,41 @@ export default async function CalendarPage({ searchParams }: CalendarPageProps) 
   const calendar = buildCalendarMonth({ reminders, month, today })
 
   return (
-    <section>
+    <section className={styles.page}>
       <div className={styles.header}>
         <h1 className={styles.title}>Calendrier</h1>
         <nav className={styles.monthNav} aria-label="Navigation mois">
-          <Link className={styles.monthLink} href={`/calendar?month=${calendar.prevMonth}`}>
-            &larr; Precedent
+          <Link
+            className={`${styles.monthButton} pressable`}
+            href={`/calendar?month=${calendar.prevMonth}`}
+            aria-label="Mois precedent"
+          >
+            <ChevronLeft strokeWidth={2} aria-hidden="true" />
           </Link>
           <span className={styles.monthLabel}>{monthLabel(month)}</span>
-          <Link className={styles.monthLink} href={`/calendar?month=${calendar.nextMonth}`}>
-            Suivant &rarr;
+          <Link
+            className={`${styles.monthButton} pressable`}
+            href={`/calendar?month=${calendar.nextMonth}`}
+            aria-label="Mois suivant"
+          >
+            <ChevronRight strokeWidth={2} aria-hidden="true" />
           </Link>
         </nav>
       </div>
 
       <div className={styles.overduePanel} data-empty={calendar.overdue.length === 0}>
-        <h2 className={styles.overdueTitle}>
-          {calendar.overdue.length === 0
-            ? 'Aucune echeance en retard'
-            : `${calendar.overdue.length} echeance${calendar.overdue.length > 1 ? 's' : ''} en retard`}
-        </h2>
+        <div className={styles.overdueHeader}>
+          {calendar.overdue.length === 0 ? (
+            <CircleCheck className={styles.overdueIcon} strokeWidth={2} aria-hidden="true" />
+          ) : (
+            <TriangleAlert className={styles.overdueIcon} strokeWidth={2} aria-hidden="true" />
+          )}
+          <h2 className={styles.overdueTitle}>
+            {calendar.overdue.length === 0
+              ? 'Aucune echeance en retard'
+              : `${calendar.overdue.length} echeance${calendar.overdue.length > 1 ? 's' : ''} en retard`}
+          </h2>
+        </div>
         {calendar.overdue.length === 0 ? (
           <p className={styles.empty}>Rien a rattraper. Bien joue.</p>
         ) : (
@@ -122,44 +155,79 @@ export default async function CalendarPage({ searchParams }: CalendarPageProps) 
                 className={styles.day}
                 data-in-month={cell.inMonth}
                 data-today={cell.isToday}
+                aria-label={cellAriaLabel(cell.day, cell.reminders)}
               >
                 <span className={styles.dayNumber}>{cell.day}</span>
-                {cell.reminders.map((reminder) => (
-                  <span key={reminder.id} className={styles.dayReminder}>
-                    <StatusPill
-                      label={amountLabel(reminder)}
-                      tone={reminder.isOverdue ? 'danger' : statusTone('reminder', reminder.status)}
-                    />
+                {cell.reminders.length > 0 && (
+                  <span className={styles.dayDots} aria-hidden="true">
+                    {cell.reminders.slice(0, 6).map((reminder) => (
+                      <span
+                        key={reminder.id}
+                        className={styles.dot}
+                        style={{ background: dotColor(reminder) }}
+                      />
+                    ))}
                   </span>
-                ))}
+                )}
+                {cell.reminders.length > 0 && (
+                  <span className={styles.dayAmounts} aria-hidden="true">
+                    {cell.reminders.slice(0, DESKTOP_AMOUNT_LIMIT).map((reminder) => (
+                      <span key={reminder.id} className={styles.dayAmount}>
+                        {amountLabel(reminder)}
+                      </span>
+                    ))}
+                    {cell.reminders.length > DESKTOP_AMOUNT_LIMIT && (
+                      <span className={styles.dayAmountMore}>
+                        +{cell.reminders.length - DESKTOP_AMOUNT_LIMIT}
+                      </span>
+                    )}
+                  </span>
+                )}
               </div>
             ))}
           </div>
         ))}
       </div>
 
-      <h2 className={styles.sectionTitle}>Rappels du mois</h2>
-      {calendar.remindersOfMonth.length === 0 ? (
-        <p className={styles.empty}>Aucun rappel ce mois-ci.</p>
-      ) : (
-        <ul className={styles.list}>
-          {calendar.remindersOfMonth.map((reminder) => (
-            <li key={reminder.id} className={styles.item}>
-              <div className={styles.itemRow}>
-                <span className={styles.itemTitle}>{amountLabel(reminder)}</span>
-                <StatusPill
-                  label={reminder.status}
-                  tone={reminder.isOverdue ? 'danger' : statusTone('reminder', reminder.status)}
-                />
-              </div>
-              <time className={styles.timestamp} dateTime={reminder.due_date}>
-                Echeance : {new Date(reminder.due_date).toLocaleDateString('en-GB')}
-              </time>
-              <ReminderActions reminderId={reminder.id} status={reminder.status} />
-            </li>
-          ))}
-        </ul>
-      )}
+      <div className={styles.legend}>
+        <span className={styles.legendItem}>
+          <span className={styles.legendDot} style={{ background: 'var(--kind-reminder-vivid)' }} />
+          En attente
+        </span>
+        <span className={styles.legendItem}>
+          <span className={styles.legendDot} style={{ background: 'var(--color-danger)' }} />
+          En retard
+        </span>
+        <span className={styles.legendItem}>
+          <span className={styles.legendDot} style={{ background: 'var(--color-success)' }} />
+          Paye
+        </span>
+      </div>
+
+      <SectionCard title="Rappels du mois" icon={<CalendarDays strokeWidth={2} />} count={calendar.remindersOfMonth.length}>
+        {calendar.remindersOfMonth.length === 0 ? (
+          <EmptyState icon={<CalendarDays strokeWidth={2} />} title="Aucun rappel ce mois-ci." />
+        ) : (
+          <ul className={styles.list}>
+            {calendar.remindersOfMonth.map((reminder) => {
+              const tone = reminder.isOverdue ? 'danger' : statusTone('reminder', reminder.status)
+              const ToneIcon = toneIcon(tone)
+              return (
+                <li key={reminder.id} className={styles.item}>
+                  <div className={styles.itemRow}>
+                    <span className={styles.itemTitle}>{amountLabel(reminder)}</span>
+                    <StatusPill label={reminder.status} tone={tone} icon={<ToneIcon strokeWidth={2} />} />
+                  </div>
+                  <time className={styles.timestamp} dateTime={reminder.due_date}>
+                    Echeance : {new Date(reminder.due_date).toLocaleDateString('en-GB')}
+                  </time>
+                  <ReminderActions reminderId={reminder.id} status={reminder.status} />
+                </li>
+              )
+            })}
+          </ul>
+        )}
+      </SectionCard>
     </section>
   )
 }

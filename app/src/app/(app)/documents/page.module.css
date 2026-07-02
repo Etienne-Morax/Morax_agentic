@@ -1,9 +1,15 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+
 .header {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap;
   gap: var(--space-sm);
-  margin-bottom: var(--space-lg);
 }
 
 .title {
@@ -16,9 +22,12 @@
 }
 
 .newButton {
-  padding: var(--space-xs) var(--space-sm);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2xs);
+  padding: var(--space-xs) var(--space-md);
   border: none;
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-full);
   background: var(--color-accent);
   color: var(--color-accent-contrast);
   font-size: var(--text-sm);
@@ -31,32 +40,31 @@
   background: var(--color-accent-hover);
 }
 
-.empty {
-  color: var(--color-text-muted);
-  font-size: var(--text-base);
+.newButtonIcon {
+  width: 1rem;
+  height: 1rem;
+}
+
+.statusRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
 }
 
 .list {
   display: flex;
   flex-direction: column;
-  gap: var(--space-xs);
-}
-
-.item {
-  border-radius: var(--radius-md);
-  background: var(--color-surface-raised);
-  box-shadow: var(--shadow-card);
+  gap: var(--space-2xs);
 }
 
 .itemLink {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   gap: var(--space-sm);
-  padding: var(--space-sm) var(--space-md);
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: var(--radius-md);
   text-decoration: none;
   color: inherit;
-  border-radius: inherit;
   transition: background var(--duration-fast) var(--ease-out-expo);
 }
 
@@ -64,14 +72,55 @@
   background: var(--color-surface-sunken);
 }
 
-.itemTitle {
+.iconBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 2rem;
+  height: 2rem;
+  border-radius: var(--radius-full);
+}
+
+.icon {
+  width: 55%;
+  height: 55%;
+}
+
+.itemBody {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.0625rem;
+}
+
+.kindLabel {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
   font-size: var(--text-base);
   font-weight: 500;
   color: var(--color-text);
 }
 
-.itemStatus {
+.docNumber {
+  font-family: var(--font-mono);
   font-size: var(--text-xs);
   color: var(--color-text-faint);
-  text-transform: uppercase;
+}
+
+.client {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.chevron {
+  width: 1rem;
+  height: 1rem;
+  color: var(--color-text-faint);
+  flex-shrink: 0;
 }

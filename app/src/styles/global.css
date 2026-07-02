@@ -62,3 +62,25 @@ button {
     scroll-behavior: auto !important;
   }
 }
+
+@media (prefers-reduced-motion: no-preference) {
+  .pressable {
+    transition: transform var(--duration-fast) var(--ease-out-expo);
+  }
+
+  .pressable:active {
+    transform: scale(var(--press-scale));
+  }
+}
+
+.glass {
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+}
+
+@supports not (backdrop-filter: blur(1px)) {
+  .glass {
+    background: var(--color-surface-raised) !important;
+  }
+}

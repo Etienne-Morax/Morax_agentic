@@ -1,0 +1,61 @@
+.bars {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.barRow {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2xs);
+}
+
+.barTop {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-sm);
+}
+
+.barLabel {
+  min-width: 0;
+  font-size: var(--text-sm);
+  color: var(--color-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.barValue {
+  flex-shrink: 0;
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--color-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.barTrack {
+  height: 0.5rem;
+  border-radius: var(--radius-full);
+  background: var(--chart-track);
+  overflow: hidden;
+}
+
+.barFill {
+  height: 100%;
+  border-radius: var(--radius-full);
+}
+
+.stacked {
+  display: flex;
+  height: 0.625rem;
+  width: 100%;
+  border-radius: var(--radius-full);
+  background: var(--chart-track);
+  overflow: hidden;
+}
+
+.stackedSegment {
+  height: 100%;
+}

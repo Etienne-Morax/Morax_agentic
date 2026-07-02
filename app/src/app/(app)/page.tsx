@@ -4,6 +4,7 @@
  */
 
 import type { SupabaseClient } from '@supabase/supabase-js'
+import { Inbox as InboxIcon } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import {
   buildTimeline,
@@ -11,15 +12,24 @@ import {
   type JobRunRow,
   type PendingActionRow,
   type ReminderRow,
+  type TimelineItem,
   type TimelineSourceRows,
 } from '@/lib/timeline-core'
+import { activityByDay, buildCockpitStats, groupItemsByDay } from '@/lib/dashboard-core'
 import { statusTone } from '@/lib/status-tone'
+import { toneIcon } from '@/lib/status-tone-icon'
+import { entityKindSpec } from '@/lib/entity-kind'
 import { StatusPill } from '@/components/status-pill'
+import { StatCard } from '@/components/stat-card'
+import { KindIcon } from '@/components/kind-icon'
+import { EmptyState } from '@/components/empty-state'
+import { Sparkline } from '@/components/charts/sparkline'
 import styles from './page.module.css'
 
 export const dynamic = 'force-dynamic'
 
 const ROW_LIMIT = 30
+const ACTIVITY_WINDOW_DAYS = 14
 
 async function loadTimelineRows(supabase: SupabaseClient): Promise<TimelineSourceRows> {
   const [documents, jobRuns, reminders, pendingActions] = await Promise.all([
@@ -60,30 +70,128 @@ async function loadTimelineRows(supabase: SupabaseClient): Promise<TimelineSourc
   }
 }
 
+/** Heure de Londres : coherent avec le calendrier (aujourd'hui/hier doivent rester justes cote UK). */
+function todayInLondon(): string {
+  return new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/London' }).format(new Date())
+}
+
+const TODAY_LABEL_FORMATTER = new Intl.DateTimeFormat('fr-FR', {
+  weekday: 'long',
+  day: 'numeric',
+  month: 'long',
+  timeZone: 'Europe/London',
+})
+const TIME_FORMATTER = new Intl.DateTimeFormat('fr-FR', {
+  hour: '2-digit',
+  minute: '2-digit',
+  timeZone: 'Europe/London',
+})
+const DUE_DATE_FORMATTER = new Intl.DateTimeFormat('fr-FR', { day: 'numeric', month: 'short', timeZone: 'UTC' })
+
+function itemTime(timestamp: string): string {
+  return TIME_FORMATTER.format(new Date(timestamp))
+}
+
+/** Le kind est deja porte par l'icone + la pilule : on retire la redite dans le libelle texte. */
+function displayTitle(item: TimelineItem): string {
+  if (item.kind === 'document') {
+    const match = item.title.match(/\(([^)]+)\)$/)
+    return match?.[1] ?? item.title
+  }
+  if (item.kind === 'pending_action') {
+    return item.title.replace(/^A approuver\s*:\s*/, '')
+  }
+  return item.title
+}
+
 export default async function TimelinePage() {
   const supabase = await createClient()
   const rows = await loadTimelineRows(supabase)
   const items = buildTimeline(rows)
+  const today = todayInLondon()
+
+  const stats = buildCockpitStats(rows)
+  const histogram = activityByDay(items, ACTIVITY_WINDOW_DAYS, today)
+  const activityTotal = histogram.reduce((sum, value) => sum + value, 0)
+  const dayGroups = groupItemsByDay(items, today)
 
   return (
-    <section>
-      <h1 className={styles.title}>Timeline</h1>
-      {items.length === 0 ? (
-        <p className={styles.empty}>Rien pour le moment. Envoyez une facture sur Telegram.</p>
+    <section className={styles.page}>
+      <div className={styles.header}>
+        <h1 className={styles.title}>Timeline</h1>
+        <span className={styles.today}>{TODAY_LABEL_FORMATTER.format(new Date())}</span>
+      </div>
+
+      <div className={styles.statGrid}>
+        <StatCard label="A traiter" value={String(stats.docsToProcess)} kind="document" href="/inbox" />
+        <StatCard
+          label="Echeances"
+          value={String(stats.pendingReminders)}
+          kind="reminder"
+          href="/calendar"
+          hint={
+            stats.nextDueDate
+              ? `prochaine le ${DUE_DATE_FORMATTER.format(new Date(`${stats.nextDueDate}T00:00:00Z`))}`
+              : undefined
+          }
+        />
+        <StatCard
+          label="Jobs en cours"
+          value={String(stats.runningJobs)}
+          kind="job_run"
+          hint={stats.erroredJobs > 0 ? `${stats.erroredJobs} erreur${stats.erroredJobs > 1 ? 's' : ''}` : undefined}
+          hintTone="danger"
+        />
+        <StatCard label="A approuver" value={String(stats.pendingActions)} kind="pending_action" />
+      </div>
+
+      <div className={styles.activityCard}>
+        <div className={styles.activityHeader}>
+          <span className={styles.activityLabel}>Activite - 14 derniers jours</span>
+          <span className={styles.activityTotal}>{activityTotal}</span>
+        </div>
+        <Sparkline
+          points={histogram}
+          height={48}
+          ariaLabel={`${activityTotal} evenements sur les 14 derniers jours`}
+        />
+      </div>
+
+      {dayGroups.length === 0 ? (
+        <EmptyState
+          icon={<InboxIcon strokeWidth={2} />}
+          title="Rien pour le moment."
+          hint="Envoyez une facture sur Telegram."
+        />
       ) : (
-        <ul className={styles.list}>
-          {items.map((item) => (
-            <li key={`${item.kind}-${item.id}`} className={styles.item}>
-              <div className={styles.itemHeader}>
-                <span className={styles.itemTitle}>{item.title}</span>
-                <StatusPill label={item.status} tone={statusTone(item.kind, item.status)} />
-              </div>
-              <time className={styles.timestamp} dateTime={item.timestamp}>
-                {new Date(item.timestamp).toLocaleString('en-GB')}
-              </time>
-            </li>
+        <div className={styles.feed}>
+          {dayGroups.map((group) => (
+            <div key={group.date} className={styles.dayGroup}>
+              <h2 className={styles.dayLabel}>{group.label}</h2>
+              <ul className={styles.list}>
+                {group.items.map((item) => {
+                  const tone = statusTone(item.kind, item.status)
+                  const ToneIcon = toneIcon(tone)
+                  const spec = entityKindSpec(item.kind)
+                  return (
+                    <li
+                      key={`${item.kind}-${item.id}`}
+                      className={styles.item}
+                      style={{ borderLeftColor: spec.vivid }}
+                    >
+                      <KindIcon kind={item.kind} size="sm" />
+                      <span className={styles.itemTitle}>{displayTitle(item)}</span>
+                      <StatusPill label={item.status} tone={tone} icon={<ToneIcon strokeWidth={2} />} />
+                      <time className={styles.timestamp} dateTime={item.timestamp}>
+                        {itemTime(item.timestamp)}
+                      </time>
+                    </li>
+                  )
+                })}
+              </ul>
+            </div>
           ))}
-        </ul>
+        </div>
       )}
     </section>
   )

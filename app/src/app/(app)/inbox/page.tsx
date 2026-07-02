@@ -5,10 +5,17 @@
 
 import type { SupabaseClient } from '@supabase/supabase-js'
 import Link from 'next/link'
+import { BellRing, CalendarCheck, ChevronRight, CircleCheck, FileText } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { buildInbox, type DocumentRow, type InboxRows, type ReminderRow } from '@/lib/inbox-core'
+import { dueTone } from '@/lib/dashboard-core'
 import { statusTone } from '@/lib/status-tone'
+import { toneIcon } from '@/lib/status-tone-icon'
+import { SOURCE_ICON } from '@/lib/entity-kind'
 import { StatusPill } from '@/components/status-pill'
+import { SectionCard } from '@/components/section-card'
+import { KindIcon } from '@/components/kind-icon'
+import { EmptyState } from '@/components/empty-state'
 import { ReminderActions } from '../calendar/reminder-actions'
 import styles from './page.module.css'
 
@@ -39,52 +46,74 @@ async function loadInboxRows(supabase: SupabaseClient): Promise<InboxRows> {
   }
 }
 
+/** Heure de Londres : coherent avec le calendrier (echeances en retard justes cote UK). */
+function todayInLondon(): string {
+  return new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/London' }).format(new Date())
+}
+
+const DUE_DATE_FORMATTER = new Intl.DateTimeFormat('fr-FR', { day: 'numeric', month: 'short', timeZone: 'UTC' })
+
+function dueLabel(dueDate: string): string {
+  return DUE_DATE_FORMATTER.format(new Date(`${dueDate}T00:00:00Z`))
+}
+
 export default async function InboxPage() {
   const supabase = await createClient()
   const rows = await loadInboxRows(supabase)
   const view = buildInbox(rows)
+  const today = todayInLondon()
 
   return (
-    <section>
+    <section className={styles.page}>
       <h1 className={styles.title}>Inbox</h1>
 
-      <h2 className={styles.sectionTitle}>Documents a traiter</h2>
-      {view.documents.length === 0 ? (
-        <p className={styles.empty}>Rien a traiter. Bien joue.</p>
-      ) : (
-        <ul className={styles.list}>
-          {view.documents.map((document) => (
-            <li key={document.id} className={styles.item}>
-              <Link className={styles.itemLink} href={`/inbox/${document.id}`}>
-                <span className={styles.itemTitle}>Document ({document.source})</span>
-                <StatusPill label={document.status} tone={statusTone('document', document.status)} />
-              </Link>
-            </li>
-          ))}
-        </ul>
-      )}
+      <div className={styles.grid}>
+        <SectionCard title="A traiter" icon={<FileText strokeWidth={2} />} count={view.documents.length}>
+          {view.documents.length === 0 ? (
+            <EmptyState icon={<CircleCheck strokeWidth={2} />} title="Rien a traiter. Bien joue." />
+          ) : (
+            <ul className={styles.list}>
+              {view.documents.map((document) => {
+                const tone = statusTone('document', document.status)
+                const ToneIcon = toneIcon(tone)
+                const SourceIcon = SOURCE_ICON[document.source]
+                return (
+                  <li key={document.id} className={styles.item}>
+                    <Link className={`${styles.itemLink} pressable`} href={`/inbox/${document.id}`}>
+                      <KindIcon kind="document" size="sm" />
+                      <span className={styles.itemBody}>
+                        <SourceIcon className={styles.sourceIcon} strokeWidth={2} aria-hidden="true" />
+                        <StatusPill label={document.status} tone={tone} icon={<ToneIcon strokeWidth={2} />} />
+                      </span>
+                      <ChevronRight className={styles.chevron} strokeWidth={2} aria-hidden="true" />
+                    </Link>
+                  </li>
+                )
+              })}
+            </ul>
+          )}
+        </SectionCard>
 
-      <h2 className={styles.sectionTitle}>Echeances a venir</h2>
-      {view.reminders.length === 0 ? (
-        <p className={styles.empty}>Aucune echeance en attente.</p>
-      ) : (
-        <ul className={styles.list}>
-          {view.reminders.map((reminder) => (
-            <li key={reminder.id} className={styles.item}>
-              <div className={styles.itemRow}>
-                <span className={styles.itemTitle}>
-                  {reminder.amount != null ? `${reminder.amount} ${reminder.currency}` : reminder.currency}
-                </span>
-                <StatusPill label={reminder.status} tone={statusTone('reminder', reminder.status)} />
-              </div>
-              <time className={styles.timestamp} dateTime={reminder.due_date}>
-                Echeance : {new Date(reminder.due_date).toLocaleDateString('en-GB')}
-              </time>
-              <ReminderActions reminderId={reminder.id} status={reminder.status} />
-            </li>
-          ))}
-        </ul>
-      )}
+        <SectionCard title="Echeances a venir" icon={<BellRing strokeWidth={2} />} count={view.reminders.length}>
+          {view.reminders.length === 0 ? (
+            <EmptyState icon={<CalendarCheck strokeWidth={2} />} title="Aucune echeance en attente." />
+          ) : (
+            <ul className={styles.list}>
+              {view.reminders.map((reminder) => (
+                <li key={reminder.id} className={styles.reminderItem}>
+                  <div className={styles.reminderRow}>
+                    <span className={styles.amount}>
+                      {reminder.amount != null ? `${reminder.amount} ${reminder.currency}` : reminder.currency}
+                    </span>
+                    <StatusPill label={dueLabel(reminder.due_date)} tone={dueTone(reminder.due_date, today)} />
+                  </div>
+                  <ReminderActions reminderId={reminder.id} status={reminder.status} />
+                </li>
+              ))}
+            </ul>
+          )}
+        </SectionCard>
+      </div>
     </section>
   )
 }
