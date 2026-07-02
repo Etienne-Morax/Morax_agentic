@@ -230,9 +230,67 @@ résolution du package `@morax/model-core` échoue au build). Route PDF
 - **Vérif** `getWebhookInfo` : URL posée confirmée, `pending_update_count:0`,
   pas de `last_error_message`.
 
-## 8. Domaine `morax.app` + Postmark
+## 8. Postmark (sortant) — TERMINÉ (sender simple) ET VÉRIFIÉ LIVE ; domaine `morax.app` différé
 
-_À dérouler._
+- Compte Postmark **déjà existant** (Etienne), réutilisé — pas de nouveau
+  signup. Server `My First Server` (id `19786732`), Server API Token récupéré
+  via **Claude piloté au navigateur réel d'Etienne** (`claude-in-chrome` MCP,
+  Etienne déjà loggé) : Servers → server → onglet **API Tokens** → copie du
+  Server API token affiché en clair sur la page.
+- **Sender = signature simple, pas domaine DKIM** : `info@moraxphotography.com`
+  (signature déjà confirmée de longue date sur le compte Postmark d'Etienne,
+  domaine `moraxphotography.com` — son activité photo existante, sans lien
+  avec Morax). Choisi car **`morax.app` n'est pas délégué** (`dig NS`/`dig
+  SOA morax.app` → vide, aucune zone DNS active) → décision explicite
+  d'Etienne : différer l'achat du domaine, débloquer le worker avec un sender
+  existant en attendant. Le domaine `morax.app` est déjà ajouté côté Postmark
+  (`DKIM Not Verified` / `Return-Path Not Verified`, aucune signature) — prêt
+  à recevoir les enregistrements DNS le jour où le domaine sera acheté +
+  délégué chez Cloudflare, mais rien à faire côté Postmark avant ça.
+- **Écrit dans** : `worker/.env.local` + `.env.local` (racine) uniquement —
+  `POSTMARK_SERVER_TOKEN`, `POSTMARK_FROM_EMAIL=info@moraxphotography.com`.
+  **Piège évité** : ce sont des secrets **outbound, worker-only** — jamais dans
+  `app/.env.local` (confirmé par grep, seul `POSTMARK_INBOUND_SECRET` y vit,
+  consommé par la route inbound `app/src/app/api/webhooks/postmark/route.ts`)
+  ni sur Vercel (aucune var outbound Postmark posée côté app, l'app n'en a pas
+  besoin).
+- **Piège trouvé (compte en attente d'approbation)** : premier essai d'envoi
+  réel vers une adresse Gmail externe → `422`
+  `{"ErrorCode":412,"Message":"While your account is pending approval, all
+  recipient addresses must share the same domain as the 'From' address..."}`.
+  Tant qu'un compte Postmark n'est pas approuvé (`Request approval`, limite
+  100 emails en mode test), il ne peut envoyer qu'à des destinataires du
+  **même domaine** que l'adresse `From`. Contournement pour le smoke-test :
+  envoyer à `info@moraxphotography.com` (même domaine que le sender) plutôt
+  qu'à l'adresse Gmail personnelle d'Etienne. Sans impact sur le fonctionnement
+  produit réel (les vraies factures/devis partent vers les clients d'Etienne,
+  domaines variés) — **`Request approval` à soumettre avant tout envoi client
+  réel en dehors de test**, sinon mêmes 422 en prod.
+- **Vérif réussie (2026-07-02)** : script jetable dans `worker/` — (1)
+  `loadConfig()` → succès, **worker 14/14 vars** ; (2) `makeMailer(config)`
+  (`worker/src/adapters/postmark.ts`) `.sendDocumentEmail(...)` avec pièce
+  jointe texte réelle → `200`, `MessageID` retourné, email reçu. Script
+  jetable supprimé après usage.
+
+### Reste à dérouler (différé, décision Etienne)
+
+- **Domaine `morax.app`** : achat (registrar) + délégation DNS chez
+  Cloudflare (manuel Etienne, anti-bot confirmé). Une fois fait : ajouter les
+  enregistrements DKIM/Return-Path Postmark affichés sur la page domaine déjà
+  créée (`DNS Settings`), confirmer, puis basculer `POSTMARK_FROM_EMAIL` sur
+  `x@morax.app`.
+- **Approbation compte Postmark** (`Request approval`) : à soumettre avant tout
+  envoi à un vrai client (destinataire hors domaine `moraxphotography.com`),
+  sinon 422 identique au piège ci-dessus. Non fait cette session (pas demandé,
+  décision produit à confirmer avec Etienne — implique de décrire l'usage
+  auprès de Postmark).
+- **Inbound email** (MX + webhook `/api/webhooks/postmark`) : dépend aussi du
+  domaine `morax.app`. **Risque à vérifier avant activation** : la route app
+  exige un header custom `x-morax-inbound-secret`
+  (`app/src/app/api/webhooks/postmark/route.ts`), or la configuration webhook
+  inbound de Postmark ne propose qu'une authentification par Basic Auth dans
+  l'URL, pas de header arbitraire — à confirmer/adapter quand l'inbound sera
+  activé.
 
 ## 9. Cloud Run Job (worker) + Cloud Scheduler
 
