@@ -3,20 +3,9 @@
 import { useEffect, useRef, useState } from 'react'
 import { Mic, Paperclip, Send } from 'lucide-react'
 import { useHaptics } from '@/lib/use-haptics'
-import type { ChatMessage, ChatRole } from '@/lib/command-center/types'
+import type { ChatMessage } from '@/lib/command-center/types'
+import { sendCommandMessage } from './actions'
 import styles from './chat.module.css'
-
-const AGENT_ECHO_DELAY_MS = 700
-const AGENT_ECHO_TEXT = "Recu, je m'en occupe."
-
-function makeMessage(role: ChatRole, content: string): ChatMessage {
-  return {
-    id: `${role}-${crypto.randomUUID()}`,
-    role,
-    content,
-    createdAt: new Date().toISOString(),
-  }
-}
 
 interface ChatConsoleProps {
   initialMessages: ChatMessage[]
@@ -25,6 +14,7 @@ interface ChatConsoleProps {
 export function ChatConsole({ initialMessages }: ChatConsoleProps) {
   const [messages, setMessages] = useState<ChatMessage[]>(initialMessages)
   const [draft, setDraft] = useState('')
+  const [isSending, setIsSending] = useState(false)
   const haptics = useHaptics()
   const endRef = useRef<HTMLDivElement>(null)
 
@@ -32,15 +22,22 @@ export function ChatConsole({ initialMessages }: ChatConsoleProps) {
     endRef.current?.scrollIntoView({ block: 'end' })
   }, [messages])
 
-  function handleSend() {
+  async function handleSend() {
     const text = draft.trim()
-    if (!text) return
+    if (!text || isSending) return
     haptics.tap()
-    setMessages((prev) => [...prev, makeMessage('user', text)])
     setDraft('')
-    setTimeout(() => {
-      setMessages((prev) => [...prev, makeMessage('agent', AGENT_ECHO_TEXT)])
-    }, AGENT_ECHO_DELAY_MS)
+    setIsSending(true)
+    try {
+      const result = await sendCommandMessage(text)
+      if (result.ok && result.message) {
+        setMessages((prev) => [...prev, result.message as ChatMessage])
+      } else {
+        setDraft(text)
+      }
+    } finally {
+      setIsSending(false)
+    }
   }
 
   return (
@@ -72,6 +69,7 @@ export function ChatConsole({ initialMessages }: ChatConsoleProps) {
           }}
           placeholder="Ecrire une commande..."
           aria-label="Message"
+          disabled={isSending}
         />
         <button
           type="button"
@@ -86,6 +84,7 @@ export function ChatConsole({ initialMessages }: ChatConsoleProps) {
           className={`${styles.iconButton} pressable`}
           aria-label="Envoyer"
           onClick={handleSend}
+          disabled={isSending || !draft.trim()}
         >
           <Send strokeWidth={2} aria-hidden="true" />
         </button>
