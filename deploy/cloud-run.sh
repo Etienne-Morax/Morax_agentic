@@ -17,6 +17,15 @@ if [ ! -f "$ENV_FILE" ]; then
   exit 1
 fi
 
+if ! gcloud artifacts repositories describe "$REPO" --location "$REGION" --project "$PROJECT_ID" >/dev/null 2>&1; then
+  echo "[deploy] Repo Artifact Registry '$REPO' absent, creation..."
+  gcloud artifacts repositories create "$REPO" \
+    --repository-format=docker \
+    --location "$REGION" \
+    --project "$PROJECT_ID" \
+    --description "Images worker Morax"
+fi
+
 echo "[deploy] Build image via Cloud Build -> $IMAGE"
 gcloud builds submit . \
   --project "$PROJECT_ID" \
