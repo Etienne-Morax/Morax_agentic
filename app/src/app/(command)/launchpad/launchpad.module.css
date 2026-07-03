@@ -75,10 +75,6 @@
   background: var(--color-text-faint);
 }
 
-.statusDot[data-status='done'] {
-  background: var(--color-success);
-}
-
 .statusDot[data-status='running'],
 .statusDot[data-status='triggering'] {
   background: var(--kind-job-vivid);
@@ -109,4 +105,16 @@
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
+}
+
+.tileWrap {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.tileError {
+  font-size: var(--text-xs);
+  color: var(--color-danger);
+  margin: 0;
 }
