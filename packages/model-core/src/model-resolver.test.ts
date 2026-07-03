@@ -10,6 +10,7 @@ import {
   resolveModelWithFallback,
 } from './model-resolver.js'
 import type { ModelConfig } from './model-resolver.js'
+import { registry } from './registry.js'
 import type { Offre, TenantConfig } from './tenant.types.js'
 
 function tenant(offre: Offre, overrides: Partial<TenantConfig> = {}): TenantConfig {
@@ -222,6 +223,42 @@ describe('resolveModel - épinglage planificateur (Sonnet toujours)', () => {
     expect(m.model).toBe('claude-opus-4-8')
     expect(m.financePinned).toBe(true)
     expect(m.plannerPinned).toBe(false)
+  })
+})
+
+describe('resolveModel - épinglage vision OCR (toujours un modèle vision-capable)', () => {
+  const tiers: Offre[] = ['base', 'intermediaire', 'premium']
+
+  it.each(tiers)(
+    'OCR (actionRole=amount_verification, role=workhorse) route vers Opus vision-capable sur le palier %s',
+    (offre) => {
+      const m = resolveModel({
+        tenantConfig: tenant(offre),
+        role: 'workhorse',
+        actionRole: 'amount_verification',
+      })
+      expect(m.model).toBe('claude-opus-4-8')
+      expect(m.financePinned).toBe(true)
+
+      const resolvedRoleConfig = registry.tiers.premium?.cerveau
+      expect(resolvedRoleConfig?.vision_capable).toBe(true)
+    },
+  )
+
+  it('le fallback borné ne dégrade jamais le rôle OCR vision hors du modèle vision-capable pinné', () => {
+    const m = resolveModelWithFallback({
+      tenantConfig: tenant('base'),
+      role: 'workhorse',
+      actionRole: 'amount_verification',
+    })
+    expect(m.model).toBe('claude-opus-4-8')
+    expect(registry.tiers.premium?.cerveau.vision_capable).toBe(true)
+  })
+
+  it('le registre documente vision_capable pour le modèle épinglé finance (premium.cerveau)', () => {
+    const pinnedTierRole = registry.tiers.premium?.cerveau
+    expect(pinnedTierRole).toBeDefined()
+    expect(pinnedTierRole?.vision_capable).toBe(true)
   })
 })
 
