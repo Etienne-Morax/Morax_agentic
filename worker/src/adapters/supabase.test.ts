@@ -83,7 +83,7 @@ describe('makeJobRuns.begin (idempotence + retry)', () => {
     const { db, ops } = fakeDb([
       { data: null, error: { code: '23505' } }, // insert -> unique_violation
       { data: { id: 'jr-err', status: 'error', attempts: 2 }, error: null }, // relecture
-      { data: null, error: null }, // update de réouverture
+      { data: [{ id: 'jr-err' }], error: null }, // update de réouverture : 1 ligne gagnée
     ])
     const res = await makeJobRuns(db).begin('morax-test', jobMessage())
     expect(res).toEqual({ jobRunId: 'jr-err', fresh: true })
@@ -97,10 +97,20 @@ describe('makeJobRuns.begin (idempotence + retry)', () => {
     const { db } = fakeDb([
       { data: null, error: { code: '23505' } },
       { data: { id: 'jr-run', status: 'running', attempts: 1 }, error: null },
-      { data: null, error: null },
+      { data: [{ id: 'jr-run' }], error: null },
     ])
     const res = await makeJobRuns(db).begin('morax-test', jobMessage())
     expect(res).toEqual({ jobRunId: 'jr-run', fresh: true })
+  })
+
+  it('conflit rouvert par un appelant concurrent entre lecture et écriture (TOCTOU) : cède, fresh:false', async () => {
+    const { db } = fakeDb([
+      { data: null, error: { code: '23505' } },
+      { data: { id: 'jr-race', status: 'error', attempts: 1 }, error: null },
+      { data: [], error: null }, // update conditionnel : 0 ligne, un autre a gagné la course
+    ])
+    const res = await makeJobRuns(db).begin('morax-test', jobMessage())
+    expect(res).toEqual({ jobRunId: 'jr-race', fresh: false })
   })
 
   it('erreur DB non-conflit : jette (ne saute pas silencieusement)', async () => {

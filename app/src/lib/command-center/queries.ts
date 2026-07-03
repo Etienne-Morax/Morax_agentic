@@ -112,15 +112,18 @@ export async function getOperationsFeed(limit = 20): Promise<OpsFeedEntry[]> {
 
 export async function getChatMessages(limit = 50): Promise<ChatMessage[]> {
   const supabase = await createClient()
+  // Les `limit` PLUS RECENTS (desc), puis reordonnes chronologiquement pour
+  // l'affichage : un `order asc + limit` renverrait au contraire les plus
+  // vieux messages pour tout tenant ayant depasse `limit` messages.
   const { data, error } = await supabase
     .from('command_messages')
     .select('id, role, body, created_at')
-    .order('created_at', { ascending: true })
+    .order('created_at', { ascending: false })
     .limit(limit)
 
   if (error) {
     throw new Error(`[getChatMessages] ${error.message}`)
   }
 
-  return ((data ?? []) as CommandMessageRow[]).map(mapCommandMessageRow)
+  return ((data ?? []) as CommandMessageRow[]).reverse().map(mapCommandMessageRow)
 }

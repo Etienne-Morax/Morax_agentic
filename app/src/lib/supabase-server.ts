@@ -100,11 +100,12 @@ export async function findPendingActionByPostmarkMessageId(
   db: SupabaseClient,
   messageId: string,
 ): Promise<{ tenantId: string; pendingActionId: string } | null> {
-  const { data } = await db
+  const { data, error } = await db
     .from('pending_actions')
     .select('id, tenant_id')
     .eq('postmark_message_id', messageId)
     .maybeSingle()
+  if (error) throw new Error(`[findPendingActionByPostmarkMessageId] ${error.message}`)
   if (!data) return null
   const row = data as { id: string; tenant_id: string }
   return { tenantId: row.tenant_id, pendingActionId: row.id }

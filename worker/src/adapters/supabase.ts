@@ -163,6 +163,10 @@ export function makeJobRuns(db: SupabaseClient): JobRunRepository {
         return { jobRunId: row.id, fresh: false }
       }
 
+      // Garde optimiste (.eq('status', row.status)) : evite un TOCTOU si deux
+      // appelants concurrents lisent la meme ligne en conflit. Seul celui dont
+      // le statut lu correspond encore reussit la reouverture (0 ligne sinon) ;
+      // le perdant cede (fresh:false, message dedupe comme un doublon).
       const reopened = await db
         .from('job_runs')
         .update({
@@ -173,8 +177,13 @@ export function makeJobRuns(db: SupabaseClient): JobRunRepository {
           finished_at: null,
         })
         .eq('id', row.id)
+        .eq('status', row.status)
+        .select('id')
       if (reopened.error) {
         throw new Error(`[jobRuns.begin] réouverture pour retry : ${reopened.error.message}`)
+      }
+      if ((reopened.data ?? []).length === 0) {
+        return { jobRunId: row.id, fresh: false }
       }
       return { jobRunId: row.id, fresh: true }
     },

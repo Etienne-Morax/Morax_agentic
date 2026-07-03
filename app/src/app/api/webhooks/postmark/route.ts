@@ -52,10 +52,13 @@ export async function POST(request: Request): Promise<Response> {
       findPendingActionByPostmarkMessageId: (messageId) =>
         findPendingActionByPostmarkMessageId(db, messageId),
     }
-    await handlePostmarkWebhook(payload, deps, new Date().toISOString())
+    const result = await handlePostmarkWebhook(payload, deps, new Date().toISOString())
+    return new Response('ok', { status: result.status })
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : 'unknown'
     console.error(`[postmark] ${message}`)
+    // Echec non reconnu (DB, enqueue...) : 5xx pour que Postmark retente le
+    // webhook au lieu de considerer a tort l'evenement (bounce, email) comme traite.
+    return new Response('error', { status: 500 })
   }
-  return new Response('ok', { status: 200 })
 }
