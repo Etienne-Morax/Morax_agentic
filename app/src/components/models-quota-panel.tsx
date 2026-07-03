@@ -8,11 +8,12 @@
  */
 
 import type { ActiveModelStatus } from '@morax/model-core'
-import { BadgeCheck, Bot, Coins, GitBranch, Layers, TriangleAlert } from 'lucide-react'
+import { BadgeCheck, Bot, Coins, GitBranch, Layers, ShieldAlert, TrendingUp, TriangleAlert } from 'lucide-react'
 import { SectionCard } from './section-card'
 import { StatusPill } from './status-pill'
 import { EmptyState } from './empty-state'
 import { Gauge } from './charts/gauge'
+import { Sparkline } from './charts/sparkline'
 import { UsageBar } from './usage-bar'
 import type { StatusTone } from '@/lib/status-tone'
 import type { ModelsQuotaAdminView, ModelsQuotaClientView } from '@/lib/models-quota-core'
@@ -101,6 +102,26 @@ function AdminModelsQuotaPanel({ view }: { view: ModelsQuotaAdminView }) {
         )}
       </SectionCard>
 
+      <SectionCard title="Tendance conso — credits / jour" icon={<TrendingUp strokeWidth={2} />}>
+        {view.trend.length < 2 ? (
+          <EmptyState
+            icon={<TrendingUp strokeWidth={2} />}
+            title="Pas encore assez de jours pour tracer une tendance ce mois-ci."
+          />
+        ) : (
+          <>
+            <Sparkline
+              points={view.trend.map((point) => point.weight)}
+              ariaLabel="Credits consommes par jour ce mois-ci, tous tenants"
+            />
+            <p className={styles.quotaHint}>
+              {view.trend.length} jours actifs · du {view.trend[0]?.day} au{' '}
+              {view.trend[view.trend.length - 1]?.day}. Somme tous tenants.
+            </p>
+          </>
+        )}
+      </SectionCard>
+
       <SectionCard title="Tendance cout reel (COGS)" icon={<GitBranch strokeWidth={2} />}>
         {view.cogs.totals.traceCount === 0 ? (
           <EmptyState icon={<Coins strokeWidth={2} />} title="Aucun cout enregistre ce mois-ci." />
@@ -118,6 +139,16 @@ function AdminModelsQuotaPanel({ view }: { view: ModelsQuotaAdminView }) {
         <p className={styles.quotaHint}>
           Cout d&apos;infrastructure reel (USD), indicatif, distinct des credits produit ci-dessus.
         </p>
+      </SectionCard>
+
+      <SectionCard title="Budget guards infra" icon={<ShieldAlert strokeWidth={2} />}>
+        <div className={styles.quotaCard}>
+          <StatusPill
+            label={view.budgetGuards.connected ? 'Connecte' : 'Non connecte'}
+            tone={view.budgetGuards.connected ? 'success' : 'neutral'}
+          />
+          <p className={styles.quotaHint}>{view.budgetGuards.note}</p>
+        </div>
       </SectionCard>
     </div>
   )

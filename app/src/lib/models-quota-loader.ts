@@ -76,7 +76,7 @@ export async function loadAdminModelsQuota(serviceDb: SupabaseClient): Promise<M
     serviceDb.from('tenants').select('tenant_id, display_name, action_quota_monthly, alert_threshold_pct'),
     serviceDb
       .from('credits_ledger')
-      .select('tenant_id, action_category, weight')
+      .select('tenant_id, action_category, weight, created_at')
       .gte('created_at', startOfCurrentMonthIso()),
     serviceDb
       .from('cost_traces')
@@ -94,7 +94,7 @@ export async function loadAdminModelsQuota(serviceDb: SupabaseClient): Promise<M
     action_quota_monthly: number
     alert_threshold_pct: number
   }
-  type LedgerRow = CreditLedgerRow & { tenant_id: string }
+  type LedgerRow = CreditLedgerRow & { tenant_id: string; created_at: string }
 
   const tenantRows = (tenantsResult.data ?? []) as TenantRow[]
   const ledgerRows = (ledgerResult.data ?? []) as LedgerRow[]
@@ -107,6 +107,8 @@ export async function loadAdminModelsQuota(serviceDb: SupabaseClient): Promise<M
     ledgerByTenant.set(row.tenant_id, bucket)
   }
 
+  const trendRows = ledgerRows.map((row) => ({ created_at: row.created_at, weight: row.weight }))
+
   const tenants = tenantRows.map((tenant) => ({
     tenantId: tenant.tenant_id,
     displayName: tenant.display_name,
@@ -115,7 +117,7 @@ export async function loadAdminModelsQuota(serviceDb: SupabaseClient): Promise<M
     ledgerRows: ledgerByTenant.get(tenant.tenant_id) ?? [],
   }))
 
-  return buildAdminView({ registry, tenants, costTraceRows })
+  return buildAdminView({ registry, tenants, costTraceRows, trendRows })
 }
 
 /**

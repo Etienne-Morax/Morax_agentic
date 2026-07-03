@@ -19,6 +19,28 @@ export interface TenantCreditsView {
   credits: CreditsSummary
 }
 
+export interface DailyCredit {
+  /** Jour UTC au format YYYY-MM-DD. */
+  day: string
+  /** Crédits consommés ce jour-là (somme des poids, tous tenants confondus). */
+  weight: number
+}
+
+/**
+ * État indicatif des garde-fous budget infra (quota Max/Codex, etc.).
+ * Distinct des crédits produit. Aucune source branchée côté web app aujourd'hui
+ * (openclaw/codex sont exposés via MCP hors Next.js) -> `connected: false` par défaut.
+ */
+export interface BudgetGuardsInfo {
+  connected: boolean
+  note: string
+}
+
+const DISCONNECTED_BUDGET_GUARDS: BudgetGuardsInfo = {
+  connected: false,
+  note: 'Aucune source infra branchée côté web (openclaw/codex sont exposés via MCP). Indicatif uniquement.',
+}
+
 export interface ModelsQuotaAdminView {
   detail: 'admin'
   models: ActiveModelEntry[]
@@ -28,8 +50,12 @@ export interface ModelsQuotaAdminView {
     quota: number
   }
   byTenant: TenantCreditsView[]
+  /** Tendance de consommation crédits par jour (mois courant, tous tenants). */
+  trend: DailyCredit[]
   /** Tendance de coût réel (cost_traces), séparée des crédits produit. */
   cogs: CogsSummary
+  /** Garde-fous budget infra, en lecture seule et clairement séparés des crédits produit. */
+  budgetGuards: BudgetGuardsInfo
 }
 
 export interface ModelsQuotaClientView {
@@ -52,7 +78,27 @@ const ROLE_PRODUCT_LABEL: Record<ActiveModelEntry['role'], string> = {
 }
 
 /**
- * Vue admin : modèles actifs (tous paliers) + crédits global/par-tenant + tendance COGS.
+ * Regroupe des lignes de crédits par jour UTC (mois courant), triées par jour croissant.
+ * Pur : n'accède à aucune horloge, ne lit que le `created_at` fourni. Ignore les lignes
+ * sans `created_at` exploitable.
+ */
+export function bucketDailyTrend(
+  rows: readonly { created_at: string; weight: number }[],
+): DailyCredit[] {
+  const byDay = new Map<string, number>()
+  for (const row of rows) {
+    const day = row.created_at.slice(0, 10) // YYYY-MM-DD (ISO 8601, UTC)
+    if (day.length !== 10) continue
+    byDay.set(day, (byDay.get(day) ?? 0) + row.weight)
+  }
+  return [...byDay.entries()]
+    .map(([day, weight]) => ({ day, weight }))
+    .sort((a, b) => a.day.localeCompare(b.day))
+}
+
+/**
+ * Vue admin : modèles actifs (tous paliers) + crédits global/par-tenant + tendance
+ * conso/jour + tendance COGS + garde-fous budget infra (indicatif).
  * `tenants` doit déjà être scope-libre côté appelant (service_role, jamais depuis le client).
  */
 export function buildAdminView(params: {
@@ -65,6 +111,10 @@ export function buildAdminView(params: {
     ledgerRows: readonly CreditLedgerRow[]
   }[]
   costTraceRows: readonly CostTraceRow[]
+  /** Lignes datées (tous tenants) pour la tendance conso/jour. Optionnel. */
+  trendRows?: readonly { created_at: string; weight: number }[]
+  /** État des garde-fous budget infra. Par défaut : non connecté. */
+  budgetGuards?: BudgetGuardsInfo
 }): ModelsQuotaAdminView {
   const models = listActiveModels(params.registry)
 
@@ -90,7 +140,9 @@ export function buildAdminView(params: {
     models,
     globalCredits,
     byTenant,
+    trend: bucketDailyTrend(params.trendRows ?? []),
     cogs: buildCogsSummary(params.costTraceRows),
+    budgetGuards: params.budgetGuards ?? DISCONNECTED_BUDGET_GUARDS,
   }
 }
 
