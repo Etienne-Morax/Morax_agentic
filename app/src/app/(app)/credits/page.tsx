@@ -2,20 +2,27 @@
  * Dashboard credits (chemin de lecture). ZERO appel IA.
  * Somme credits_ledger du mois courant cote RLS (morax_credits_consumed est
  * reserve service_role, voir supabase/migrations/0002_tighten_function_grants.sql).
+ *
+ * Importe @morax/model-core (via models-quota-loader) -> runtime nodejs requis
+ * (readFileSync sur le YAML au chargement du module, meme contrainte que
+ * app/src/app/(app)/documents/[id]/pdf/route.tsx pour @react-pdf/renderer).
  */
 
 import { ArrowLeftRight, BarChart3, Coins, Layers, PieChart, PlayCircle, TriangleAlert, Wallet } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { summarizeCredits, type CreditLedgerRow } from '@/lib/credits-core'
 import { buildCogsSummary, type CostTraceRow } from '@/lib/cogs-core'
+import { loadClientModelsQuota } from '@/lib/models-quota-loader'
 import { StatCard } from '@/components/stat-card'
 import { SectionCard } from '@/components/section-card'
 import { EmptyState } from '@/components/empty-state'
 import { Gauge } from '@/components/charts/gauge'
 import { Donut } from '@/components/charts/donut'
 import { Bars, StackedBar } from '@/components/charts/bars'
+import { ModelsQuotaPanel } from '@/components/models-quota-panel'
 import styles from './page.module.css'
 
+export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
 
 const USD_FORMATTER = new Intl.NumberFormat('en-GB', {
@@ -51,7 +58,7 @@ function startOfCurrentMonthIso(): string {
 export default async function CreditsPage() {
   const supabase = await createClient()
 
-  const [tenantResult, ledgerResult, costTracesResult] = await Promise.all([
+  const [tenantResult, ledgerResult, costTracesResult, modelsQuotaView] = await Promise.all([
     supabase.from('tenants').select('action_quota_monthly, alert_threshold_pct').maybeSingle(),
     supabase
       .from('credits_ledger')
@@ -61,6 +68,7 @@ export default async function CreditsPage() {
       .from('cost_traces')
       .select('model, provider, tokens_in, tokens_out, usd_cost, job_run_id')
       .gte('created_at', startOfCurrentMonthIso()),
+    loadClientModelsQuota(supabase),
   ])
 
   if (tenantResult.error) throw new Error(`[credits] tenants: ${tenantResult.error.message}`)
@@ -104,6 +112,8 @@ export default async function CreditsPage() {
   return (
     <section className={styles.page}>
       <h1 className={styles.title}>Credits</h1>
+
+      <ModelsQuotaPanel detail="client" view={modelsQuotaView} />
 
       <div className={styles.statGrid}>
         <StatCard label="Credits" value={`${summary.consumed}/${summary.quota}`} icon={Coins} tone="accent" />

@@ -12,6 +12,12 @@ export default async function AppShellLayout({ children }: { children: ReactNode
     data: { user },
   } = await supabase.auth.getUser()
 
+  let isAdmin = false
+  if (user) {
+    const { data } = await supabase.from('users').select('role').eq('id', user.id).maybeSingle()
+    isAdmin = (data as { role: string } | null)?.role === 'admin'
+  }
+
   return (
     <div className={styles.shell}>
       <header className={`${styles.header} glass`}>
@@ -21,7 +27,7 @@ export default async function AppShellLayout({ children }: { children: ReactNode
           </span>
           <span className={styles.brandName}>Morax</span>
         </Link>
-        <NavLinks />
+        <NavLinks isAdmin={isAdmin} />
         <div className={styles.account}>
           {user?.email && <span className={styles.email}>{user.email}</span>}
           <PasskeyRegisterButton />

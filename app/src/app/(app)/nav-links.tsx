@@ -9,6 +9,7 @@ import {
   FileText,
   Inbox,
   LayoutGrid,
+  ShieldAlert,
   type LucideIcon,
 } from 'lucide-react'
 import styles from './shell.module.css'
@@ -28,18 +29,30 @@ const NAV_ITEMS: NavItem[] = [
   { href: '/launchpad', label: 'Launchpad', icon: LayoutGrid },
 ]
 
+const ADMIN_NAV_ITEM: NavItem = {
+  href: '/admin/models-quota',
+  label: 'Modeles & quota (admin)',
+  icon: ShieldAlert,
+}
+
 function isActiveHref(pathname: string, href: string): boolean {
   if (href === '/') return pathname === '/'
   return pathname.startsWith(href)
 }
 
+interface NavLinksProps {
+  /** Determine cote serveur (layout) via users.role — jamais recalcule cote client. */
+  isAdmin?: boolean
+}
+
 /** Seul composant client du shell : etat actif derive de l'URL courante. */
-export function NavLinks() {
+export function NavLinks({ isAdmin = false }: NavLinksProps) {
   const pathname = usePathname()
+  const items = isAdmin ? [...NAV_ITEMS, ADMIN_NAV_ITEM] : NAV_ITEMS
 
   return (
     <nav className={styles.nav} aria-label="Navigation principale">
-      {NAV_ITEMS.map((item) => {
+      {items.map((item) => {
         const active = isActiveHref(pathname, item.href)
         const Icon = item.icon
         return (
