@@ -9,7 +9,7 @@ export const metadata: Metadata = {
   manifest: '/manifest.webmanifest',
   appleWebApp: {
     capable: true,
-    statusBarStyle: 'black-translucent',
+    statusBarStyle: 'default',
     title: 'Morax',
   },
   icons: {
@@ -22,13 +22,14 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 1,
   viewportFit: 'cover',
-  themeColor: '#14161b',
+  // #faf7f3 = --color-surface (tokens.css), pas de variable CSS dispo dans le viewport Next.
+  themeColor: '#faf7f3',
 }
 
-/** Shell mobile (Launchpad/Operations/Commande) : theme sombre force via data-theme, distinct du shell desktop (app). */
+/** Shell mobile (Launchpad/Operations/Commande) : theme clair par defaut (tokens.css :root), distinct du shell desktop (app). */
 export default function CommandShellLayout({ children }: { children: ReactNode }) {
   return (
-    <div className={styles.shell} data-theme="dark">
+    <div className={styles.shell}>
       <MobileHeader />
       <main className={styles.main}>{children}</main>
       <TabBar />
