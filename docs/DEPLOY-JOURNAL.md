@@ -18,7 +18,9 @@ Append-only. Un seul agent écrit à la fois (sérialisation par repo, voir CLAU
 
 **Test manuel réel** : `gcloud run jobs execute morax-worker --wait` → succès, exit 0. Log worker : "terminé. Jobs traités : 1". Vérifié en base (`job_runs`) : c'est un vrai job `reminder_notify` (tenant `morax-dev`), passé `done` — **premier traitement réel du worker en prod**, drainé depuis pgmq où il attendait depuis le Milestone E3 (session 9, jamais de worker déployé jusqu'ici). Ce job a probablement déclenché un vrai message Telegram vers le chat lié à `morax-dev` (= Etienne) : signalé pour ne pas le surprendre.
 
-**Cloud Scheduler créé** : service account dédié minimal `morax-scheduler@morax-prod.iam.gserviceaccount.com`, rôle `roles/run.invoker` accordé uniquement sur le job `morax-worker` (pas de rôle projet large). Job `morax-worker-poll`, cron `* * * * *`, cible l'API Cloud Run Jobs v1 (`.../namespaces/morax-prod/jobs/morax-worker:run`).
+**Cloud Scheduler créé** : service account dédié minimal `morax-scheduler@morax-prod.iam.gserviceaccount.com`, rôle `roles/run.invoker` accordé uniquement sur le job `morax-worker` (pas de rôle projet large). Job `morax-worker-poll`, cron `* * * * *`, cible l'API Cloud Run Jobs v1 (`.../namespaces/morax-prod/jobs/morax-worker:run`). Manquait `cloudscheduler.googleapis.com` dans les APIs activées initialement — ajoutée à la volée.
+
+**Cycle automatique confirmé** : tick scheduler à 12:17:01, exécution `morax-worker-6rmvv` complétée 12:18:04 (log "terminé. Jobs traités : 0" — normal, pgmq déjà vidé par le test manuel). Boucle complète validée : Cloud Scheduler → Cloud Run Job → worker boot/pgmq/exit propre, sans intervention. **Phase 1 terminée.**
 
 ---
 
