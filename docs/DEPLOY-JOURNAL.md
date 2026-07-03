@@ -14,7 +14,13 @@ Append-only. Un seul agent écrit à la fois (sérialisation par repo, voir CLAU
 
 **Limites du mécanisme à connaître** (documentées aussi dans le runbook) : (1) le cron ne tourne que pendant que l'app Claude Code est ouverte sur la machine d'Etienne — pas un vrai cron serveur 24/7 indépendant ; rattrape au prochain lancement si fermé à l'heure prévue. (2) Premier passage automatique peut buter sur une invite de permission (Bash/MCP/curl) tant qu'un « Run now » manuel n'a pas pré-approuvé les outils — recommandé à Etienne.
 
-**Reste** : gate humain Phase 3 (vraie photo Telegram, finalisation+approbation réelle, passkey optionnel), décision Go/No-Go beta (Etienne), bug idempotence/retry (`task_be1949ab`) à traiter séparément.
+**Reste** : gate humain Phase 3 (vraie photo Telegram, finalisation+approbation réelle, passkey optionnel), bug idempotence/retry (`task_be1949ab`) à traiter séparément.
+
+---
+
+## 2026-07-03 — GO BETA (décision Etienne)
+
+Etienne a donné le **Go beta** en session (Phase 3 8/8 verte + Phase 4 sentinel armé). Feu vert technique uniquement — ne déclenche aucun envoi/action externe automatique. Reste non bloquant, à faire au rythme d'Etienne : gate humain (vraie photo Telegram → bot, finalisation+approbation réelle, test passkey optionnel), choix des beta-testeurs, approbation Postmark avant tout envoi à un vrai client externe, décision domaine `morax.app` (différé). Bug idempotence/retry (`task_be1949ab`) reste ouvert, à traiter séparément — ne bloque pas le Go (impact = jobs transitoirement en échec silencieusement non-retryés, pas un blocage du lancement).
 
 ---
 
