@@ -1,6 +1,6 @@
 import { registry } from '@morax/model-core'
 import { describe, expect, test } from 'vitest'
-import { buildAdminView, buildClientView } from './models-quota-core.js'
+import { bucketDailyTrend, buildAdminView, buildClientView } from './models-quota-core.js'
 import type { CreditLedgerRow } from './credits-core.js'
 import type { CostTraceRow } from './cogs-core.js'
 
@@ -47,6 +47,38 @@ describe('buildAdminView', () => {
     expect(view.byTenant[1]?.credits.consumed).toBe(30)
   })
 
+  test('inclut une tendance conso/jour depuis trendRows + garde-fous budget non connectés par défaut', () => {
+    // Arrange
+    const trendRows = [
+      { created_at: '2026-07-02T09:00:00.000Z', weight: 2 },
+      { created_at: '2026-07-02T18:00:00.000Z', weight: 3 },
+      { created_at: '2026-07-01T10:00:00.000Z', weight: 1 },
+    ]
+
+    // Act
+    const view = buildAdminView({ registry, tenants: [], costTraceRows: [], trendRows })
+
+    // Assert : triée par jour croissant, poids sommés par jour UTC
+    expect(view.trend).toEqual([
+      { day: '2026-07-01', weight: 1 },
+      { day: '2026-07-02', weight: 5 },
+    ])
+    expect(view.budgetGuards.connected).toBe(false)
+  })
+
+  test('garde-fous budget : passe-plat quand fourni', () => {
+    // Arrange / Act
+    const view = buildAdminView({
+      registry,
+      tenants: [],
+      costTraceRows: [],
+      budgetGuards: { connected: true, note: 'quota Max OK' },
+    })
+
+    // Assert
+    expect(view.budgetGuards).toEqual({ connected: true, note: 'quota Max OK' })
+  })
+
   test('inclut la tendance COGS séparée des crédits produit', () => {
     // Arrange
     const costTraceRows: CostTraceRow[] = [
@@ -67,6 +99,25 @@ describe('buildAdminView', () => {
     expect(view.cogs.totals.usdCost).toBeCloseTo(0.02)
     expect(view.cogs.byModel).toHaveLength(1)
     expect(view.cogs.byModel[0]?.model).toBe('claude-opus-4-8')
+  })
+})
+
+describe('bucketDailyTrend', () => {
+  test('regroupe par jour UTC, somme les poids et trie par jour croissant', () => {
+    const rows = [
+      { created_at: '2026-07-03T23:59:00.000Z', weight: 4 },
+      { created_at: '2026-07-01T00:00:00.000Z', weight: 1 },
+      { created_at: '2026-07-01T12:00:00.000Z', weight: 2 },
+    ]
+    expect(bucketDailyTrend(rows)).toEqual([
+      { day: '2026-07-01', weight: 3 },
+      { day: '2026-07-03', weight: 4 },
+    ])
+  })
+
+  test('ignore les created_at inexploitables et renvoie [] sur entrée vide', () => {
+    expect(bucketDailyTrend([])).toEqual([])
+    expect(bucketDailyTrend([{ created_at: 'x', weight: 5 }])).toEqual([])
   })
 })
 
