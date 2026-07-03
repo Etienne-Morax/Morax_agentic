@@ -2,7 +2,15 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Activity, CalendarDays, Coins, FileText, Inbox, type LucideIcon } from 'lucide-react'
+import {
+  Activity,
+  CalendarDays,
+  Coins,
+  FileText,
+  Inbox,
+  LayoutGrid,
+  type LucideIcon,
+} from 'lucide-react'
 import styles from './shell.module.css'
 
 interface NavItem {
@@ -17,6 +25,7 @@ const NAV_ITEMS: NavItem[] = [
   { href: '/documents', label: 'Devis & factures', icon: FileText },
   { href: '/calendar', label: 'Calendrier', icon: CalendarDays },
   { href: '/credits', label: 'Credits', icon: Coins },
+  { href: '/launchpad', label: 'Launchpad', icon: LayoutGrid },
 ]
 
 function isActiveHref(pathname: string, href: string): boolean {
