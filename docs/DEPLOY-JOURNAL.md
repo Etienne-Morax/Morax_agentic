@@ -4,6 +4,28 @@ Append-only. Un seul agent écrit à la fois (sérialisation par repo, voir CLAU
 
 ---
 
+## 2026-07-03 — Phase 3 : smoke E2E vert, 8/8 parcours (session 18)
+
+**Contexte** : reprise du plan (`~/.claude/plans/tu-es-un-architecte-majestic-thunder.md`), exécution de la Phase 3. Etienne a confirmé en session : A2 (Postmark request approval) pas encore soumis, A3 (domaine `morax.app`) toujours différé → scope ajusté (email self-domaine uniquement, pas de parcours inbound/DKIM). Effets de bord réels autorisés (Live complet) : 1 vrai OCR + 1 vrai envoi Postmark self.
+
+**Écart d'exécution relevé** : l'agent `qa-e2e` (`.claude/agents/qa-e2e.md`) n'a que `tools: Bash, Read` — insuffisant pour les tests RLS (nécessitent MCP Supabase `execute_sql` + claim JWT simulé) et le login navigateur (`worker/.env.local` n'a pas de `DATABASE_URL` psql, seulement `SUPABASE_URL`+service key). Exécuté inline dans la session principale à la place, spec `qa-e2e.md` utilisée comme checklist. Le fix (élargir les tools de l'agent) est noté mais pas fait, non bloquant.
+
+**8/8 parcours automatisés verts** (détail complet + preuves : `docs/QA-SMOKE-REPORT.md`) :
+1. Isolation RLS (2 tenants test, claim JWT simulé) : 0 fuite, insert cross-tenant refusé (`42501`), sans claim → 0 ligne.
+2. Idempotence : même message pgmq envoyé 2×, `job_runs` = 1 seule ligne.
+3. TTL 72h : `pending_action` antidatée → `expire_pending_actions()` → `expired`.
+4. **OCR live réel** : facture JPEG générée (Python/Pillow) avec montant/échéance/émetteur connus, uploadée R2, job `capture_document` → extraction **exacte** via `claude-opus-4-8` (Anthropic direct, finance-critical pin confirmé en conditions réelles), coût `$0.006595`, `credits_ledger scan_document` poids 1.00.
+5. **Envoi HIGH live réel** : draft finalisé + `pending_action approved` (simulé, équivalent du callback ✅) → job `action_execute` → Postmark accepté (zéro erreur), `envoi_document` poids 0.50, draft `sent`.
+6. Latence ACK webhook Telegram prod : 0.24–0.44s à chaud (< 1s), chat inconnu → zéro effet de bord.
+7. Santé worker : logs Cloud Run propres sur toutes les exécutions récentes, zéro erreur. Observation notée (pas un bug) : une exécution manuelle et un tick Cloud Scheduler se sont chevauchés à 13:04:48, la visibility timeout pgmq a empêché tout double-traitement.
+8. Smoke navigateur léger : `/login` 200, `/` 307 (comportement attendu).
+
+**Nettoyage** : `delete from tenants where tenant_id in ('test-alpha','test-beta')` a cascadé sur toutes les tables dépendantes (vérifié `count(*)=0` partout), 2 objets R2 supprimés, scripts jetables (`worker/tmp-qa-smoke-*.mts`) supprimés avant commit, jamais committés.
+
+**Reste** : gate humain (Etienne, ~15 min — vraie photo Telegram, finalisation+approbation réelle, test passkey optionnel), puis Phase 4 (monitoring `observability-sentinel` + Go beta).
+
+---
+
 ## 2026-07-03 — Phase 1 : Cloud Run live (cloudrun-deployer)
 
 **A1 débloqué par Etienne en session** : projet GCP `morax-prod` (numéro 182255903788) créé, billing lié (compte existant `01AC0B-7FC39B-365A70`, actif depuis 2026-06-15), `gcloud auth login` complété (`etienne0moreau@gmail.com`). Project ID trouvé via claude-in-chrome (lecture `console.cloud.google.com/home/dashboard`), pas besoin de le demander une 2e fois.
