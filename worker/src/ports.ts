@@ -31,7 +31,12 @@ export interface DocumentRepository {
 
 /** Journal d'exécution et idempotence. */
 export interface JobRunRepository {
-  /** Retourne false si idempotency_key déjà traité (skip). */
+  /**
+   * Ouvre (ou rouvre) une exécution pour cette idempotency_key.
+   * `fresh:false` UNIQUEMENT si une exécution est déjà 'done' (vrai doublon → skip).
+   * Une tentative précédente 'running'/'error' est rouverte → `fresh:true` (retry),
+   * bornée par read_ct/maxLoopsPerJob côté run.ts.
+   */
   begin(tenantId: string, msg: JobMessage): Promise<{ jobRunId: string; fresh: boolean }>
   finish(jobRunId: string, status: 'done' | 'error', error?: string): Promise<void>
 }

@@ -121,11 +121,11 @@ function makeDocuments(db: SupabaseClient): DocumentRepository {
   }
 }
 
-function makeJobRuns(db: SupabaseClient): JobRunRepository {
+export function makeJobRuns(db: SupabaseClient): JobRunRepository {
   return {
     async begin(tenantId, msg: JobMessage) {
-      // Insert idempotent : conflit sur idempotency_key -> job déjà vu.
-      const { data, error } = await db
+      // Insert idempotent : premier passage -> nouvelle ligne 'running'.
+      const inserted = await db
         .from('job_runs')
         .insert({
           tenant_id: tenantId,
@@ -135,11 +135,48 @@ function makeJobRuns(db: SupabaseClient): JobRunRepository {
         })
         .select('id')
         .single()
-      if (error) {
-        if (error.code === '23505') return { jobRunId: '', fresh: false } // unique_violation
-        throw new Error(`[jobRuns.begin] ${error.message}`)
+      if (!inserted.error) {
+        return { jobRunId: (inserted.data as { id: string }).id, fresh: true }
       }
-      return { jobRunId: (data as { id: string }).id, fresh: true }
+      if (inserted.error.code !== '23505') {
+        throw new Error(`[jobRuns.begin] ${inserted.error.message}`)
+      }
+
+      // Conflit d'unicité : une exécution existe déjà pour cette idempotency_key.
+      //  - 'done'            -> réellement déjà traité : on saute (idempotence).
+      //  - 'running'/'error' -> tentative précédente incomplète ou échouée : c'est
+      //    un RETRY. On rouvre la MÊME ligne (attempts+1, statut 'running') pour que
+      //    le pipeline retente. Sans ça, un job qui échoue une fois voyait son message
+      //    supprimé au 2e passage (conflit traité comme "déjà fait") et disparaissait
+      //    sans jamais atteindre la borne DLQ (read_ct/maxLoopsPerJob dans run.ts).
+      const existing = await db
+        .from('job_runs')
+        .select('id, status, attempts')
+        .eq('tenant_id', tenantId)
+        .eq('idempotency_key', msg.idempotency_key)
+        .single()
+      if (existing.error) {
+        throw new Error(`[jobRuns.begin] relecture après conflit : ${existing.error.message}`)
+      }
+      const row = existing.data as { id: string; status: string; attempts: number }
+      if (row.status === 'done') {
+        return { jobRunId: row.id, fresh: false }
+      }
+
+      const reopened = await db
+        .from('job_runs')
+        .update({
+          status: 'running',
+          attempts: row.attempts + 1,
+          error: null,
+          started_at: new Date().toISOString(),
+          finished_at: null,
+        })
+        .eq('id', row.id)
+      if (reopened.error) {
+        throw new Error(`[jobRuns.begin] réouverture pour retry : ${reopened.error.message}`)
+      }
+      return { jobRunId: row.id, fresh: true }
     },
     async finish(jobRunId, status, errorMsg) {
       const { error } = await db

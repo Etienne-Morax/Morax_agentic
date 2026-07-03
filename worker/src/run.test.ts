@@ -282,6 +282,24 @@ describe('processEnvelope', () => {
     expect(res.status).toBe('error')
     expect(rec.finishes[0]?.status).toBe('error')
   })
+
+  it('un job en erreur sous Max Loops reste dans la file pour retry (ni delete ni archive)', async () => {
+    const { ports, rec } = makePorts()
+    const res = await processEnvelope(envelope({ document_id: undefined }, 1), ports, llm, RUN_CONFIG)
+    expect(res.status).toBe('error')
+    // Le message ne doit PAS être supprimé : il redevient visible et sera retenté.
+    expect(rec.deleted).not.toContain(42)
+    expect(rec.archived).not.toContain(42)
+  })
+
+  it('un job en erreur au-delà de Max Loops part en DLQ (archive)', async () => {
+    const { ports, rec } = makePorts()
+    // read_ct=8 : passe le garde d'entrée (8>8 faux), échoue, puis 8+1>8 -> archive DLQ.
+    const res = await processEnvelope(envelope({ document_id: undefined }, 8), ports, llm, RUN_CONFIG)
+    expect(res.status).toBe('error')
+    expect(rec.archived).toContain(42)
+    expect(rec.deleted).not.toContain(42)
+  })
 })
 
 describe('processEnvelope reminder_notify', () => {
