@@ -4,6 +4,7 @@ import {
   handlePostmarkInbound,
   handleTelegramUpdate,
   parseActionCallback,
+  verifyPostmarkBasicAuth,
   type PostmarkDeps,
   type PostmarkInbound,
   type TelegramUpdate,
@@ -320,5 +321,35 @@ describe('handlePostmarkInbound', () => {
     expect(res.reason).toBe('unknown_alias')
     expect(h.uploads).toHaveLength(0)
     expect(h.enqueued).toHaveLength(0)
+  })
+})
+
+function basicHeader(user: string, pass: string): string {
+  return `Basic ${Buffer.from(`${user}:${pass}`).toString('base64')}`
+}
+
+describe('verifyPostmarkBasicAuth', () => {
+  it('accepte un Basic Auth avec le bon utilisateur et secret', () => {
+    expect(verifyPostmarkBasicAuth(basicHeader('morax', 's3cret'), 's3cret')).toBe(true)
+  })
+
+  it('refuse un header absent', () => {
+    expect(verifyPostmarkBasicAuth(null, 's3cret')).toBe(false)
+  })
+
+  it('refuse un schema non-Basic', () => {
+    expect(verifyPostmarkBasicAuth('Bearer abc123', 's3cret')).toBe(false)
+  })
+
+  it('refuse un mauvais utilisateur', () => {
+    expect(verifyPostmarkBasicAuth(basicHeader('autre', 's3cret'), 's3cret')).toBe(false)
+  })
+
+  it('refuse un mauvais secret', () => {
+    expect(verifyPostmarkBasicAuth(basicHeader('morax', 'faux'), 's3cret')).toBe(false)
+  })
+
+  it('refuse quand POSTMARK_INBOUND_SECRET est absent (env mal configuree)', () => {
+    expect(verifyPostmarkBasicAuth(basicHeader('morax', 's3cret'), undefined)).toBe(false)
   })
 })

@@ -4,6 +4,7 @@
  * JAMAIS d'appel IA ici. Le telechargement du media est delegue au worker.
  */
 
+import { timingSafeEqual } from 'node:crypto'
 import type { JobMessage, JobType } from '@morax/model-core'
 
 export interface TelegramChat {
@@ -225,6 +226,32 @@ export interface PostmarkDeps {
   enqueue(message: JobMessage): Promise<void>
   /** Depose la piece jointe en R2 sous la cle fournie. */
   uploadAttachment(key: string, bytes: Uint8Array, contentType: string): Promise<void>
+}
+
+const POSTMARK_INBOUND_BASIC_USER = 'morax'
+
+/**
+ * Postmark n'offre pas de champ "custom header" pour le webhook inbound :
+ * seul le Basic Auth encode dans l'URL du webhook est supporte, et Postmark
+ * le retranspose en header Authorization standard sur chaque appel.
+ */
+export function verifyPostmarkBasicAuth(
+  authorizationHeader: string | null,
+  expectedSecret: string | undefined,
+): boolean {
+  if (!authorizationHeader?.startsWith('Basic ') || !expectedSecret) {
+    return false
+  }
+
+  const decoded = Buffer.from(authorizationHeader.slice('Basic '.length), 'base64').toString('utf8')
+  const separatorIndex = decoded.indexOf(':')
+  if (separatorIndex === -1 || decoded.slice(0, separatorIndex) !== POSTMARK_INBOUND_BASIC_USER) {
+    return false
+  }
+
+  const actual = Buffer.from(decoded.slice(separatorIndex + 1))
+  const expected = Buffer.from(expectedSecret)
+  return actual.length === expected.length && timingSafeEqual(actual, expected)
 }
 
 export async function handlePostmarkInbound(

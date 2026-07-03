@@ -1,6 +1,10 @@
 /**
  * Morax - webhook inbound Postmark (email -> alias tenant).
  * Valide, authentifie l'alias, acquitte vite, empile. JAMAIS d'IA ici.
+ *
+ * Configurer l'URL du webhook Postmark avec Basic Auth :
+ * https://morax:<POSTMARK_INBOUND_SECRET>@host/api/webhooks/postmark
+ * (voir verifyPostmarkBasicAuth dans webhook-core.ts)
  */
 
 import {
@@ -9,13 +13,21 @@ import {
   serviceClient,
 } from '../../../../lib/supabase-server'
 import { putObject } from '../../../../lib/r2'
-import { handlePostmarkInbound, type PostmarkDeps, type PostmarkInbound } from '../../../../lib/webhook-core'
+import {
+  handlePostmarkInbound,
+  verifyPostmarkBasicAuth,
+  type PostmarkDeps,
+  type PostmarkInbound,
+} from '../../../../lib/webhook-core'
 
 export const runtime = 'nodejs'
 
 export async function POST(request: Request): Promise<Response> {
-  const secret = request.headers.get('x-morax-inbound-secret')
-  if (!secret || secret !== process.env.POSTMARK_INBOUND_SECRET) {
+  const authorized = verifyPostmarkBasicAuth(
+    request.headers.get('authorization'),
+    process.env.POSTMARK_INBOUND_SECRET,
+  )
+  if (!authorized) {
     return new Response('forbidden', { status: 403 })
   }
 
