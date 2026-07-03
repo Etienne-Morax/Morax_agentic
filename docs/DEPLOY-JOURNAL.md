@@ -4,6 +4,24 @@ Append-only. Un seul agent écrit à la fois (sérialisation par repo, voir CLAU
 
 ---
 
+## 2026-07-03 — Phase 1 : Cloud Run live (cloudrun-deployer)
+
+**A1 débloqué par Etienne en session** : projet GCP `morax-prod` (numéro 182255903788) créé, billing lié (compte existant `01AC0B-7FC39B-365A70`, actif depuis 2026-06-15), `gcloud auth login` complété (`etienne0moreau@gmail.com`). Project ID trouvé via claude-in-chrome (lecture `console.cloud.google.com/home/dashboard`), pas besoin de le demander une 2e fois.
+
+**3 bugs réels trouvés au premier vrai déploiement (jamais construit avant cette session)** :
+1. `gcloud builds submit` → `PERMISSION_DENIED` sur l'upload du tarball. Cause : propagation IAM juste après activation de `cloudbuild.googleapis.com` (Owner confirmé sur le compte, donc pas un vrai problème de droits). Résolu par un retry après ~40s.
+2. `pnpm --filter @morax/worker --prod deploy /out` échoue dans le Dockerfile : pnpm v10+ refuse `pnpm deploy` sans `inject-workspace-packages=true` (jamais configuré dans ce monorepo). Fix : `--legacy` (flag suggéré par pnpm lui-même), scope limité à cette seule commande. Validé en local avant de relancer le build cloud (dossier de sortie simulé, `dist/index.js` + `@morax/model-core` bien présents). Commit `7146b14`.
+3. Push d'image échoue : `Repository "morax" not found` — le repo Artifact Registry n'existait pas, le script le supposait déjà créé. Créé manuellement (`gcloud artifacts repositories create`) puis rendu idempotent dans `deploy/cloud-run.sh` (describe puis create si absent) pour les futurs redeploys. Commit `a66f655`.
+4. Cloud Scheduler : `cloudscheduler.googleapis.com` pas dans la liste initiale des 3 APIs du plan — ajoutée à la volée.
+
+**Build + deploy réussis** : image poussée (`europe-west1-docker.pkg.dev/morax-prod/morax/worker`), Cloud Run Job `morax-worker` créé (europe-west1).
+
+**Test manuel réel** : `gcloud run jobs execute morax-worker --wait` → succès, exit 0. Log worker : "terminé. Jobs traités : 1". Vérifié en base (`job_runs`) : c'est un vrai job `reminder_notify` (tenant `morax-dev`), passé `done` — **premier traitement réel du worker en prod**, drainé depuis pgmq où il attendait depuis le Milestone E3 (session 9, jamais de worker déployé jusqu'ici). Ce job a probablement déclenché un vrai message Telegram vers le chat lié à `morax-dev` (= Etienne) : signalé pour ne pas le surprendre.
+
+**Cloud Scheduler créé** : service account dédié minimal `morax-scheduler@morax-prod.iam.gserviceaccount.com`, rôle `roles/run.invoker` accordé uniquement sur le job `morax-worker` (pas de rôle projet large). Job `morax-worker-poll`, cron `* * * * *`, cible l'API Cloud Run Jobs v1 (`.../namespaces/morax-prod/jobs/morax-worker:run`).
+
+---
+
 ## 2026-07-03 — Phase 0 (deploy-conductor)
 
 **Contexte** : reprise du plan de déploiement final (`~/.claude/plans/tu-es-un-architecte-majestic-thunder.md`), exécution autonome de la Phase 0.
