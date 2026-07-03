@@ -7,8 +7,7 @@
 
 .greetingMascot {
   flex-shrink: 0;
-  border-radius: var(--radius-xl);
-  object-fit: cover;
+  object-fit: contain;
 }
 
 .pageTitle {

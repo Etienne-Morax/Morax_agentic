@@ -12,7 +12,7 @@ export default async function LaunchpadPage() {
     <section>
       <div className={styles.greeting}>
         <Image
-          src="/mascot/morax.png"
+          src="/mascot/morax-cutout.png"
           alt=""
           width={72}
           height={72}
