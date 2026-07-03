@@ -4,6 +4,20 @@ Append-only. Un seul agent écrit à la fois (sérialisation par repo, voir CLAU
 
 ---
 
+## 2026-07-03 — Phase 4 : monitoring armé (session 18, suite Phase 3)
+
+**Bug réel trouvé en concevant le test d'alerte volontaire (pas corrigé ici, flag séparé)** : `job_runs` a une contrainte unique `(tenant_id, idempotency_key)` (0001_init.sql:124). Dans `worker/src/run.ts`, `begin()` traite tout conflit `23505` comme "déjà traité" → supprime le message de la file. Or si un job échoue à sa 1ère tentative, la ligne `job_runs` reste occupée en `status='error'` — au prochain poll, le conflit se reproduit, le message est supprimé silencieusement **sans jamais atteindre le chemin `read_ct`/DLQ prévu**. Un job qui échoue une fois disparaît donc pour toujours, sans retry, sans trace DLQ. Confirmé par lecture de schéma, pas reproduit en direct sur la prod (le test d'alerte ci-dessous l'a évité en gardant le tenant vivant pendant la 1ère tentative). Flag envoyé en tâche séparée (`task_be1949ab`), pas corrigé cette session (hors scope monitoring).
+
+**Test d'alerte volontaire réalisé** : tenant `test-gamma` créé, job de type inconnu injecté (`unknown_job_type_qa_sentinel_test`) → worker → `job_runs.status='error'` confirmé. Vérifié que la requête de détection sentinel (`status='error' AND tenant_id NOT LIKE 'test-%'`) exclut bien ce tenant de test (0) tout en détectant l'erreur en clair sans le filtre (1) — les deux comportements attendus validés. **Incident mineur auto-corrigé** : le message pgmq de test est resté dans la file réelle après le delete du tenant (delete tenant ne cascade pas sur pgmq) — supprimé manuellement (`pgmq.delete`) avant qu'un tick scheduler ne le redrain contre un tenant supprimé. `test-gamma` entièrement purgé (tenants/job_runs/pgmq = 0).
+
+**Cron `morax-observability-sentinel` armé** : `mcp__scheduled-tasks`, toutes les 30 min (`*/30 * * * *` — **piège trouvé** : une cron-list `"3,33 * * * *"` a été mal interprétée par le parser de cet outil, affichée comme "toutes les heures à :07" au lieu de deux fois par heure ; corrigé avec la syntaxe `*/N` qui elle fonctionne correctement, vérifié via `list_scheduled_tasks`). Prompt self-contained (checklist observability-sentinel.md : webhook Telegram, profondeur pgmq, job_runs erreur hors test, pending_actions expirées hors test, Vercel runtime errors, fraîcheur dernière exécution Cloud Run), dédup 3h par signature, alerte Telegram directe (chat_id lu depuis `channel_identities` tenant `morax-dev`). **Écart volontaire par rapport à la spec `observability-sentinel.md`** : le log d'alerte n'est PAS écrit dans `docs/DEPLOY-JOURNAL.md` par le cron lui-même (contrairement à ce que dit la spec) mais dans `~/.claude/morax-sentinel-log.md`, hors repo git — pour respecter la règle de sérialisation par repo (un cron non supervisé ne doit pas modifier le working tree partagé pendant qu'un autre agent pourrait y travailler). `docs/ONCALL-RUNBOOK.md` créé (seuils, réactions par type d'alerte, limites du mécanisme).
+
+**Limites du mécanisme à connaître** (documentées aussi dans le runbook) : (1) le cron ne tourne que pendant que l'app Claude Code est ouverte sur la machine d'Etienne — pas un vrai cron serveur 24/7 indépendant ; rattrape au prochain lancement si fermé à l'heure prévue. (2) Premier passage automatique peut buter sur une invite de permission (Bash/MCP/curl) tant qu'un « Run now » manuel n'a pas pré-approuvé les outils — recommandé à Etienne.
+
+**Reste** : gate humain Phase 3 (vraie photo Telegram, finalisation+approbation réelle, passkey optionnel), décision Go/No-Go beta (Etienne), bug idempotence/retry (`task_be1949ab`) à traiter séparément.
+
+---
+
 ## 2026-07-03 — Phase 3 : smoke E2E vert, 8/8 parcours (session 18)
 
 **Contexte** : reprise du plan (`~/.claude/plans/tu-es-un-architecte-majestic-thunder.md`), exécution de la Phase 3. Etienne a confirmé en session : A2 (Postmark request approval) pas encore soumis, A3 (domaine `morax.app`) toujours différé → scope ajusté (email self-domaine uniquement, pas de parcours inbound/DKIM). Effets de bord réels autorisés (Live complet) : 1 vrai OCR + 1 vrai envoi Postmark self.
