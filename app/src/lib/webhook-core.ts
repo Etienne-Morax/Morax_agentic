@@ -5,7 +5,7 @@
  */
 
 import { timingSafeEqual } from 'node:crypto'
-import type { JobMessage, JobType } from '@morax/model-core'
+import type { BounceKind, JobMessage, JobType } from '@morax/model-core'
 
 export interface TelegramChat {
   id: number
@@ -212,6 +212,47 @@ export interface PostmarkInbound {
   Attachments?: PostmarkAttachment[]
 }
 
+/**
+ * Payload webhook Postmark de bounce/delivery-failure, forme distincte de
+ * l'inbound (RecordType='Inbound'). Champs pertinents seulement.
+ * https://postmarkapp.com/developer/webhooks/bounce-webhook
+ */
+export interface PostmarkBounceWebhook {
+  RecordType: 'Bounce' | 'SpamComplaint' | string
+  /** Sous-type Postmark : HardBounce, SoftBounce, SpamComplaint, Transient, etc. */
+  Type: string
+  MessageID: string
+  Email?: string
+}
+
+/** Discrimine un payload webhook Postmark : inbound email vs bounce/spam. */
+export function isPostmarkBounceWebhook(
+  payload: Record<string, unknown>,
+): payload is Record<string, unknown> & PostmarkBounceWebhook {
+  return payload.RecordType === 'Bounce' || payload.RecordType === 'SpamComplaint'
+}
+
+const HARD_BOUNCE_TYPES = new Set([
+  'HardBounce',
+  'BadEmailAddress',
+  'Blocked',
+  'ManuallyDeactivated',
+])
+
+/**
+ * Classifie le sous-type Postmark en categorie actionnable.
+ * hard = adresse invalide/definitivement rejetee -> remboursement + notif.
+ * soft = echec temporaire (boite pleine, serveur indisponible) -> pas d'action,
+ *        Postmark retentera automatiquement.
+ * spam_complaint = le destinataire a signale l'email -> notif seule (deja livre,
+ *        pas de remboursement : le document est bien arrive).
+ */
+export function classifyBounce(payload: PostmarkBounceWebhook): BounceKind {
+  if (payload.RecordType === 'SpamComplaint') return 'spam_complaint'
+  if (HARD_BOUNCE_TYPES.has(payload.Type)) return 'hard'
+  return 'soft'
+}
+
 export interface PostmarkDeps {
   /** Authentifie l'alias email -> tenant_id, ou null si inconnu. */
   findTenantByEmailAlias(alias: string): Promise<string | null>
@@ -226,6 +267,15 @@ export interface PostmarkDeps {
   enqueue(message: JobMessage): Promise<void>
   /** Depose la piece jointe en R2 sous la cle fournie. */
   uploadAttachment(key: string, bytes: Uint8Array, contentType: string): Promise<void>
+  /**
+   * Retrouve la pending_action correspondant au MessageID Postmark d'un envoi
+   * deja execute (envoi HIGH devis/facture), ou null si aucune correlation.
+   * Utilise pour router les bounces vers le bon tenant sans jamais faire
+   * confiance a une valeur fournie par le payload webhook lui-meme.
+   */
+  findPendingActionByPostmarkMessageId(
+    messageId: string,
+  ): Promise<{ tenantId: string; pendingActionId: string } | null>
 }
 
 const POSTMARK_INBOUND_BASIC_USER = 'morax'
@@ -296,4 +346,57 @@ export async function handlePostmarkInbound(
 
   await deps.enqueue(jobMessage)
   return ACK_OK
+}
+
+/**
+ * Bounce/spam-complaint Postmark sur un envoi HIGH deja execute (devis/facture).
+ * Ne touche jamais le ledger de credits directement (RLS + coherence : seul le
+ * worker ecrit via ports.credits.record()). Empile un job action_bounce pour
+ * que le worker rembourse (hard bounce) et notifie le tenant.
+ * Soft bounce : aucune action, Postmark retente automatiquement en interne.
+ */
+export async function handlePostmarkBounce(
+  payload: PostmarkBounceWebhook,
+  deps: PostmarkDeps,
+  now: string,
+): Promise<WebhookResult> {
+  const kind = classifyBounce(payload)
+  if (kind === 'soft') {
+    return { status: 200, enqueued: false, reason: 'soft_bounce_ignored' }
+  }
+
+  const correlated = await deps.findPendingActionByPostmarkMessageId(payload.MessageID)
+  if (!correlated) {
+    // Aucun envoi HIGH connu pour ce MessageID : rien a rembourser/notifier.
+    return { status: 200, enqueued: false, reason: 'unknown_message_id' }
+  }
+
+  const jobMessage: JobMessage = {
+    schema_version: 1,
+    type: 'action_bounce',
+    tenant_id: correlated.tenantId,
+    source: 'app',
+    action: { pending_action_id: correlated.pendingActionId, bounce_kind: kind },
+    idempotency_key: `act-bounce:${correlated.pendingActionId}:${payload.MessageID}`,
+    enqueued_at: now,
+  }
+
+  await deps.enqueue(jobMessage)
+  return ACK_OK
+}
+
+/**
+ * Point d'entree unique du webhook Postmark : discrimine bounce/spam vs
+ * inbound email (formes de payload distinctes, cf. RecordType) et route vers
+ * le handler approprie.
+ */
+export async function handlePostmarkWebhook(
+  payload: Record<string, unknown>,
+  deps: PostmarkDeps,
+  now: string,
+): Promise<WebhookResult> {
+  if (isPostmarkBounceWebhook(payload)) {
+    return handlePostmarkBounce(payload, deps, now)
+  }
+  return handlePostmarkInbound(payload as unknown as PostmarkInbound, deps, now)
 }

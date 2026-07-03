@@ -90,3 +90,22 @@ export async function findTenantByEmailAlias(
     .maybeSingle()
   return data ? (data as { tenant_id: string }).tenant_id : null
 }
+
+/**
+ * Correle un bounce Postmark a la pending_action d'origine via le MessageID
+ * persiste au moment de l'envoi (action_execute cote worker). Ne fait jamais
+ * confiance a un tenant_id fourni par le payload webhook lui-meme.
+ */
+export async function findPendingActionByPostmarkMessageId(
+  db: SupabaseClient,
+  messageId: string,
+): Promise<{ tenantId: string; pendingActionId: string } | null> {
+  const { data } = await db
+    .from('pending_actions')
+    .select('id, tenant_id')
+    .eq('postmark_message_id', messageId)
+    .maybeSingle()
+  if (!data) return null
+  const row = data as { id: string; tenant_id: string }
+  return { tenantId: row.tenant_id, pendingActionId: row.id }
+}

@@ -5,6 +5,7 @@
  */
 
 import { creditCost } from '@morax/model-core'
+import type { BounceKind } from '@morax/model-core'
 import type { LlmClient } from './llm.js'
 import type { PendingActionRow, Ports } from './ports.js'
 import {
@@ -19,6 +20,7 @@ import { formatReminderMessage } from './reminder-notify-core.js'
 import {
   formatActionResult,
   formatApprovalSummary,
+  formatBounceResult,
   formatDocumentEmail,
   parseSendEmailPayload,
 } from './action-gate-core.js'
@@ -54,8 +56,8 @@ export async function processEnvelope(
     return processReminderNotify(envelope, msg, ports, config)
   }
 
-  // action_propose/action_execute : gate HIGH, ce n'est pas un job IA non plus.
-  if (msg.type === 'action_propose' || msg.type === 'action_execute') {
+  // action_propose/action_execute/action_bounce : gate HIGH, ce n'est pas un job IA non plus.
+  if (msg.type === 'action_propose' || msg.type === 'action_execute' || msg.type === 'action_bounce') {
     return processActionGate(envelope, msg, ports, config)
   }
 
@@ -196,8 +198,10 @@ async function processActionGate(
 
     if (msg.type === 'action_propose') {
       await processActionPropose(msg.tenant_id, action, ports)
-    } else {
+    } else if (msg.type === 'action_execute') {
       await processActionExecute(msg.tenant_id, action, ports, begin.jobRunId)
+    } else {
+      await processActionBounce(msg.tenant_id, action, ports, begin.jobRunId, requireBounceKind(msg.action?.bounce_kind))
     }
 
     await ports.jobRuns.finish(begin.jobRunId, 'done')
@@ -251,7 +255,7 @@ async function processActionExecute(
 
   const { bytes } = await ports.media.getObject(payload.pdf_key)
   const email = formatDocumentEmail(payload)
-  await ports.mailer.sendDocumentEmail({
+  const sent = await ports.mailer.sendDocumentEmail({
     to: payload.client_email,
     ...(payload.cc ? { cc: payload.cc } : {}),
     subject: email.subject,
@@ -263,7 +267,10 @@ async function processActionExecute(
       contentType: 'application/pdf',
     },
   })
-  await ports.pendingActions.markExecuted(tenantId, action.id)
+  // Le MessageID est persiste pour correler un eventuel bounce/spam-complaint
+  // Postmark a cette pending_action (le webhook de bounce ne recoit que le
+  // MessageID, jamais notre tenant_id/pending_action_id).
+  await ports.pendingActions.markExecuted(tenantId, action.id, sent.messageId)
   await ports.drafts.markSent(tenantId, payload.draft_id)
   // Poids symbolique de suivi d'usage (pas de LLM ici) : jamais bloquant, le
   // gate Telegram est le seul controle sur l'envoi.
@@ -274,6 +281,46 @@ async function processActionExecute(
     weight: creditCost('envoi_document'),
   })
   await ports.notifier.notifyActionResult(tenantId, formatActionResult('executed', payload))
+}
+
+/**
+ * action_bounce : hard bounce ou spam-complaint Postmark sur un envoi HIGH
+ * deja execute. Hard bounce -> remboursement du credit envoi_document (le
+ * document n'est jamais arrive) + notification. Spam complaint -> notification
+ * seule (le document est bien arrive, pas de remboursement). Soft bounce
+ * n'atteint jamais ce point (filtre au niveau du webhook, cf. webhook-core.ts).
+ */
+async function processActionBounce(
+  tenantId: string,
+  action: PendingActionRow,
+  ports: Ports,
+  jobRunId: string,
+  bounceKind: Exclude<BounceKind, 'soft'>,
+): Promise<void> {
+  // Rien a rembourser/notifier si l'envoi n'a en fait jamais ete execute
+  // (bounce arrive avant l'execution, ou pending_action dans un autre etat).
+  if (action.status !== 'executed') return
+
+  // Garde d'idempotence : un deuxieme webhook Postmark pour le meme MessageID
+  // (retry) ne doit ni rembourser ni notifier une deuxieme fois.
+  const isFirstBounce = await ports.pendingActions.markBounced(tenantId, action.id, bounceKind)
+  if (!isFirstBounce) return
+
+  const payload = parseSendEmailPayload(action.payload)
+
+  if (bounceKind === 'hard') {
+    // Remboursement : ligne compensatoire de poids negatif, jamais de mutation
+    // retroactive du ledger existant (append-only, meme pattern que le reste
+    // de credits_ledger).
+    await ports.credits.record({
+      tenantId,
+      jobRunId,
+      actionCategory: 'envoi_document',
+      weight: -creditCost('envoi_document'),
+    })
+  }
+
+  await ports.notifier.notifyActionResult(tenantId, formatBounceResult(bounceKind, payload))
 }
 
 /** Un passage : lit un lot et traite chaque message. Retourne le nombre traité. */
@@ -302,4 +349,11 @@ function requirePendingActionId(pendingActionId: string | undefined): string {
     throw new Error('[run] job action_propose/action_execute sans pending_action_id')
   }
   return pendingActionId
+}
+
+function requireBounceKind(bounceKind: BounceKind | undefined): Exclude<BounceKind, 'soft'> {
+  if (bounceKind !== 'hard' && bounceKind !== 'spam_complaint') {
+    throw new Error(`[run] job action_bounce avec bounce_kind invalide : ${String(bounceKind)}`)
+  }
+  return bounceKind
 }
