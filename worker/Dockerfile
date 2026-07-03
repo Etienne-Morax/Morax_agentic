@@ -16,7 +16,7 @@ COPY packages/model-core packages/model-core
 COPY worker worker
 RUN pnpm --filter @morax/model-core build && pnpm --filter @morax/worker build
 # Élague les devDependencies.
-RUN pnpm --filter @morax/worker --prod deploy /out
+RUN pnpm --filter @morax/worker --prod deploy /out --legacy
 
 FROM base AS runtime
 WORKDIR /app
