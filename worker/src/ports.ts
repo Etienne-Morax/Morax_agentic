@@ -71,6 +71,8 @@ export interface PendingActionRow {
   id: string
   status: PendingActionStatus
   payload: Record<string, unknown>
+  /** Non-null si un bounce a deja ete traite pour cette action (garde d'idempotence). */
+  bouncedAt?: string | null
 }
 
 /** Gate HIGH : écrit/lit une action en attente d'approbation humaine. */
@@ -82,8 +84,17 @@ export interface PendingActionRepository {
   }): Promise<{ pendingActionId: string }>
   /** Charge une action pending_actions tenant-scopee, ou null si introuvable. */
   load(tenantId: string, pendingActionId: string): Promise<PendingActionRow | null>
-  /** Marque l'action comme executee (email envoye). */
-  markExecuted(tenantId: string, pendingActionId: string): Promise<void>
+  /** Marque l'action comme executee (email envoye), persiste le MessageID Postmark. */
+  markExecuted(tenantId: string, pendingActionId: string, postmarkMessageId?: string): Promise<void>
+  /**
+   * Marque le bounce comme traite (garde d'idempotence contre les retries
+   * webhook Postmark). Retourne false si deja marque (rien a rembourser).
+   */
+  markBounced(
+    tenantId: string,
+    pendingActionId: string,
+    bounceKind: 'hard' | 'soft' | 'spam_complaint',
+  ): Promise<boolean>
 }
 
 /** Statut des brouillons devis/facture (document_drafts). */

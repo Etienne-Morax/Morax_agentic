@@ -4,6 +4,7 @@ import {
   buildApprovalKeyboard,
   formatActionResult,
   formatApprovalSummary,
+  formatBounceResult,
   formatDocumentEmail,
   parseSendEmailPayload,
 } from './action-gate-core.js'
@@ -105,6 +106,24 @@ describe('formatActionResult', () => {
   it('formate le resultat expired', () => {
     expect(formatActionResult('expired', payload())).toBe(
       'Proposition expiree (72h) : facture INV-001. Relancer un nouvel envoi si besoin.',
+    )
+  })
+})
+
+describe('formatBounceResult', () => {
+  it('formate un hard bounce : mentionne le remboursement', () => {
+    expect(formatBounceResult('hard', payload())).toBe(
+      "Email non delivre : facture INV-001 a client@x.com (adresse invalide/rejetee). " +
+        "Credit rembourse — verifier l'adresse et relancer.",
+    )
+  })
+
+  it('formate un spam complaint : mentionne l\'absence de remboursement', () => {
+    expect(
+      formatBounceResult('spam_complaint', payload({ kind: 'quote', doc_number: 'Q-042' })),
+    ).toBe(
+      'client@x.com a signale devis Q-042 comme spam. ' +
+        'Le document a bien ete livre (aucun remboursement) — verifier avec le client.',
     )
   })
 })

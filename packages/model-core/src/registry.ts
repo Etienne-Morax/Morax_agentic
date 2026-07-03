@@ -21,6 +21,12 @@ export interface RegistryRoleConfig {
   quota_monthly_tokens?: number
   rgpd_note?: string
   notes?: string
+  /**
+   * Vrai si le modèle accepte des entrées image (vision multimodale).
+   * Utilisé pour prouver que les rôles OCR/document résolvent toujours
+   * vers un modèle vision-capable, quel que soit le palier du tenant.
+   */
+  vision_capable?: boolean
 }
 
 export type RegistryRole = 'cerveau' | 'workhorse' | 'micro'

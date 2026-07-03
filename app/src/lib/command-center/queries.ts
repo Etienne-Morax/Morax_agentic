@@ -26,6 +26,7 @@ const JOB_TYPE_META: Record<JobType, { agent: string; action: string; kind: Enti
   reminder_notify: { agent: 'Relanceur', action: 'Notification echeance', kind: 'reminder' },
   action_propose: { agent: 'Redacteur', action: "Proposition d'action (gate)", kind: 'pending_action' },
   action_execute: { agent: 'Executeur', action: 'Execution action approuvee', kind: 'pending_action' },
+  action_bounce: { agent: 'Executeur', action: 'Bounce email (remboursement/notification)', kind: 'pending_action' },
 }
 
 interface AgentTaskRow {
