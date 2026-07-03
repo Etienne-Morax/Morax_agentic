@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [main, feat/phase1-foundations]
   pull_request:
 
 jobs:
