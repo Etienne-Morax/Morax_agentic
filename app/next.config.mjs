@@ -19,11 +19,21 @@ const nextConfig = {
   // (registry.ts locateRegistryFile) : le tracer de Next ne le detecte pas
   // statiquement, il faut le forcer explicitement sinon 500 en prod (fichier
   // absent du bundle serverless deploye).
-  // NB: ces chemins restent relatifs a app/ (dossier de la config), PAS a
-  // outputFileTracingRoot — verifie dans next/dist/build/collect-build-traces.
-  // Ne pas retirer le `../`.
+  // Un premier essai (uniquement '../packages/.../src/models.registry.yaml')
+  // n'a PAS fonctionne en prod (500 persistant, fichier absent du bundle) —
+  // la base de resolution reelle de ce glob cote Vercel est incertaine.
+  // On liste dist ET src, avec et sans prefixe '../', pour couvrir les deux
+  // bases possibles (relatif a next.config.mjs vs relatif a
+  // outputFileTracingRoot) ; le build model-core copie aussi le yaml dans
+  // dist/ (candidat 1 de locateRegistryFile) pour ne plus dependre du tout
+  // du fallback src en prod.
   outputFileTracingIncludes: {
-    '/**': ['../packages/model-core/src/models.registry.yaml'],
+    '/**': [
+      'packages/model-core/dist/models.registry.yaml',
+      'packages/model-core/src/models.registry.yaml',
+      '../packages/model-core/dist/models.registry.yaml',
+      '../packages/model-core/src/models.registry.yaml',
+    ],
   },
 }
 

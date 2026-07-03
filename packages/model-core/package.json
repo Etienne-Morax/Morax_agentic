@@ -14,7 +14,7 @@
     "./tenant-schema": "./src/tenant.schema.yaml"
   },
   "scripts": {
-    "build": "tsc -p tsconfig.json",
+    "build": "tsc -p tsconfig.json && cp src/models.registry.yaml dist/models.registry.yaml",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "vitest run"
   },
