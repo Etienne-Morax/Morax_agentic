@@ -1,0 +1,77 @@
+/**
+ * Morax - overrides sombres pour le shell mobile (Centre de Commandement).
+ * Memes teintes (hues) que tokens.css, luminosite inversee. Portee :
+ * [data-theme='dark'] uniquement -> aucune page existante n'est affectee
+ * (aucune ne pose cet attribut).
+ */
+
+[data-theme='dark'] {
+  color-scheme: dark;
+
+  /* ----- Surfaces ----- */
+  --color-surface: oklch(17% 0.014 260);
+  --color-surface-raised: oklch(22% 0.016 260);
+  --color-surface-sunken: oklch(13% 0.012 260);
+  --color-border: oklch(32% 0.016 260);
+  --color-border-strong: oklch(42% 0.02 260);
+
+  /* ----- Texte ----- */
+  --color-text: oklch(95% 0.006 260);
+  --color-text-muted: oklch(72% 0.012 260);
+  --color-text-faint: oklch(55% 0.014 260);
+
+  /* ----- Accent (sarcelle calme, eclaircie pour contraste sur fond sombre) ----- */
+  --color-accent: oklch(72% 0.13 205);
+  --color-accent-hover: oklch(78% 0.13 205);
+  --color-accent-soft: oklch(28% 0.05 205);
+  --color-accent-contrast: oklch(15% 0.01 260);
+
+  /* ----- Semantique : urgence / statut ----- */
+  --color-success: oklch(72% 0.15 150);
+  --color-success-soft: oklch(28% 0.055 150);
+  --color-warning: oklch(78% 0.15 75);
+  --color-warning-soft: oklch(30% 0.06 75);
+  --color-danger: oklch(68% 0.19 25);
+  --color-danger-soft: oklch(30% 0.07 25);
+  --color-info: oklch(70% 0.11 230);
+  --color-info-soft: oklch(28% 0.045 230);
+  --color-neutral-soft: oklch(26% 0.012 260);
+
+  /* ----- Semantique "ink" : clair-sur-sombre, meme logique AA que le mode clair ----- */
+  --color-success-ink: oklch(80% 0.13 150);
+  --color-warning-ink: oklch(83% 0.13 75);
+  --color-danger-ink: oklch(78% 0.16 25);
+  --color-info-ink: oklch(79% 0.09 230);
+
+  /* ----- Couleurs par type d'entite ----- */
+  --kind-document: oklch(75% 0.1 240);
+  --kind-document-soft: oklch(28% 0.05 240);
+  --kind-document-vivid: oklch(68% 0.15 240);
+
+  --kind-job: oklch(78% 0.11 295);
+  --kind-job-soft: oklch(28% 0.06 295);
+  --kind-job-vivid: oklch(70% 0.17 295);
+
+  --kind-reminder: oklch(80% 0.1 75);
+  --kind-reminder-soft: oklch(30% 0.07 80);
+  --kind-reminder-vivid: oklch(78% 0.15 75);
+
+  --kind-action: oklch(78% 0.13 20);
+  --kind-action-soft: oklch(30% 0.06 15);
+  --kind-action-vivid: oklch(70% 0.18 20);
+
+  --kind-draft: oklch(75% 0.1 205);
+  --kind-draft-soft: oklch(28% 0.05 205);
+  --kind-draft-vivid: oklch(72% 0.13 205);
+
+  /* ----- Graphiques ----- */
+  --chart-track: oklch(26% 0.014 260);
+
+  /* ----- Verre ----- */
+  --glass-bg: oklch(20% 0.014 260 / 0.72);
+  --glass-border: oklch(45% 0.02 260 / 0.4);
+
+  /* ----- Profondeur (ombres renforcees sur fond sombre) ----- */
+  --shadow-card: 0 1px 2px oklch(0% 0 0 / 0.3), 0 8px 24px oklch(0% 0 0 / 0.35);
+  --shadow-raised: 0 2px 6px oklch(0% 0 0 / 0.35), 0 16px 40px oklch(0% 0 0 / 0.45);
+}
