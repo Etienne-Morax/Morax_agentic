@@ -13,6 +13,7 @@ export type JobType =
   | 'reminder_notify'
   | 'action_propose'
   | 'action_execute'
+  | 'action_bounce'
 
 export interface ReminderNotifyPayload {
   id: string
@@ -34,8 +35,12 @@ export interface SendEmailActionPayload {
   currency: string
 }
 
+export type BounceKind = 'hard' | 'soft' | 'spam_complaint'
+
 export interface ActionJobPayload {
   pending_action_id: string
+  /** Present uniquement pour type='action_bounce' : classification du bounce Postmark. */
+  bounce_kind?: BounceKind
 }
 
 export interface JobMessage {

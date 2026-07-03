@@ -35,12 +35,15 @@ interface Recorded {
   actionResults: Array<{ tenantId: string; text: string }>
   emails: Array<{ to: string; cc?: string; subject: string; filename: string; htmlBody?: string }>
   markedExecuted: string[]
+  markedExecutedMessageIds: Array<string | undefined>
   markedSent: string[]
+  markedBounced: Array<{ tenantId: string; pendingActionId: string; bounceKind: string }>
 }
 
 function actionRow(
   status: PendingActionStatus,
   payloadOverrides: Record<string, unknown> = {},
+  bouncedAt: string | null = null,
 ): PendingActionRow {
   return {
     id: 'pa-1',
@@ -55,6 +58,7 @@ function actionRow(
       currency: 'GBP',
       ...payloadOverrides,
     },
+    bouncedAt,
   }
 }
 
@@ -73,7 +77,9 @@ function makePorts(
     actionResults: [],
     emails: [],
     markedExecuted: [],
+    markedExecutedMessageIds: [],
     markedSent: [],
+    markedBounced: [],
   }
   const fresh = opts.fresh ?? true
   const action = opts.action === undefined ? actionRow('pending') : opts.action
@@ -146,8 +152,16 @@ function makePorts(
       async load() {
         return action
       },
-      async markExecuted(_tenantId, pendingActionId) {
+      async markExecuted(_tenantId, pendingActionId, postmarkMessageId) {
         rec.markedExecuted.push(pendingActionId)
+        rec.markedExecutedMessageIds.push(postmarkMessageId)
+      },
+      async markBounced(tenantId, pendingActionId, bounceKind) {
+        // Emule la garde d'idempotence Postgres (`where bounced_at is null`) :
+        // deja marque si l'action fixture porte bouncedAt.
+        if (action?.bouncedAt) return false
+        rec.markedBounced.push({ tenantId, pendingActionId, bounceKind })
+        return true
       },
     },
     notifier: {
@@ -219,6 +233,24 @@ function actionEnvelope(
     ...overrides,
   }
   return { msg_id: 7, read_ct: readCt, enqueued_at: message.enqueued_at, message }
+}
+
+function bounceEnvelope(
+  bounceKind: 'hard' | 'spam_complaint',
+  overrides: Partial<JobMessage> = {},
+  readCt = 1,
+): QueueEnvelope {
+  const message: JobMessage = {
+    schema_version: 1,
+    type: 'action_bounce',
+    tenant_id: 'morax-test',
+    source: 'app',
+    idempotency_key: 'act-bounce:pa-1:msg-1',
+    enqueued_at: '2026-07-08T10:00:00Z',
+    action: { pending_action_id: 'pa-1', bounce_kind: bounceKind },
+    ...overrides,
+  }
+  return { msg_id: 8, read_ct: readCt, enqueued_at: message.enqueued_at, message }
 }
 
 // fetchImpl injecte : evite tout appel reseau reel depuis processEnvelope (OCR finance-pinne -> Anthropic).
@@ -375,6 +407,7 @@ describe('processEnvelope action_propose/action_execute', () => {
     expect(rec.emails[0]?.cc).toBeUndefined()
     expect(rec.emails[0]?.htmlBody).toContain('INV-001')
     expect(rec.markedExecuted).toEqual(['pa-1'])
+    expect(rec.markedExecutedMessageIds).toEqual(['msg-1'])
     expect(rec.markedSent).toEqual(['draft-1'])
     expect(rec.actionResults).toEqual([
       { tenantId: 'morax-test', text: 'Email envoye : facture INV-001 a client@x.com.' },
@@ -450,5 +483,84 @@ describe('processEnvelope action_propose/action_execute', () => {
     const res = await processEnvelope(actionEnvelope('action_execute'), ports, llm, RUN_CONFIG)
     expect(res.status).toBe('error')
     expect(rec.finishes[0]?.status).toBe('error')
+  })
+})
+
+describe('processEnvelope action_bounce', () => {
+  it('hard bounce sur une action executee : rembourse le credit envoi_document et notifie', async () => {
+    const { ports, rec } = makePorts({ action: actionRow('executed') })
+    const res = await processEnvelope(bounceEnvelope('hard'), ports, llm, RUN_CONFIG)
+    expect(res.status).toBe('done')
+    expect(rec.markedBounced).toEqual([
+      { tenantId: 'morax-test', pendingActionId: 'pa-1', bounceKind: 'hard' },
+    ])
+    expect(rec.credits).toEqual([{ category: 'envoi_document', weight: -0.5 }])
+    expect(rec.actionResults).toEqual([
+      {
+        tenantId: 'morax-test',
+        text:
+          "Email non delivre : facture INV-001 a client@x.com (adresse invalide/rejetee). " +
+          "Credit rembourse — verifier l'adresse et relancer.",
+      },
+    ])
+  })
+
+  it('spam complaint sur une action executee : notifie seulement, aucun remboursement', async () => {
+    const { ports, rec } = makePorts({ action: actionRow('executed') })
+    const res = await processEnvelope(bounceEnvelope('spam_complaint'), ports, llm, RUN_CONFIG)
+    expect(res.status).toBe('done')
+    expect(rec.markedBounced).toEqual([
+      { tenantId: 'morax-test', pendingActionId: 'pa-1', bounceKind: 'spam_complaint' },
+    ])
+    expect(rec.credits).toHaveLength(0)
+    expect(rec.actionResults).toEqual([
+      {
+        tenantId: 'morax-test',
+        text:
+          'client@x.com a signale facture INV-001 comme spam. ' +
+          'Le document a bien ete livre (aucun remboursement) — verifier avec le client.',
+      },
+    ])
+  })
+
+  it('bounce deja traite (retry webhook) : idempotent, ni remboursement ni notification double', async () => {
+    const { ports, rec } = makePorts({
+      action: actionRow('executed', {}, '2026-07-08T10:05:00Z'),
+    })
+    const res = await processEnvelope(bounceEnvelope('hard'), ports, llm, RUN_CONFIG)
+    expect(res.status).toBe('done')
+    expect(rec.markedBounced).toHaveLength(0)
+    expect(rec.credits).toHaveLength(0)
+    expect(rec.actionResults).toHaveLength(0)
+  })
+
+  it('bounce sur une action jamais executee (course avec le webhook) : rien a rembourser', async () => {
+    const { ports, rec } = makePorts({ action: actionRow('approved') })
+    const res = await processEnvelope(bounceEnvelope('hard'), ports, llm, RUN_CONFIG)
+    expect(res.status).toBe('done')
+    expect(rec.markedBounced).toHaveLength(0)
+    expect(rec.credits).toHaveLength(0)
+    expect(rec.actionResults).toHaveLength(0)
+  })
+
+  it('idempotence job : deja vu -> skip sans rembourser', async () => {
+    const { ports, rec } = makePorts({ fresh: false, action: actionRow('executed') })
+    const res = await processEnvelope(bounceEnvelope('hard'), ports, llm, RUN_CONFIG)
+    expect(res.status).toBe('skipped_idempotent')
+    expect(rec.deleted).toContain(8)
+    expect(rec.credits).toHaveLength(0)
+  })
+
+  it('finit en erreur si bounce_kind est absent/invalide', async () => {
+    const { ports, rec } = makePorts({ action: actionRow('executed') })
+    const res = await processEnvelope(
+      bounceEnvelope('hard', { action: { pending_action_id: 'pa-1' } }),
+      ports,
+      llm,
+      RUN_CONFIG,
+    )
+    expect(res.status).toBe('error')
+    expect(rec.finishes[0]?.status).toBe('error')
+    expect(rec.credits).toHaveLength(0)
   })
 })

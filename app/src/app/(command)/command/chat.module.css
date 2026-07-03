@@ -67,6 +67,11 @@
   height: 1.1rem;
 }
 
+.iconButton:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
 .input {
   flex: 1;
   min-width: 0;
@@ -82,4 +87,9 @@
 .input:focus-visible {
   outline: 2px solid var(--color-accent);
   outline-offset: 1px;
+}
+
+.input:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }

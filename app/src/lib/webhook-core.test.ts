@@ -1,10 +1,15 @@
 import { describe, expect, it } from 'vitest'
 import type { JobMessage } from '@morax/model-core'
 import {
+  classifyBounce,
+  handlePostmarkBounce,
   handlePostmarkInbound,
+  handlePostmarkWebhook,
   handleTelegramUpdate,
+  isPostmarkBounceWebhook,
   parseActionCallback,
   verifyPostmarkBasicAuth,
+  type PostmarkBounceWebhook,
   type PostmarkDeps,
   type PostmarkInbound,
   type TelegramUpdate,
@@ -231,7 +236,12 @@ describe('handleTelegramUpdate callback_query', () => {
   })
 })
 
-function makePostmarkDeps(opts: { tenantId?: string | null } = {}): {
+function makePostmarkDeps(
+  opts: {
+    tenantId?: string | null
+    correlated?: { tenantId: string; pendingActionId: string } | null
+  } = {},
+): {
   deps: PostmarkDeps
   enqueued: JobMessage[]
   uploads: Array<{ key: string; contentType: string }>
@@ -253,6 +263,11 @@ function makePostmarkDeps(opts: { tenantId?: string | null } = {}): {
     },
     async uploadAttachment(key, _bytes, contentType) {
       uploads.push({ key, contentType })
+    },
+    async findPendingActionByPostmarkMessageId() {
+      return opts.correlated === undefined
+        ? { tenantId: 'morax-test', pendingActionId: 'pa-1' }
+        : opts.correlated
     },
   }
   return {
@@ -321,6 +336,154 @@ describe('handlePostmarkInbound', () => {
     expect(res.reason).toBe('unknown_alias')
     expect(h.uploads).toHaveLength(0)
     expect(h.enqueued).toHaveLength(0)
+  })
+})
+
+describe('isPostmarkBounceWebhook', () => {
+  it('detecte un payload Bounce', () => {
+    expect(isPostmarkBounceWebhook({ RecordType: 'Bounce' })).toBe(true)
+  })
+
+  it('detecte un payload SpamComplaint', () => {
+    expect(isPostmarkBounceWebhook({ RecordType: 'SpamComplaint' })).toBe(true)
+  })
+
+  it('ne detecte pas un payload Inbound comme un bounce', () => {
+    expect(isPostmarkBounceWebhook({ RecordType: 'Inbound' })).toBe(false)
+  })
+
+  it('ne detecte pas un payload Inbound sans RecordType (forme historique)', () => {
+    expect(isPostmarkBounceWebhook({ MessageID: 'msg-1' })).toBe(false)
+  })
+})
+
+describe('classifyBounce', () => {
+  it('classe HardBounce comme hard', () => {
+    expect(classifyBounce({ RecordType: 'Bounce', Type: 'HardBounce', MessageID: 'm1' })).toBe('hard')
+  })
+
+  it('classe BadEmailAddress comme hard', () => {
+    expect(classifyBounce({ RecordType: 'Bounce', Type: 'BadEmailAddress', MessageID: 'm1' })).toBe('hard')
+  })
+
+  it('classe Blocked comme hard', () => {
+    expect(classifyBounce({ RecordType: 'Bounce', Type: 'Blocked', MessageID: 'm1' })).toBe('hard')
+  })
+
+  it('classe SoftBounce comme soft', () => {
+    expect(classifyBounce({ RecordType: 'Bounce', Type: 'SoftBounce', MessageID: 'm1' })).toBe('soft')
+  })
+
+  it('classe un type inconnu comme soft (par prudence, pas de remboursement injustifie)', () => {
+    expect(classifyBounce({ RecordType: 'Bounce', Type: 'Transient', MessageID: 'm1' })).toBe('soft')
+  })
+
+  it('classe SpamComplaint comme spam_complaint independamment du champ Type', () => {
+    expect(
+      classifyBounce({ RecordType: 'SpamComplaint', Type: 'SpamComplaint', MessageID: 'm1' }),
+    ).toBe('spam_complaint')
+  })
+})
+
+describe('handlePostmarkBounce', () => {
+  function bouncePayload(overrides: Partial<PostmarkBounceWebhook> = {}): PostmarkBounceWebhook {
+    return { RecordType: 'Bounce', Type: 'HardBounce', MessageID: 'msg-1', ...overrides }
+  }
+
+  it('hard bounce correle : empile action_bounce avec bounce_kind=hard', async () => {
+    const h = makePostmarkDeps()
+    const res = await handlePostmarkBounce(bouncePayload(), h.deps, NOW)
+
+    expect(res.status).toBe(200)
+    expect(res.enqueued).toBe(true)
+    expect(h.enqueued).toHaveLength(1)
+    const job = h.enqueued[0]!
+    expect(job.type).toBe('action_bounce')
+    expect(job.tenant_id).toBe('morax-test')
+    expect(job.action).toEqual({ pending_action_id: 'pa-1', bounce_kind: 'hard' })
+    expect(job.idempotency_key).toBe('act-bounce:pa-1:msg-1')
+  })
+
+  it('spam complaint correle : empile action_bounce avec bounce_kind=spam_complaint', async () => {
+    const h = makePostmarkDeps()
+    const res = await handlePostmarkBounce(
+      bouncePayload({ RecordType: 'SpamComplaint', Type: 'SpamComplaint' }),
+      h.deps,
+      NOW,
+    )
+
+    expect(res.enqueued).toBe(true)
+    expect(h.enqueued[0]?.action).toEqual({ pending_action_id: 'pa-1', bounce_kind: 'spam_complaint' })
+  })
+
+  it('soft bounce : acquitte sans empiler ni chercher de correlation', async () => {
+    const h = makePostmarkDeps()
+    const res = await handlePostmarkBounce(
+      bouncePayload({ Type: 'SoftBounce' }),
+      h.deps,
+      NOW,
+    )
+
+    expect(res.status).toBe(200)
+    expect(res.enqueued).toBe(false)
+    expect(res.reason).toBe('soft_bounce_ignored')
+    expect(h.enqueued).toHaveLength(0)
+  })
+
+  it('MessageID sans pending_action correle : acquitte sans empiler (pas de tenant implicite)', async () => {
+    const h = makePostmarkDeps({ correlated: null })
+    const res = await handlePostmarkBounce(bouncePayload(), h.deps, NOW)
+
+    expect(res.status).toBe(200)
+    expect(res.enqueued).toBe(false)
+    expect(res.reason).toBe('unknown_message_id')
+    expect(h.enqueued).toHaveLength(0)
+  })
+})
+
+describe('handlePostmarkWebhook (dispatch)', () => {
+  it('route un payload Bounce vers handlePostmarkBounce', async () => {
+    const h = makePostmarkDeps()
+    const res = await handlePostmarkWebhook(
+      { RecordType: 'Bounce', Type: 'HardBounce', MessageID: 'msg-1' },
+      h.deps,
+      NOW,
+    )
+    expect(res.enqueued).toBe(true)
+    expect(h.enqueued[0]?.type).toBe('action_bounce')
+  })
+
+  it('route un payload SpamComplaint vers handlePostmarkBounce', async () => {
+    const h = makePostmarkDeps()
+    const res = await handlePostmarkWebhook(
+      { RecordType: 'SpamComplaint', Type: 'SpamComplaint', MessageID: 'msg-1' },
+      h.deps,
+      NOW,
+    )
+    expect(res.enqueued).toBe(true)
+    expect(h.enqueued[0]?.type).toBe('action_bounce')
+  })
+
+  it('route un payload sans RecordType (inbound historique) vers handlePostmarkInbound', async () => {
+    const h = makePostmarkDeps()
+    const res = await handlePostmarkWebhook(
+      { MessageID: 'msg-2', OriginalRecipient: 'tenant@morax.app' },
+      h.deps,
+      NOW,
+    )
+    expect(res.enqueued).toBe(true)
+    expect(h.enqueued[0]?.type).toBe('capture_document')
+  })
+
+  it('route un payload RecordType=Inbound vers handlePostmarkInbound', async () => {
+    const h = makePostmarkDeps()
+    const res = await handlePostmarkWebhook(
+      { RecordType: 'Inbound', MessageID: 'msg-3', OriginalRecipient: 'tenant@morax.app' },
+      h.deps,
+      NOW,
+    )
+    expect(res.enqueued).toBe(true)
+    expect(h.enqueued[0]?.type).toBe('capture_document')
   })
 })
 

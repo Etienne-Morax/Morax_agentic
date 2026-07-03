@@ -163,6 +163,10 @@ export function makeJobRuns(db: SupabaseClient): JobRunRepository {
         return { jobRunId: row.id, fresh: false }
       }
 
+      // Garde optimiste (.eq('status', row.status)) : evite un TOCTOU si deux
+      // appelants concurrents lisent la meme ligne en conflit. Seul celui dont
+      // le statut lu correspond encore reussit la reouverture (0 ligne sinon) ;
+      // le perdant cede (fresh:false, message dedupe comme un doublon).
       const reopened = await db
         .from('job_runs')
         .update({
@@ -173,8 +177,13 @@ export function makeJobRuns(db: SupabaseClient): JobRunRepository {
           finished_at: null,
         })
         .eq('id', row.id)
+        .eq('status', row.status)
+        .select('id')
       if (reopened.error) {
         throw new Error(`[jobRuns.begin] réouverture pour retry : ${reopened.error.message}`)
+      }
+      if ((reopened.data ?? []).length === 0) {
+        return { jobRunId: row.id, fresh: false }
       }
       return { jobRunId: row.id, fresh: true }
     },
@@ -245,21 +254,39 @@ function makePendingActions(db: SupabaseClient): PendingActionRepository {
     async load(tenantId, pendingActionId) {
       const { data, error } = await db
         .from('pending_actions')
-        .select('id, status, payload')
+        .select('id, status, payload, bounced_at')
         .eq('tenant_id', tenantId)
         .eq('id', pendingActionId)
         .maybeSingle()
       if (error) throw new Error(`[pendingActions.load] ${error.message}`)
       if (!data) return null
-      return data as PendingActionRow
+      const row = data as { id: string; status: PendingActionRow['status']; payload: Record<string, unknown>; bounced_at: string | null }
+      return { id: row.id, status: row.status, payload: row.payload, bouncedAt: row.bounced_at }
     },
-    async markExecuted(tenantId, pendingActionId) {
+    async markExecuted(tenantId, pendingActionId, postmarkMessageId) {
       const { error } = await db
         .from('pending_actions')
-        .update({ status: 'executed' })
+        .update({
+          status: 'executed',
+          ...(postmarkMessageId ? { postmark_message_id: postmarkMessageId } : {}),
+        })
         .eq('tenant_id', tenantId)
         .eq('id', pendingActionId)
       if (error) throw new Error(`[pendingActions.markExecuted] ${error.message}`)
+    },
+    async markBounced(tenantId, pendingActionId, bounceKind) {
+      // Garde d'idempotence : ne marque (et ne signale "premier bounce") que si
+      // bounced_at etait encore null. Un retry webhook Postmark pour le meme
+      // MessageID matchera 0 ligne ici et l'appelant saura ne rien rembourser.
+      const { data, error } = await db
+        .from('pending_actions')
+        .update({ bounced_at: new Date().toISOString(), bounce_kind: bounceKind })
+        .eq('tenant_id', tenantId)
+        .eq('id', pendingActionId)
+        .is('bounced_at', null)
+        .select('id')
+      if (error) throw new Error(`[pendingActions.markBounced] ${error.message}`)
+      return (data ?? []).length > 0
     },
   }
 }

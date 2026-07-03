@@ -82,6 +82,24 @@ export function formatActionResult(
   return `Envoi annule : ${label} ${payload.doc_number}.`
 }
 
+/** Texte de notification Telegram apres un bounce/spam-complaint Postmark sur un envoi deja execute. */
+export function formatBounceResult(
+  bounceKind: 'hard' | 'spam_complaint',
+  payload: SendEmailActionPayload,
+): string {
+  const label = payload.kind === 'invoice' ? 'facture' : 'devis'
+  if (bounceKind === 'hard') {
+    return (
+      `Email non delivre : ${label} ${payload.doc_number} a ${payload.client_email} ` +
+      `(adresse invalide/rejetee). Credit rembourse — verifier l'adresse et relancer.`
+    )
+  }
+  return (
+    `${payload.client_email} a signale ${label} ${payload.doc_number} comme spam. ` +
+    `Le document a bien ete livre (aucun remboursement) — verifier avec le client.`
+  )
+}
+
 /** Valide/parse le payload jsonb non type de pending_actions. Leve si invalide. */
 export function parseSendEmailPayload(raw: unknown): SendEmailActionPayload {
   if (!raw || typeof raw !== 'object') {
