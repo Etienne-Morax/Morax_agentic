@@ -1,22 +1,22 @@
 /**
  * Centre de Commandement - couche donnees.
- * getLaunchpadShortcuts / getOperationsFeed lisent Supabase (RLS, client
- * authentifie). getChatMessages reste mock : aucune table historique de
- * conversation n'existe encore (voir CHAT_HISTORY_SOURCE ci-dessous).
- * triggerShortcut a migre vers une Server Action ((command)/launchpad/actions.ts)
- * car il touche le client Supabase serveur - jamais d'execution directe cote UI,
- * toujours enqueueAction -> insert pending_actions (gate Telegram).
+ * getLaunchpadShortcuts / getOperationsFeed / getChatMessages lisent Supabase
+ * (RLS, client authentifie). triggerShortcut a migre vers une Server Action
+ * ((command)/launchpad/actions.ts) car il touche le client Supabase serveur -
+ * jamais d'execution directe cote UI, toujours enqueueAction -> insert
+ * pending_actions (gate Telegram). L'envoi de message chat suit le meme
+ * principe : sendCommandMessage ((command)/command/actions.ts) est une Server
+ * Action qui insere dans command_messages sans jamais laisser le client fournir
+ * tenant_id (default current_tenant_id() + RLS 'with check', voir migration
+ * 0010_command_messages.sql).
  */
 
 import type { JobType } from '@morax/model-core'
 import { createClient } from '@/lib/supabase/server'
 import type { EntityKind } from '@/lib/entity-kind'
-import { CHAT_MESSAGES } from './mocks'
+import { mapCommandMessageRow, type CommandMessageRow } from './chat-message-core'
 import { SHORTCUTS } from './shortcuts'
 import type { ChatMessage, LaunchpadShortcut, OpsFeedEntry, OpsStatus, ShortcutStatus } from './types'
-
-/** Aucune table historique de conversation cote Supabase : mock assume, pas cache. */
-export const CHAT_HISTORY_SOURCE = 'mock' as const
 
 const JOB_TYPE_META: Record<JobType, { agent: string; action: string; kind: EntityKind }> = {
   capture_document: { agent: 'Archiviste', action: 'Capture document', kind: 'document' },
@@ -109,6 +109,17 @@ export async function getOperationsFeed(limit = 20): Promise<OpsFeedEntry[]> {
   })
 }
 
-export async function getChatMessages(): Promise<ChatMessage[]> {
-  return CHAT_MESSAGES
+export async function getChatMessages(limit = 50): Promise<ChatMessage[]> {
+  const supabase = await createClient()
+  const { data, error } = await supabase
+    .from('command_messages')
+    .select('id, role, body, created_at')
+    .order('created_at', { ascending: true })
+    .limit(limit)
+
+  if (error) {
+    throw new Error(`[getChatMessages] ${error.message}`)
+  }
+
+  return ((data ?? []) as CommandMessageRow[]).map(mapCommandMessageRow)
 }
