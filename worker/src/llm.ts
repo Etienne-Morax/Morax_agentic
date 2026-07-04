@@ -41,6 +41,9 @@ export interface LlmCredentials {
 const REQUEST_TIMEOUT_MS = 60_000
 const MAX_RETRIES = 1
 const RETRY_BACKOFF_MS = 500
+// Domaine non acheté (voir docs/PROVISIONING-RUNBOOK.md étape 8bis) : referer sur l'URL Vercel
+// active tant que morax.app n'est pas délégué. Override via MORAX_APP_URL si besoin.
+const OPENROUTER_REFERER = process.env.MORAX_APP_URL ?? 'https://morax-app.vercel.app'
 
 function estimateCostUsd(
   modelConfig: ModelConfig,
@@ -215,7 +218,7 @@ export class LlmClient {
       headers: {
         'content-type': 'application/json',
         authorization: `Bearer ${apiKey}`,
-        'HTTP-Referer': 'https://morax.app',
+        'HTTP-Referer': OPENROUTER_REFERER,
         'X-Title': 'Morax',
       },
       body: JSON.stringify(body),
