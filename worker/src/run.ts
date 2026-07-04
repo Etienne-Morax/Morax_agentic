@@ -21,10 +21,23 @@ import {
   formatActionResult,
   formatApprovalSummary,
   formatBounceResult,
+  formatChaseActionResult,
+  formatChaseApprovalSummary,
+  formatChaseBounceResult,
+  formatChaseReminderEmail,
   formatDocumentEmail,
+  parseChaseReminderPayload,
   parseSendEmailPayload,
 } from './action-gate-core.js'
+import { TASK_HANDLERS } from './tasks/registry.js'
 import type { JobMessage, QueueEnvelope } from './types.js'
+
+const TASK_JOB_TYPES = new Set<JobMessage['type']>([
+  'chase_unpaid',
+  'check_deadlines',
+  'daily_summary',
+  'sort_inbox',
+])
 
 export interface RunConfig {
   maxLoopsPerJob: number
@@ -59,6 +72,13 @@ export async function processEnvelope(
   // action_propose/action_execute/action_bounce : gate HIGH, ce n'est pas un job IA non plus.
   if (msg.type === 'action_propose' || msg.type === 'action_execute' || msg.type === 'action_bounce') {
     return processActionGate(envelope, msg, ports, config)
+  }
+
+  // Taches Launchpad (chase_unpaid/check_deadlines/daily_summary/sort_inbox) :
+  // dispatch par registre (voir tasks/registry.ts), credits/cost geres par le
+  // handler lui-meme (0..N items par job, pas un seul outcome comme ci-dessous).
+  if (TASK_JOB_TYPES.has(msg.type)) {
+    return processTask(envelope, msg, ports, llm, config)
   }
 
   // Idempotence : un même évènement source ne produit qu'un job.
@@ -174,6 +194,51 @@ async function processReminderNotify(
 }
 
 /**
+ * Taches Launchpad : idempotence propre (job_runs), ack immediat (UX TDAH),
+ * puis dispatch au handler enregistre (tasks/registry.ts). Le handler gere
+ * lui-meme ses credits/COGS (0..N items traites par job).
+ */
+async function processTask(
+  envelope: QueueEnvelope,
+  msg: JobMessage,
+  ports: Ports,
+  llm: LlmClient,
+  config: RunConfig,
+): Promise<ProcessResult> {
+  const begin = await ports.jobRuns.begin(msg.tenant_id, msg)
+  if (!begin.fresh) {
+    await ports.queue.delete(envelope.msg_id)
+    return { status: 'skipped_idempotent', msgId: envelope.msg_id }
+  }
+
+  try {
+    const handler = TASK_HANDLERS[msg.type]
+    if (!handler) {
+      throw new Error(`[run] Aucun handler enregistre pour la tache : ${msg.type}`)
+    }
+    const tenant = await ports.tenants.load(msg.tenant_id)
+    await ports.notifier.ack(msg.tenant_id, 'Je m’en occupe.')
+
+    await ports.tracer.trace(
+      `job:${msg.type}`,
+      { tenant: msg.tenant_id, type: msg.type, source: msg.source },
+      (traceId) => handler({ tenant, ports, llm, jobRunId: begin.jobRunId, traceId }),
+    )
+
+    await ports.jobRuns.finish(begin.jobRunId, 'done')
+    await ports.queue.delete(envelope.msg_id)
+    return { status: 'done', msgId: envelope.msg_id }
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Erreur inconnue'
+    await ports.jobRuns.finish(begin.jobRunId, 'error', message)
+    if (envelope.read_ct + 1 > config.maxLoopsPerJob) {
+      await ports.queue.archive(envelope.msg_id)
+    }
+    return { status: 'error', msgId: envelope.msg_id }
+  }
+}
+
+/**
  * action_propose/action_execute : relai du gate HIGH (envoi devis/facture), sans
  * pipeline IA. Idempotence propre (job_runs), meme voie precoce que reminder_notify.
  */
@@ -224,6 +289,11 @@ async function processActionPropose(
 ): Promise<void> {
   // Deja decidee (approuvee/rejetee/executee) entre l'enqueue et le traitement : rien a proposer.
   if (action.status !== 'pending') return
+  if (action.actionType === 'chase_reminder') {
+    const payload = parseChaseReminderPayload(action.payload)
+    await ports.notifier.proposeApproval(tenantId, action.id, formatChaseApprovalSummary(payload))
+    return
+  }
   const payload = parseSendEmailPayload(action.payload)
   await ports.notifier.proposeApproval(tenantId, action.id, formatApprovalSummary(payload))
 }
@@ -236,6 +306,10 @@ async function processActionExecute(
 ): Promise<void> {
   // Deja envoyee : idempotence, pas de double email.
   if (action.status === 'executed') return
+
+  if (action.actionType === 'chase_reminder') {
+    return processChaseReminderExecute(tenantId, action, ports)
+  }
 
   const payload = parseSendEmailPayload(action.payload)
 
@@ -284,6 +358,41 @@ async function processActionExecute(
 }
 
 /**
+ * Execution d'une relance impaye approuvee : email TEXTE seul (pas de PDF/R2).
+ * Le poids relance_client a deja ete comptabilise a la proposition (chase_unpaid) ;
+ * aucun credit supplementaire ici (symetrique a envoi_document mais pas double-compte).
+ */
+async function processChaseReminderExecute(
+  tenantId: string,
+  action: PendingActionRow,
+  ports: Ports,
+): Promise<void> {
+  const payload = parseChaseReminderPayload(action.payload)
+
+  if (action.status === 'rejected') {
+    await ports.notifier.notifyActionResult(tenantId, formatChaseActionResult('rejected', payload))
+    return
+  }
+  if (action.status === 'expired') {
+    await ports.notifier.notifyActionResult(tenantId, formatChaseActionResult('expired', payload))
+    return
+  }
+  if (action.status !== 'approved') {
+    throw new Error(`[run] action_execute sur pending_action au statut inattendu : ${action.status}`)
+  }
+
+  const email = formatChaseReminderEmail(payload)
+  const sent = await ports.mailer.sendDocumentEmail({
+    to: payload.client_email,
+    ...(payload.cc ? { cc: payload.cc } : {}),
+    subject: email.subject,
+    textBody: email.textBody,
+  })
+  await ports.pendingActions.markExecuted(tenantId, action.id, sent.messageId)
+  await ports.notifier.notifyActionResult(tenantId, formatChaseActionResult('executed', payload))
+}
+
+/**
  * action_bounce : hard bounce ou spam-complaint Postmark sur un envoi HIGH
  * deja execute. Hard bounce -> remboursement du credit envoi_document (le
  * document n'est jamais arrive) + notification. Spam complaint -> notification
@@ -305,6 +414,14 @@ async function processActionBounce(
   // (retry) ne doit ni rembourser ni notifier une deuxieme fois.
   const isFirstBounce = await ports.pendingActions.markBounced(tenantId, action.id, bounceKind)
   if (!isFirstBounce) return
+
+  if (action.actionType === 'chase_reminder') {
+    const chasePayload = parseChaseReminderPayload(action.payload)
+    // Pas de remboursement : relance_client est comptabilise a la redaction
+    // (chase_unpaid), pas a l'envoi -- rien a rembourser ici, juste notifier.
+    await ports.notifier.notifyActionResult(tenantId, formatChaseBounceResult(bounceKind, chasePayload))
+    return
+  }
 
   const payload = parseSendEmailPayload(action.payload)
 

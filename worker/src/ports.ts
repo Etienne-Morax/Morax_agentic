@@ -14,8 +14,16 @@ export interface TenantRepository {
 /** File pgmq. */
 export interface QueueClient {
   read(batchSize: number, visibilityTimeoutSec: number): Promise<QueueEnvelope[]>
+  /** Auto-enfilage (ex. action_propose depuis un job chase_unpaid). */
+  send(message: JobMessage): Promise<void>
   delete(msgId: number): Promise<void>
   archive(msgId: number): Promise<void>
+}
+
+export interface UnclassifiedDocumentRow {
+  id: string
+  mime: string | null
+  extracted: ExtractedFields | null
 }
 
 /** Accès aux données tenant-scoped. Le worker filtre TOUJOURS par tenant_id. */
@@ -27,6 +35,9 @@ export interface DocumentRepository {
     fields: ExtractedFields,
     needsHumanValidation: boolean,
   ): Promise<void>
+  /** Documents sans categorie (sort_inbox). */
+  listUnclassified(tenantId: string): Promise<UnclassifiedDocumentRow[]>
+  setCategory(tenantId: string, documentId: string, category: string): Promise<void>
 }
 
 /** Journal d'exécution et idempotence. */
@@ -69,17 +80,20 @@ export type PendingActionStatus = 'pending' | 'approved' | 'rejected' | 'execute
 
 export interface PendingActionRow {
   id: string
+  actionType: GateActionType
   status: PendingActionStatus
   payload: Record<string, unknown>
   /** Non-null si un bounce a deja ete traite pour cette action (garde d'idempotence). */
   bouncedAt?: string | null
 }
 
+export type GateActionType = 'send_email' | 'expense' | 'third_party_write' | 'chase_reminder'
+
 /** Gate HIGH : écrit/lit une action en attente d'approbation humaine. */
 export interface PendingActionRepository {
   enqueue(action: {
     tenantId: string
-    actionType: 'send_email' | 'expense' | 'third_party_write'
+    actionType: GateActionType
     payload: Record<string, unknown>
   }): Promise<{ pendingActionId: string }>
   /** Charge une action pending_actions tenant-scopee, ou null si introuvable. */
@@ -97,13 +111,25 @@ export interface PendingActionRepository {
   ): Promise<boolean>
 }
 
-/** Statut des brouillons devis/facture (document_drafts). */
+export interface OverdueInvoiceRow {
+  draftId: string
+  docNumber: string
+  clientEmail: string
+  cc?: string
+  total: number
+  currency: string
+  dueDate: string
+}
+
+/** Statut + lecture des brouillons devis/facture (document_drafts). */
 export interface DraftStatusRepository {
   /** Passe le draft en statut 'sent' apres envoi reussi. */
   markSent(tenantId: string, draftId: string): Promise<void>
+  /** Factures (kind='invoice') finalisees/envoyees, echeance depassee, jamais marquees payees. */
+  listOverdueInvoices(tenantId: string): Promise<OverdueInvoiceRow[]>
 }
 
-/** Envoi d'email sortant avec piece jointe (Postmark). */
+/** Envoi d'email sortant (Postmark). Piece jointe optionnelle (relance texte seul). */
 export interface Mailer {
   sendDocumentEmail(input: {
     to: string
@@ -111,8 +137,36 @@ export interface Mailer {
     subject: string
     textBody: string
     htmlBody?: string
-    attachment: { filename: string; contentBase64: string; contentType: string }
+    attachment?: { filename: string; contentBase64: string; contentType: string }
   }): Promise<{ messageId: string }>
+}
+
+export interface ReminderSummaryRow {
+  id: string
+  dueDate: string
+  amount: number | null
+  currency: string
+}
+
+/** Lecture des echeances (reminders) -- mes factures fournisseurs a payer. */
+export interface ReminderQueryRepository {
+  listOverdue(tenantId: string): Promise<ReminderSummaryRow[]>
+  listUpcoming(tenantId: string, withinDays: number): Promise<ReminderSummaryRow[]>
+}
+
+export interface DaySummaryRow {
+  documentsReceived: number
+  documentsNeedingValidation: number
+  remindersDueNext7Days: number
+  overdueReminders: number
+  draftsPendingSend: number
+  jobsRunToday: number
+  jobsErroredToday: number
+}
+
+/** Agregats de la journee pour le Resume du jour (LOW, LLM cerveau non-finance). */
+export interface DashboardQueryRepository {
+  summarizeDay(tenantId: string): Promise<DaySummaryRow>
 }
 
 /** Lecture des médias bruts (Cloudflare R2). */
@@ -182,6 +236,8 @@ export interface Ports {
   tenants: TenantRepository
   documents: DocumentRepository
   drafts: DraftStatusRepository
+  reminders: ReminderQueryRepository
+  dashboard: DashboardQueryRepository
   media: MediaRepository
   mailer: Mailer
   jobRuns: JobRunRepository

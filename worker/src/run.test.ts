@@ -47,6 +47,7 @@ function actionRow(
 ): PendingActionRow {
   return {
     id: 'pa-1',
+    actionType: 'send_email',
     status,
     payload: {
       draft_id: 'draft-1',

@@ -48,7 +48,11 @@ export function LaunchpadGrid({ shortcuts }: LaunchpadGridProps) {
     setTileStates((prev) => ({ ...prev, [id]: 'idle' }))
     if (result.ok) {
       haptics.success()
-      router.refresh()
+      if (result.redirectTo) {
+        router.push(result.redirectTo)
+      } else {
+        router.refresh()
+      }
     } else {
       haptics.error()
       setErrors((prev) => ({ ...prev, [id]: result.message }))

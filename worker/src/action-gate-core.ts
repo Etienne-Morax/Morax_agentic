@@ -4,7 +4,7 @@
  * action_execute n'est pas un job IA, juste un relai vers Telegram/Postmark.
  */
 
-import type { SendEmailActionPayload } from '@morax/model-core'
+import type { ChaseReminderActionPayload, SendEmailActionPayload } from '@morax/model-core'
 
 interface InlineKeyboardButton {
   text: string
@@ -98,6 +98,85 @@ export function formatBounceResult(
     `${payload.client_email} a signale ${label} ${payload.doc_number} comme spam. ` +
     `Le document a bien ete livre (aucun remboursement) — verifier avec le client.`
   )
+}
+
+/** Texte du message d'approbation Telegram pour une relance impaye (email texte, pas de PDF). */
+export function formatChaseApprovalSummary(payload: ChaseReminderActionPayload): string {
+  const ccSuffix = payload.cc ? ` (cc ${payload.cc})` : ''
+  return `Relancer la facture ${payload.doc_number} (${payload.total} ${payload.currency} TTC) aupres de ${payload.client_email}${ccSuffix} ?`
+}
+
+/** Contenu de l'email de relance (texte seul, redige par le Redacteur au moment de la proposition). */
+export function formatChaseReminderEmail(
+  payload: ChaseReminderActionPayload,
+): { subject: string; textBody: string } {
+  return {
+    subject: `Relance - facture ${payload.doc_number}`,
+    textBody: payload.message_text,
+  }
+}
+
+/** Texte de notification Telegram apres decision sur une relance (execute/reject/expiration). */
+export function formatChaseActionResult(
+  status: 'executed' | 'rejected' | 'expired',
+  payload: ChaseReminderActionPayload,
+): string {
+  if (status === 'executed') {
+    return `Relance envoyee : facture ${payload.doc_number} a ${payload.client_email}.`
+  }
+  if (status === 'expired') {
+    return `Proposition de relance expiree (72h) : facture ${payload.doc_number}. Relancer un nouvel envoi si besoin.`
+  }
+  return `Relance annulee : facture ${payload.doc_number}.`
+}
+
+/** Texte de notification Telegram apres un bounce/spam-complaint Postmark sur une relance deja envoyee. */
+export function formatChaseBounceResult(
+  bounceKind: 'hard' | 'spam_complaint',
+  payload: ChaseReminderActionPayload,
+): string {
+  if (bounceKind === 'hard') {
+    return (
+      `Relance non delivree : facture ${payload.doc_number} a ${payload.client_email} ` +
+      `(adresse invalide/rejetee) — verifier l'adresse et relancer.`
+    )
+  }
+  return `${payload.client_email} a signale la relance ${payload.doc_number} comme spam.`
+}
+
+/** Valide/parse le payload jsonb non type de pending_actions pour action_type='chase_reminder'. */
+export function parseChaseReminderPayload(raw: unknown): ChaseReminderActionPayload {
+  if (!raw || typeof raw !== 'object') {
+    throw new Error('[action-gate] payload chase_reminder invalide : absent')
+  }
+  const p = raw as Record<string, unknown>
+  const requiredStrings: Array<keyof ChaseReminderActionPayload> = [
+    'draft_id',
+    'doc_number',
+    'client_email',
+    'currency',
+    'message_text',
+  ]
+  for (const key of requiredStrings) {
+    if (typeof p[key] !== 'string' || p[key] === '') {
+      throw new Error(`[action-gate] payload chase_reminder invalide : champ '${key}' manquant`)
+    }
+  }
+  if (typeof p.total !== 'number') {
+    throw new Error("[action-gate] payload chase_reminder invalide : champ 'total' manquant")
+  }
+  if ('cc' in p && (typeof p.cc !== 'string' || p.cc === '')) {
+    throw new Error("[action-gate] payload chase_reminder invalide : champ 'cc' invalide")
+  }
+  return {
+    draft_id: p.draft_id as string,
+    doc_number: p.doc_number as string,
+    client_email: p.client_email as string,
+    ...(typeof p.cc === 'string' ? { cc: p.cc } : {}),
+    total: p.total,
+    currency: p.currency as string,
+    message_text: p.message_text as string,
+  }
 }
 
 /** Valide/parse le payload jsonb non type de pending_actions. Leve si invalide. */

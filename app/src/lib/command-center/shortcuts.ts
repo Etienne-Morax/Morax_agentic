@@ -1,11 +1,20 @@
 /**
  * Centre de Commandement - registre des raccourcis Launchpad.
  * Capacites definies par l'app (pas des donnees tenant) : module TS versionne,
- * pas de table catalogue. Le statut affiche par defaut est neutre ('ready'/'off') ;
- * le vrai statut ('attention'/'running') vient de pending_actions, voir queries.ts.
+ * pas de table catalogue. Chaque raccourci porte son propre comportement --
+ * plus de detour par un agent_task HIGH generique jamais consomme (cf. 0013) :
+ *  - 'navigate'          : navigation client pure vers un ecran existant/a venir.
+ *  - 'create-quote-draft': cree un document_drafts vide (kind='quote') puis navigue.
+ *  - 'job'                : enfile un JobType concret que le worker execute reellement.
  */
 
+import type { JobType } from '@morax/model-core'
 import type { EntityKind } from '@/lib/entity-kind'
+
+export type ShortcutBehavior =
+  | { type: 'navigate'; href: string }
+  | { type: 'create-quote-draft' }
+  | { type: 'job'; jobType: JobType }
 
 export interface ShortcutDef {
   id: string
@@ -14,6 +23,7 @@ export interface ShortcutDef {
   kind: EntityKind
   description?: string
   enabled: boolean
+  behavior: ShortcutBehavior
 }
 
 export const SHORTCUTS: ShortcutDef[] = [
@@ -24,6 +34,7 @@ export const SHORTCUTS: ShortcutDef[] = [
     kind: 'document',
     description: 'OCR et classement immediat.',
     enabled: true,
+    behavior: { type: 'navigate', href: '/scan' },
   },
   {
     id: 'chase-unpaid',
@@ -31,6 +42,7 @@ export const SHORTCUTS: ShortcutDef[] = [
     icon: 'bell-ring',
     kind: 'reminder',
     enabled: true,
+    behavior: { type: 'job', jobType: 'chase_unpaid' },
   },
   {
     id: 'generate-quote',
@@ -38,6 +50,7 @@ export const SHORTCUTS: ShortcutDef[] = [
     icon: 'file-signature',
     kind: 'draft',
     enabled: true,
+    behavior: { type: 'create-quote-draft' },
   },
   {
     id: 'check-deadlines',
@@ -45,6 +58,7 @@ export const SHORTCUTS: ShortcutDef[] = [
     icon: 'calendar-check',
     kind: 'reminder',
     enabled: true,
+    behavior: { type: 'job', jobType: 'check_deadlines' },
   },
   {
     id: 'daily-summary',
@@ -52,31 +66,18 @@ export const SHORTCUTS: ShortcutDef[] = [
     icon: 'sparkles',
     kind: 'job_run',
     enabled: true,
+    behavior: { type: 'job', jobType: 'daily_summary' },
   },
   {
     id: 'sort-inbox',
     title: "Classer l'inbox",
     icon: 'inbox',
     kind: 'document',
-    enabled: false,
+    enabled: true,
+    behavior: { type: 'job', jobType: 'sort_inbox' },
   },
 ]
 
-export interface ResolvedShortcutAction {
-  actionType: 'agent_task'
-  payload: {
-    shortcut_id: string
-    title: string
-    kind: EntityKind
-  }
-}
-
-/** Resout un raccourci vers l'action HIGH a proposer au gate. Null si inconnu ou desactive. */
-export function resolveShortcut(id: string): ResolvedShortcutAction | null {
-  const def = SHORTCUTS.find((s) => s.id === id)
-  if (!def || !def.enabled) return null
-  return {
-    actionType: 'agent_task',
-    payload: { shortcut_id: def.id, title: def.title, kind: def.kind },
-  }
+export function findShortcut(id: string): ShortcutDef | undefined {
+  return SHORTCUTS.find((s) => s.id === id)
 }

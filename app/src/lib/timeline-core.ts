@@ -51,7 +51,7 @@ export interface ReminderRow {
 
 export interface PendingActionRow {
   id: string
-  action_type: 'send_email' | 'expense' | 'third_party_write'
+  action_type: 'send_email' | 'expense' | 'third_party_write' | 'chase_reminder'
   status: 'pending' | 'approved' | 'rejected' | 'executed' | 'expired'
   requested_at: string
 }
@@ -74,12 +74,17 @@ const JOB_TYPE_LABEL: Record<string, string> = {
   capture_audio: 'Transcription audio',
   draft_quote: 'Brouillon de devis',
   draft_invoice: 'Brouillon de facture',
+  chase_unpaid: 'Relance des impayes',
+  check_deadlines: 'Verification des echeances',
+  daily_summary: 'Resume du jour',
+  sort_inbox: "Classement de l'inbox",
 }
 
 const ACTION_TYPE_LABEL: Record<PendingActionRow['action_type'], string> = {
   send_email: 'Envoi email',
   expense: 'Depense',
   third_party_write: 'Ecriture tierce',
+  chase_reminder: 'Relance impaye',
 }
 
 function documentToItem(row: DocumentRow): TimelineItem {

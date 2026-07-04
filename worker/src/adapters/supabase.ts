@@ -10,18 +10,24 @@ import type { Pack, TenantConfig } from '@morax/model-core'
 import type { WorkerConfig } from '../config.js'
 import type {
   CreditsRepository,
+  DashboardQueryRepository,
+  DaySummaryRow,
   DocumentRepository,
   DraftStatusRepository,
   JobRunRepository,
   Notifier,
+  OverdueInvoiceRow,
   PendingActionRepository,
   PendingActionRow,
   Ports,
   PushSender,
   PushSubscriptionRepository,
   QueueClient,
+  ReminderQueryRepository,
+  ReminderSummaryRow,
   TenantRepository,
   Tracer,
+  UnclassifiedDocumentRow,
 } from '../ports.js'
 import type { ExtractedFields, JobMessage, QueueEnvelope } from '../types.js'
 import { makeMedia } from './r2.js'
@@ -54,6 +60,13 @@ function makeQueue(db: SupabaseClient): QueueClient {
           message: r.message,
         }),
       )
+    },
+    async send(message: JobMessage) {
+      const { error } = await db.rpc('morax_queue_send', {
+        p_queue: QUEUE_NAME,
+        p_message: message,
+      })
+      if (error) throw new Error(`[queue.send] ${error.message}`)
     },
     async delete(msgId) {
       const { error } = await db.rpc('morax_queue_delete', {
@@ -120,6 +133,24 @@ function makeDocuments(db: SupabaseClient): DocumentRepository {
         .eq('tenant_id', tenantId)
         .eq('id', documentId)
       if (error) throw new Error(`[documents.saveExtracted] ${error.message}`)
+    },
+    async listUnclassified(tenantId) {
+      const { data, error } = await db
+        .from('documents')
+        .select('id, mime, extracted')
+        .eq('tenant_id', tenantId)
+        .is('category', null)
+        .order('created_at', { ascending: true })
+      if (error) throw new Error(`[documents.listUnclassified] ${error.message}`)
+      return (data ?? []) as UnclassifiedDocumentRow[]
+    },
+    async setCategory(tenantId, documentId, category) {
+      const { error } = await db
+        .from('documents')
+        .update({ category })
+        .eq('tenant_id', tenantId)
+        .eq('id', documentId)
+      if (error) throw new Error(`[documents.setCategory] ${error.message}`)
     },
   }
 }
@@ -257,14 +288,26 @@ function makePendingActions(db: SupabaseClient): PendingActionRepository {
     async load(tenantId, pendingActionId) {
       const { data, error } = await db
         .from('pending_actions')
-        .select('id, status, payload, bounced_at')
+        .select('id, action_type, status, payload, bounced_at')
         .eq('tenant_id', tenantId)
         .eq('id', pendingActionId)
         .maybeSingle()
       if (error) throw new Error(`[pendingActions.load] ${error.message}`)
       if (!data) return null
-      const row = data as { id: string; status: PendingActionRow['status']; payload: Record<string, unknown>; bounced_at: string | null }
-      return { id: row.id, status: row.status, payload: row.payload, bouncedAt: row.bounced_at }
+      const row = data as {
+        id: string
+        action_type: PendingActionRow['actionType']
+        status: PendingActionRow['status']
+        payload: Record<string, unknown>
+        bounced_at: string | null
+      }
+      return {
+        id: row.id,
+        actionType: row.action_type,
+        status: row.status,
+        payload: row.payload,
+        bouncedAt: row.bounced_at,
+      }
     },
     async markExecuted(tenantId, pendingActionId, postmarkMessageId) {
       const { error } = await db
@@ -294,6 +337,14 @@ function makePendingActions(db: SupabaseClient): PendingActionRepository {
   }
 }
 
+function computeInvoiceTotal(
+  lineItems: Array<{ quantity: number; unit_price: number }>,
+  vatRate: number,
+): number {
+  const subtotal = lineItems.reduce((sum, item) => sum + item.quantity * item.unit_price, 0)
+  return Math.round(subtotal * (1 + vatRate / 100) * 100) / 100
+}
+
 function makeDrafts(db: SupabaseClient): DraftStatusRepository {
   return {
     async markSent(tenantId, draftId) {
@@ -303,6 +354,39 @@ function makeDrafts(db: SupabaseClient): DraftStatusRepository {
         .eq('tenant_id', tenantId)
         .eq('id', draftId)
       if (error) throw new Error(`[drafts.markSent] ${error.message}`)
+    },
+    async listOverdueInvoices(tenantId) {
+      const today = new Date().toISOString().slice(0, 10)
+      const { data, error } = await db
+        .from('document_drafts')
+        .select('id, doc_number, client_email, currency, vat_rate, line_items, due_date')
+        .eq('tenant_id', tenantId)
+        .eq('kind', 'invoice')
+        .eq('status', 'sent')
+        .not('due_date', 'is', null)
+        .lt('due_date', today)
+      if (error) throw new Error(`[drafts.listOverdueInvoices] ${error.message}`)
+      const rows = (data ?? []) as Array<{
+        id: string
+        doc_number: string | null
+        client_email: string | null
+        currency: string
+        vat_rate: number
+        line_items: Array<{ quantity: number; unit_price: number }>
+        due_date: string
+      }>
+      return rows
+        .filter((r) => r.doc_number && r.client_email)
+        .map(
+          (r): OverdueInvoiceRow => ({
+            draftId: r.id,
+            docNumber: r.doc_number as string,
+            clientEmail: r.client_email as string,
+            total: computeInvoiceTotal(r.line_items ?? [], r.vat_rate),
+            currency: r.currency,
+            dueDate: r.due_date,
+          }),
+        )
     },
   }
 }
@@ -324,6 +408,129 @@ export function makePushSubscriptions(db: SupabaseClient): PushSubscriptionRepos
         .eq('tenant_id', tenantId)
         .eq('endpoint', endpoint)
       if (error) throw new Error(`[pushSubscriptions.removeByEndpoint] ${error.message}`)
+    },
+  }
+}
+
+function toReminderSummary(row: {
+  id: string
+  due_date: string
+  amount: number | null
+  currency: string
+}): ReminderSummaryRow {
+  return { id: row.id, dueDate: row.due_date, amount: row.amount, currency: row.currency }
+}
+
+function makeReminders(db: SupabaseClient): ReminderQueryRepository {
+  return {
+    async listOverdue(tenantId) {
+      const today = new Date().toISOString().slice(0, 10)
+      const { data, error } = await db
+        .from('reminders')
+        .select('id, due_date, amount, currency')
+        .eq('tenant_id', tenantId)
+        .eq('status', 'pending')
+        .lt('due_date', today)
+        .order('due_date', { ascending: true })
+      if (error) throw new Error(`[reminders.listOverdue] ${error.message}`)
+      return (data ?? []).map(toReminderSummary)
+    },
+    async listUpcoming(tenantId, withinDays) {
+      const today = new Date()
+      const todayIso = today.toISOString().slice(0, 10)
+      const horizon = new Date(today.getTime() + withinDays * 24 * 60 * 60 * 1000)
+        .toISOString()
+        .slice(0, 10)
+      const { data, error } = await db
+        .from('reminders')
+        .select('id, due_date, amount, currency')
+        .eq('tenant_id', tenantId)
+        .eq('status', 'pending')
+        .gte('due_date', todayIso)
+        .lte('due_date', horizon)
+        .order('due_date', { ascending: true })
+      if (error) throw new Error(`[reminders.listUpcoming] ${error.message}`)
+      return (data ?? []).map(toReminderSummary)
+    },
+  }
+}
+
+const DASHBOARD_UPCOMING_WINDOW_DAYS = 7
+
+function makeDashboard(db: SupabaseClient): DashboardQueryRepository {
+  return {
+    async summarizeDay(tenantId): Promise<DaySummaryRow> {
+      const now = new Date()
+      const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString()
+      const todayIso = now.toISOString().slice(0, 10)
+      const horizonIso = new Date(now.getTime() + DASHBOARD_UPCOMING_WINDOW_DAYS * 24 * 60 * 60 * 1000)
+        .toISOString()
+        .slice(0, 10)
+
+      const [documentsReceived, documentsNeedingValidation, remindersDueNext7Days, overdueReminders, draftsPendingSend, jobsRunToday, jobsErroredToday] =
+        await Promise.all([
+          db
+            .from('documents')
+            .select('id', { count: 'exact', head: true })
+            .eq('tenant_id', tenantId)
+            .gte('created_at', todayStart),
+          db
+            .from('documents')
+            .select('id', { count: 'exact', head: true })
+            .eq('tenant_id', tenantId)
+            .eq('needs_human_validation', true),
+          db
+            .from('reminders')
+            .select('id', { count: 'exact', head: true })
+            .eq('tenant_id', tenantId)
+            .eq('status', 'pending')
+            .gte('due_date', todayIso)
+            .lte('due_date', horizonIso),
+          db
+            .from('reminders')
+            .select('id', { count: 'exact', head: true })
+            .eq('tenant_id', tenantId)
+            .eq('status', 'pending')
+            .lt('due_date', todayIso),
+          db
+            .from('document_drafts')
+            .select('id', { count: 'exact', head: true })
+            .eq('tenant_id', tenantId)
+            .eq('status', 'draft'),
+          db
+            .from('job_runs')
+            .select('id', { count: 'exact', head: true })
+            .eq('tenant_id', tenantId)
+            .gte('started_at', todayStart),
+          db
+            .from('job_runs')
+            .select('id', { count: 'exact', head: true })
+            .eq('tenant_id', tenantId)
+            .eq('status', 'error')
+            .gte('started_at', todayStart),
+        ])
+
+      for (const result of [
+        documentsReceived,
+        documentsNeedingValidation,
+        remindersDueNext7Days,
+        overdueReminders,
+        draftsPendingSend,
+        jobsRunToday,
+        jobsErroredToday,
+      ]) {
+        if (result.error) throw new Error(`[dashboard.summarizeDay] ${result.error.message}`)
+      }
+
+      return {
+        documentsReceived: documentsReceived.count ?? 0,
+        documentsNeedingValidation: documentsNeedingValidation.count ?? 0,
+        remindersDueNext7Days: remindersDueNext7Days.count ?? 0,
+        overdueReminders: overdueReminders.count ?? 0,
+        draftsPendingSend: draftsPendingSend.count ?? 0,
+        jobsRunToday: jobsRunToday.count ?? 0,
+        jobsErroredToday: jobsErroredToday.count ?? 0,
+      }
     },
   }
 }
@@ -431,6 +638,8 @@ export function createPorts(config: WorkerConfig): Ports {
     tenants: makeTenants(db),
     documents: makeDocuments(db),
     drafts: makeDrafts(db),
+    reminders: makeReminders(db),
+    dashboard: makeDashboard(db),
     media: makeMedia(config),
     mailer: makeMailer(config),
     jobRuns: makeJobRuns(db),

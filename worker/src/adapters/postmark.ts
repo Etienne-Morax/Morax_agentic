@@ -26,13 +26,17 @@ export function makeMailer(
           Subject: input.subject,
           TextBody: input.textBody,
           ...(input.htmlBody ? { HtmlBody: input.htmlBody } : {}),
-          Attachments: [
-            {
-              Name: input.attachment.filename,
-              Content: input.attachment.contentBase64,
-              ContentType: input.attachment.contentType,
-            },
-          ],
+          ...(input.attachment
+            ? {
+                Attachments: [
+                  {
+                    Name: input.attachment.filename,
+                    Content: input.attachment.contentBase64,
+                    ContentType: input.attachment.contentType,
+                  },
+                ],
+              }
+            : {}),
           MessageStream: 'outbound',
         }),
       })

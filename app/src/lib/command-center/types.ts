@@ -40,9 +40,9 @@ export interface ChatMessage {
   createdAt: string
 }
 
-/** Forme du futur retour d'enqueueAction : jamais d'execution directe pour un raccourci HIGH-risk. */
 export interface TriggerResult {
   ok: boolean
-  queuedActionId?: string
+  /** Present si le raccourci doit naviguer (scan, devis) plutot que rester sur le Launchpad. */
+  redirectTo?: string
   message: string
 }
