@@ -1,6 +1,7 @@
 import Image from 'next/image'
 import { getLaunchpadShortcuts } from '@/lib/command-center/queries'
 import { LaunchpadGrid } from './launchpad-grid'
+import { PushNotificationsToggle } from '../push-notifications-toggle'
 import styles from './launchpad.module.css'
 
 export const dynamic = 'force-dynamic'
@@ -24,6 +25,7 @@ export default async function LaunchpadPage() {
           <p className={styles.greetingHint}>Pret quand tu l&apos;es.</p>
         </div>
       </div>
+      <PushNotificationsToggle />
       <LaunchpadGrid shortcuts={shortcuts} />
     </section>
   )

@@ -17,6 +17,8 @@ import type {
   PendingActionRepository,
   PendingActionRow,
   Ports,
+  PushSender,
+  PushSubscriptionRepository,
   QueueClient,
   TenantRepository,
   Tracer,
@@ -24,6 +26,7 @@ import type {
 import type { ExtractedFields, JobMessage, QueueEnvelope } from '../types.js'
 import { makeMedia } from './r2.js'
 import { makeMailer } from './postmark.js'
+import { makeWebPush } from './web-push.js'
 import { buildApprovalKeyboard, type InlineKeyboard } from '../action-gate-core.js'
 
 const QUEUE_NAME = 'morax_jobs'
@@ -304,7 +307,33 @@ function makeDrafts(db: SupabaseClient): DraftStatusRepository {
   }
 }
 
-function makeNotifier(config: WorkerConfig, db: SupabaseClient): Notifier {
+export function makePushSubscriptions(db: SupabaseClient): PushSubscriptionRepository {
+  return {
+    async listForTenant(tenantId) {
+      const { data, error } = await db
+        .from('push_subscriptions')
+        .select('endpoint, p256dh, auth')
+        .eq('tenant_id', tenantId)
+      if (error) throw new Error(`[pushSubscriptions.listForTenant] ${error.message}`)
+      return (data ?? []) as { endpoint: string; p256dh: string; auth: string }[]
+    },
+    async removeByEndpoint(tenantId, endpoint) {
+      const { error } = await db
+        .from('push_subscriptions')
+        .delete()
+        .eq('tenant_id', tenantId)
+        .eq('endpoint', endpoint)
+      if (error) throw new Error(`[pushSubscriptions.removeByEndpoint] ${error.message}`)
+    },
+  }
+}
+
+function makeNotifier(
+  config: WorkerConfig,
+  db: SupabaseClient,
+  pushSubscriptions: PushSubscriptionRepository,
+  webPush: PushSender,
+): Notifier {
   async function chatIdFor(tenantId: string): Promise<string | null> {
     const { data } = await db
       .from('channel_identities')
@@ -334,13 +363,30 @@ function makeNotifier(config: WorkerConfig, db: SupabaseClient): Notifier {
     })
   }
 
+  // Push generique uniquement : jamais de montant/echeance/tiers dans le corps
+  // (ecran verrouille plus expose qu'un message Telegram ouvert dans l'app).
+  // Le gate HIGH reste Telegram-only ; le push notifie, il ne decide jamais.
+  async function pushToTenant(tenantId: string, body: string): Promise<void> {
+    const subs = await pushSubscriptions.listForTenant(tenantId)
+    for (const sub of subs) {
+      const result = await webPush.send(sub, { title: 'Morax', body, url: '/launchpad' })
+      if (result.expired) await pushSubscriptions.removeByEndpoint(tenantId, sub.endpoint)
+    }
+  }
+
   return {
     ack: (tenantId, text) => sendTelegram(tenantId, text),
-    proposeApproval: (tenantId, pendingActionId, summary) =>
-      sendTelegram(tenantId, summary, buildApprovalKeyboard(pendingActionId)),
+    proposeApproval: async (tenantId, pendingActionId, summary) => {
+      await Promise.all([
+        sendTelegram(tenantId, summary, buildApprovalKeyboard(pendingActionId)),
+        pushToTenant(tenantId, 'Une action attend ton approbation.'),
+      ])
+    },
     proposeReminderValidation: (tenantId, documentId, summary) =>
       sendTelegram(tenantId, `${summary} (doc ${documentId})`),
-    notifyReminderDue: (tenantId, text) => sendTelegram(tenantId, text),
+    notifyReminderDue: async (tenantId, text) => {
+      await Promise.all([sendTelegram(tenantId, text), pushToTenant(tenantId, 'Une echeance approche.')])
+    },
     notifyActionResult: (tenantId, text) => sendTelegram(tenantId, text),
   }
 }
@@ -390,7 +436,9 @@ export function createPorts(config: WorkerConfig): Ports {
     jobRuns: makeJobRuns(db),
     credits: makeCredits(db),
     pendingActions: makePendingActions(db),
-    notifier: makeNotifier(config, db),
+    pushSubscriptions: makePushSubscriptions(db),
+    webPush: makeWebPush(config),
+    notifier: makeNotifier(config, db, makePushSubscriptions(db), makeWebPush(config)),
     tracer: makeTracer(config),
   }
 }

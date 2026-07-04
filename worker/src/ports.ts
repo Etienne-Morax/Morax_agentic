@@ -120,6 +120,36 @@ export interface MediaRepository {
   getObject(key: string): Promise<{ bytes: Uint8Array; contentType: string }>
 }
 
+export interface PushSubscriptionRow {
+  endpoint: string
+  p256dh: string
+  auth: string
+}
+
+export interface PushPayload {
+  title: string
+  body: string
+  /** Chemin relatif ouvert au tap (ex. /launchpad). */
+  url: string
+}
+
+export interface PushSendResult {
+  delivered: boolean
+  /** true si l'endpoint est expire/invalide (404/410) : l'appelant doit purger l'abonnement. */
+  expired: boolean
+}
+
+/** Envoi push web VAPID (PWA). No-op silencieux si VAPID non configure. */
+export interface PushSender {
+  send(subscription: PushSubscriptionRow, payload: PushPayload): Promise<PushSendResult>
+}
+
+/** Abonnements push tenant-scoped (table push_subscriptions). */
+export interface PushSubscriptionRepository {
+  listForTenant(tenantId: string): Promise<PushSubscriptionRow[]>
+  removeByEndpoint(tenantId: string, endpoint: string): Promise<void>
+}
+
 /** Notifications sortantes (Telegram au MVP). */
 export interface Notifier {
   ack(tenantId: string, text: string): Promise<void>
@@ -157,6 +187,8 @@ export interface Ports {
   jobRuns: JobRunRepository
   credits: CreditsRepository
   pendingActions: PendingActionRepository
+  pushSubscriptions: PushSubscriptionRepository
+  webPush: PushSender
   notifier: Notifier
   tracer: Tracer
 }

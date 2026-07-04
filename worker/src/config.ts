@@ -30,6 +30,8 @@ export interface WorkerConfig {
   mailFrom: string
   maxLoopsPerJob: number
   queueBatchSize: number
+  /** Push web (PWA). Optionnel : absent en dev tant que non provisionne, push simplement desactive. */
+  vapid: { publicKey: string; privateKey: string; subject: string } | null
 }
 
 function required(name: string): string {
@@ -45,6 +47,14 @@ function optionalNumber(name: string, fallback: number): number {
   if (!raw) return fallback
   const n = Number(raw)
   return Number.isFinite(n) ? n : fallback
+}
+
+function loadVapid(): WorkerConfig['vapid'] {
+  const publicKey = process.env.VAPID_PUBLIC_KEY
+  const privateKey = process.env.VAPID_PRIVATE_KEY
+  const subject = process.env.VAPID_SUBJECT
+  if (!publicKey || !privateKey || !subject) return null
+  return { publicKey, privateKey, subject }
 }
 
 export function loadConfig(): WorkerConfig {
@@ -71,5 +81,6 @@ export function loadConfig(): WorkerConfig {
     mailFrom: required('POSTMARK_FROM_EMAIL'),
     maxLoopsPerJob: optionalNumber('MORAX_MAX_LOOPS_PER_JOB', 8),
     queueBatchSize: optionalNumber('MORAX_QUEUE_BATCH_SIZE', 10),
+    vapid: loadVapid(),
   }
 }

@@ -22,6 +22,7 @@ function fakeConfig(): WorkerConfig {
     mailFrom: 'factures@morax.app',
     maxLoopsPerJob: 8,
     queueBatchSize: 10,
+    vapid: null,
   }
 }
 

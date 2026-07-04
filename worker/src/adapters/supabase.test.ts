@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { SupabaseClient } from '@supabase/supabase-js'
-import { makeJobRuns } from './supabase.js'
+import { makeJobRuns, makePushSubscriptions } from './supabase.js'
 import type { JobMessage } from '../types.js'
 
 /**
@@ -22,6 +22,10 @@ function fakeDb(results: Array<{ data?: unknown; error?: unknown }>): {
     },
     update(arg: unknown) {
       ops.push({ op: 'update', arg })
+      return builder
+    },
+    delete() {
+      ops.push({ op: 'delete' })
       return builder
     },
     select() {
@@ -127,5 +131,40 @@ describe('makeJobRuns.finish', () => {
     expect(update?.arg).toEqual(
       expect.objectContaining({ status: 'done', finished_at: expect.any(String) }),
     )
+  })
+})
+
+describe('makePushSubscriptions', () => {
+  it('listForTenant renvoie les abonnements du tenant', async () => {
+    const rows = [{ endpoint: 'https://push.example/a', p256dh: 'p1', auth: 'a1' }]
+    const { db } = fakeDb([{ data: rows, error: null }])
+    const result = await makePushSubscriptions(db).listForTenant('morax-test')
+    expect(result).toEqual(rows)
+  })
+
+  it('listForTenant renvoie un tableau vide si data est null', async () => {
+    const { db } = fakeDb([{ data: null, error: null }])
+    const result = await makePushSubscriptions(db).listForTenant('morax-test')
+    expect(result).toEqual([])
+  })
+
+  it('listForTenant jette une erreur explicite sur échec DB', async () => {
+    const { db } = fakeDb([{ data: null, error: { message: 'relation absente' } }])
+    await expect(makePushSubscriptions(db).listForTenant('morax-test')).rejects.toThrow(
+      /relation absente/,
+    )
+  })
+
+  it('removeByEndpoint émet un delete filtré tenant+endpoint', async () => {
+    const { db, ops } = fakeDb([{ data: null, error: null }])
+    await makePushSubscriptions(db).removeByEndpoint('morax-test', 'https://push.example/a')
+    expect(ops.some((o) => o.op === 'delete')).toBe(true)
+  })
+
+  it('removeByEndpoint jette une erreur explicite sur échec DB', async () => {
+    const { db } = fakeDb([{ data: null, error: { message: 'boom' } }])
+    await expect(
+      makePushSubscriptions(db).removeByEndpoint('morax-test', 'https://push.example/a'),
+    ).rejects.toThrow(/boom/)
   })
 })

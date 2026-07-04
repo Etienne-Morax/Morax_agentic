@@ -164,6 +164,17 @@ function makePorts(
         return true
       },
     },
+    pushSubscriptions: {
+      async listForTenant() {
+        return []
+      },
+      async removeByEndpoint() {},
+    },
+    webPush: {
+      async send() {
+        return { delivered: false, expired: false }
+      },
+    },
     notifier: {
       async ack(_t, text) {
         rec.acks.push(text)
