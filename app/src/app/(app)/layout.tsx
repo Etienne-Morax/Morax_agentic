@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
+import Image from 'next/image'
 import Link from 'next/link'
-import { LogOut, Sparkles } from 'lucide-react'
+import { LogOut } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { PasskeyRegisterButton } from './passkey-register-button'
 import { NavLinks } from './nav-links'
@@ -23,7 +24,7 @@ export default async function AppShellLayout({ children }: { children: ReactNode
       <header className={`${styles.header} glass`}>
         <Link href="/" className={styles.brand}>
           <span className={styles.brandMark} aria-hidden="true">
-            <Sparkles strokeWidth={2} />
+            <Image src="/icons/icon-192.png" alt="" width={28} height={28} />
           </span>
           <span className={styles.brandName}>Morax</span>
         </Link>
