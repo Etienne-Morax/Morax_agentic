@@ -14,6 +14,7 @@
  */
 
 import type { JobType } from '@morax/model-core'
+import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import type { EntityKind } from '@/lib/entity-kind'
 import { mapCommandMessageRow, type CommandMessageRow } from './chat-message-core'
@@ -123,12 +124,21 @@ export async function getOperationsFeed(limit = 20): Promise<OpsFeedEntry[]> {
   })
 }
 
-/** Tenant courant (RPC current_tenant_id(), meme lecture que les Server Actions). Sert au filtre Realtime cote client. */
+/**
+ * Tenant courant (RPC current_tenant_id(), meme lecture que les Server Actions).
+ * Sert au filtre Realtime cote client.
+ * Un utilisateur authentifie sans ligne public.users (donc sans claim tenant_id
+ * dans son JWT) n'est pas une erreur serveur : sa session est orpheline et doit
+ * etre nettoyee plutot que de faire planter la page (redirect, pas throw).
+ */
 export async function getCurrentTenantId(): Promise<string> {
   const supabase = await createClient()
   const { data, error } = await supabase.rpc('current_tenant_id')
-  if (error || !data) {
-    throw new Error(`[getCurrentTenantId] ${error?.message ?? 'tenant introuvable'}`)
+  if (error) {
+    throw new Error(`[getCurrentTenantId] ${error.message}`)
+  }
+  if (!data) {
+    redirect('/auth/signout?reason=no_tenant')
   }
   return data as string
 }
