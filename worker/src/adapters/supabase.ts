@@ -365,6 +365,7 @@ function makeDrafts(db: SupabaseClient): DraftStatusRepository {
         .eq('status', 'sent')
         .not('due_date', 'is', null)
         .lt('due_date', today)
+        .order('due_date', { ascending: true })
       if (error) throw new Error(`[drafts.listOverdueInvoices] ${error.message}`)
       const rows = (data ?? []) as Array<{
         id: string

@@ -29,6 +29,14 @@ au nom d'un artisan/independant britannique qui relance SON client. Contraintes 
 /** Borne le corps a un email court : la relance tient en quelques phrases. */
 const CHASE_MAX_OUTPUT_TOKENS = 400
 
+/**
+ * Plafond de factures relancees par passage (les plus anciennes d'abord) : un
+ * gros arrieré ne doit pas faire tenir un seul job dans N appels LLM
+ * sequentiels sans borne (visibility timeout pgmq, cout, latence). Le reste
+ * du retard sera traite au prochain declenchement du bouton.
+ */
+const MAX_INVOICES_PER_RUN = 20
+
 /** Brief compact passe au LLM : les faits viennent de la base, pas d'invention cote modele. */
 function chaseUserBrief(invoice: OverdueInvoiceRow): string {
   return [
@@ -51,8 +59,10 @@ export async function chaseUnpaid(ctx: TaskContext): Promise<void> {
   }
 
   // Sequentiel volontairement : le client LLM retente en interne et le quota
-  // tenant doit voir les appels un a un (pas de rafale parallele).
-  for (const invoice of overdue) {
+  // tenant doit voir les appels un a un (pas de rafale parallele). Plafonne
+  // (les plus anciennes d'abord, cf. tri due_date ASC de listOverdueInvoices)
+  // pour ne jamais faire tenir un arrieré entier dans un seul passage.
+  for (const invoice of overdue.slice(0, MAX_INVOICES_PER_RUN)) {
     const modelConfig = resolveModel({ tenantConfig: ctx.tenant, role: 'cerveau' })
     const llmResult = await ctx.llm.complete({
       modelConfig,
