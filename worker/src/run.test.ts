@@ -336,13 +336,47 @@ describe('processEnvelope', () => {
     expect(rec.archived).not.toContain(42)
   })
 
-  it('un job en erreur au-delà de Max Loops part en DLQ (archive)', async () => {
+  it('un job en erreur au-delà de Max Loops part en DLQ (archive) et notifie l\'échec', async () => {
     const { ports, rec } = makePorts()
     // read_ct=8 : passe le garde d'entrée (8>8 faux), échoue, puis 8+1>8 -> archive DLQ.
     const res = await processEnvelope(envelope({ document_id: undefined }, 8), ports, llm, RUN_CONFIG)
     expect(res.status).toBe('error')
     expect(rec.archived).toContain(42)
     expect(rec.deleted).not.toContain(42)
+    // Avant : le job mourait en silence (ni Telegram ni push). On exige desormais une notification.
+    expect(rec.actionResults).toHaveLength(1)
+    expect(rec.actionResults[0]?.text).toMatch(/échoué/i)
+  })
+})
+
+function taskEnvelope(type: JobMessage['type'], readCt = 1): QueueEnvelope {
+  const message: JobMessage = {
+    schema_version: 1,
+    type,
+    tenant_id: 'morax-test',
+    source: 'app',
+    idempotency_key: `task:${type}:${readCt}`,
+    enqueued_at: '2026-07-08T09:00:00Z',
+  }
+  return { msg_id: 55, read_ct: readCt, enqueued_at: message.enqueued_at, message }
+}
+
+describe('processEnvelope taches Launchpad (chase_unpaid/check_deadlines/daily_summary/sort_inbox)', () => {
+  it('sous Max Loops : erreur silencieuse, retry sans notification (le prochain passage peut reussir seul)', async () => {
+    const { ports, rec } = makePorts()
+    // drafts.listOverdueInvoices absent du fixture -> chaseUnpaid leve une erreur.
+    const res = await processEnvelope(taskEnvelope('chase_unpaid', 1), ports, llm, RUN_CONFIG)
+    expect(res.status).toBe('error')
+    expect(rec.actionResults).toHaveLength(0)
+  })
+
+  it('au-dela de Max Loops : archive ET notifie l\'echec au lieu de rester silencieux apres le "Je m\'en occupe"', async () => {
+    const { ports, rec } = makePorts()
+    const res = await processEnvelope(taskEnvelope('chase_unpaid', 8), ports, llm, RUN_CONFIG)
+    expect(res.status).toBe('error')
+    expect(rec.archived).toContain(55)
+    expect(rec.actionResults).toHaveLength(1)
+    expect(rec.actionResults[0]?.text).toMatch(/échoué/i)
   })
 })
 

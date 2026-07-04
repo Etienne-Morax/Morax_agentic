@@ -39,6 +39,41 @@ const TASK_JOB_TYPES = new Set<JobMessage['type']>([
   'sort_inbox',
 ])
 
+const JOB_TYPE_LABELS: Partial<Record<JobMessage['type'], string>> = {
+  chase_unpaid: 'Relance des impayés',
+  check_deadlines: 'Vérification des échéances',
+  daily_summary: 'Résumé du jour',
+  sort_inbox: 'Classement de l’inbox',
+  capture_document: 'Scan de document',
+  capture_audio: 'Message vocal',
+  draft_quote: 'Génération de devis',
+  draft_invoice: 'Génération de facture',
+}
+
+/**
+ * Avant ce correctif, un job qui echouait definitivement (Max Loops depasse,
+ * archive en DLQ) mourait en silence : le "Je m'en occupe" initial restait
+ * sans suite, sans que l'utilisateur soit jamais informe de l'echec. On
+ * notifie desormais au moment de l'abandon (jamais pendant les retries en
+ * cours, pour ne pas spammer sur une erreur transitoire qui va se resoudre).
+ * Best-effort : une notification ratee ne doit jamais faire echouer le job.
+ */
+async function notifyJobFailureBestEffort(
+  ports: Ports,
+  tenantId: string,
+  type: JobMessage['type'],
+): Promise<void> {
+  const label = JOB_TYPE_LABELS[type] ?? type
+  try {
+    await ports.notifier.notifyActionResult(
+      tenantId,
+      `⚠️ ${label} a échoué après plusieurs tentatives. Réessaie depuis le Launchpad ou contacte le support.`,
+    )
+  } catch {
+    // best-effort : ne masque jamais l'erreur d'origine deja tracee dans job_runs.
+  }
+}
+
 export interface RunConfig {
   maxLoopsPerJob: number
   queueBatchSize: number
@@ -157,6 +192,7 @@ export async function processEnvelope(
     // redevenir visible pour un retry borné.
     if (envelope.read_ct + 1 > config.maxLoopsPerJob) {
       await ports.queue.archive(envelope.msg_id)
+      await notifyJobFailureBestEffort(ports, msg.tenant_id, msg.type)
     }
     return { status: 'error', msgId: envelope.msg_id }
   }
@@ -233,6 +269,7 @@ async function processTask(
     await ports.jobRuns.finish(begin.jobRunId, 'error', message)
     if (envelope.read_ct + 1 > config.maxLoopsPerJob) {
       await ports.queue.archive(envelope.msg_id)
+      await notifyJobFailureBestEffort(ports, msg.tenant_id, msg.type)
     }
     return { status: 'error', msgId: envelope.msg_id }
   }
