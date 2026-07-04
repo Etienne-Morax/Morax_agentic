@@ -14,9 +14,10 @@
     "./tenant-schema": "./src/tenant.schema.yaml"
   },
   "scripts": {
-    "build": "tsc -p tsconfig.json && cp src/models.registry.yaml dist/models.registry.yaml",
-    "typecheck": "tsc -p tsconfig.json --noEmit",
-    "test": "vitest run"
+    "generate:registry": "node scripts/gen-registry.mjs",
+    "build": "node scripts/gen-registry.mjs && tsc -p tsconfig.json",
+    "typecheck": "node scripts/gen-registry.mjs && tsc -p tsconfig.json --noEmit",
+    "test": "node scripts/gen-registry.mjs && vitest run"
   },
   "dependencies": {
     "js-yaml": "^4.1.0"

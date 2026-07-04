@@ -4,10 +4,7 @@
  * Aucun identifiant de modèle n'est codé en dur ailleurs.
  */
 
-import { existsSync, readFileSync } from 'node:fs'
-import { dirname, join } from 'node:path'
-import { fileURLToPath } from 'node:url'
-import yaml from 'js-yaml'
+import { registryData } from './models.registry.generated.js'
 
 export interface RegistryRoleConfig {
   model: string
@@ -64,23 +61,6 @@ export interface Registry {
   guardrails: Guardrails
 }
 
-const REGISTRY_FILENAME = 'models.registry.yaml'
-
-function locateRegistryFile(): string {
-  const here = dirname(fileURLToPath(import.meta.url))
-  const candidates = [
-    join(here, REGISTRY_FILENAME), // src (vitest/tsx) ou dist si copié
-    join(here, '..', 'src', REGISTRY_FILENAME), // dist -> src
-  ]
-  const found = candidates.find((p) => existsSync(p))
-  if (!found) {
-    throw new Error(
-      `[registry] Fichier introuvable. Cherché : ${candidates.join(', ')}`,
-    )
-  }
-  return found
-}
-
 function validateRegistry(raw: unknown): Registry {
   if (typeof raw !== 'object' || raw === null) {
     throw new Error('[registry] Contenu YAML invalide (objet attendu).')
@@ -115,9 +95,7 @@ function validateRegistry(raw: unknown): Registry {
 }
 
 function loadRegistry(): Registry {
-  const path = locateRegistryFile()
-  const text = readFileSync(path, 'utf8')
-  return validateRegistry(yaml.load(text))
+  return validateRegistry(registryData)
 }
 
 /** Registre chargé une seule fois au premier import (immuable côté lecture). */
