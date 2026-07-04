@@ -105,8 +105,15 @@ Tu avais déjà tranché Langfuse comme eval gate. Il doit être présent dès l
 - Rôles finance-critiques routés sur le cerveau (Opus 4.8), jamais sur un modèle micro.
 
 ### Phase 4, Restitution + lancement
-- Web View read-only minimale : timeline inversée, cartes, estompage des éléments terminés.
-- **Caching sémantique** : la consultation lit uniquement Supabase, zéro appel IA (déjà acté, bon réflexe).
+
+Deux surfaces, pas une seule :
+
+- **Consultation (read-only, zéro IA)** : timeline inversée, cartes, estompage des éléments terminés.
+  - **Caching sémantique** : la consultation lit uniquement Supabase, zéro appel IA (déjà acté, bon réflexe).
+- **Centre de Commandement** (shell `(command)`, PWA `start_url: /launchpad`) : trois onglets.
+  - **Launchpad** : grille de raccourcis prédéfinis (scanner un document, relancer un impayé, générer un devis, vérifier les échéances, résumé du jour...). Chaque raccourci déclenche une action HIGH via le gate `pending_actions` — ce n'est donc pas du read-only pur, l'approbation Telegram reste obligatoire avant exécution.
+  - **Operations** : feed des `job_runs` en cours/terminés.
+  - **Commande** : interface de chat.
 - Compteur de crédits + écran usage.
 - Rappels via Cron Supabase (body double simple).
 - Bêta fermée 10 à 20 testeurs (profils TDAH + micro-entrepreneurs).
@@ -129,6 +136,7 @@ Tu avais déjà tranché Langfuse comme eval gate. Il doit être présent dès l
 | Modèle Sonnet 4.7 | inexistant | Sonnet 4.6 |
 | Audio temps réel | Flash standard | variante Live API |
 | Note vocale | "sans limite" | bornée (contrainte Telegram assumée) |
+| Restitution | Web View read-only seule | + Centre de Commandement (Launchpad/Operations/Commande), déjà bâti en code, PWA `/launchpad` |
 
 ---
 

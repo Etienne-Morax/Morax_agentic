@@ -113,6 +113,14 @@ suivante), bucket confirmé `morax-media | EU`.
 
 ## 3. Bot Telegram + `channel_identities`
 
+> **Deux bots Telegram distincts, ne pas confondre** :
+> - `@SuperMorax_bot` = bot de la **plateforme** OpenClaw (opérations agentic
+>   internes d'Etienne, gate d'approbation des actions HIGH côté plateforme —
+>   voir `docs/PLATFORM-AND-TOOLS.md`). Rien à voir avec le produit Morax.
+> - `@morax_assistant_bot` (ci-dessous) = bot du **produit** Morax, canal
+>   utilisateur pour capturer factures/devis/rappels. C'est celui-ci que tout
+>   testeur ou utilisateur final utilise. Voir `docs/CONNECT-PHONE.md`.
+
 - **Etienne** connecté à Telegram Web dans son navigateur réel ; piloté par
   Claude via l'extension Chrome (`claude-in-chrome` MCP) plutôt que manuel.
 - BotFather → `/newbot` → nom "Morax Assistant", username `morax_assistant_bot`
