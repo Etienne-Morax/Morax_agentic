@@ -191,6 +191,10 @@ function makePorts(
         rec.actionResults.push({ tenantId, text })
       },
     },
+    commandChat: {
+      async listRecent() { return [] },
+      async reply() {},
+    },
     tracer: {
       async trace(_name, _tags, fn) {
         return fn('trace-1')

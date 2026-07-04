@@ -3,15 +3,18 @@
 import { useEffect, useRef, useState } from 'react'
 import { Mic, Paperclip, Send } from 'lucide-react'
 import { useHaptics } from '@/lib/use-haptics'
+import { useRealtimeTable } from '@/lib/supabase/use-realtime-table'
+import { mapCommandMessageRow, type CommandMessageRow } from '@/lib/command-center/chat-message-core'
 import type { ChatMessage } from '@/lib/command-center/types'
 import { sendCommandMessage } from './actions'
 import styles from './chat.module.css'
 
 interface ChatConsoleProps {
   initialMessages: ChatMessage[]
+  tenantId: string
 }
 
-export function ChatConsole({ initialMessages }: ChatConsoleProps) {
+export function ChatConsole({ initialMessages, tenantId }: ChatConsoleProps) {
   const [messages, setMessages] = useState<ChatMessage[]>(initialMessages)
   const [draft, setDraft] = useState('')
   const [isSending, setIsSending] = useState(false)
@@ -21,6 +24,16 @@ export function ChatConsole({ initialMessages }: ChatConsoleProps) {
   useEffect(() => {
     endRef.current?.scrollIntoView({ block: 'end' })
   }, [messages])
+
+  // La reponse de l'agent (role='agent') est inseree par le worker, pas par ce
+  // client : sans Realtime elle n'apparaissait jamais (aucun poll ni refresh).
+  // Notre propre message (role='user') arrive aussi par ce canal ; dedupe par id
+  // puisqu'on l'a deja ajoute de facon optimiste dans handleSend().
+  useRealtimeTable<CommandMessageRow>('command_messages', tenantId, (payload) => {
+    if (payload.eventType !== 'INSERT') return
+    const incoming = mapCommandMessageRow(payload.new)
+    setMessages((prev) => (prev.some((m) => m.id === incoming.id) ? prev : [...prev, incoming]))
+  })
 
   async function handleSend() {
     const text = draft.trim()

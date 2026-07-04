@@ -8,6 +8,7 @@
 import type { JobType } from '@morax/model-core'
 import { chaseUnpaid } from './chase-unpaid.js'
 import { checkDeadlines } from './check-deadlines.js'
+import { commandReply } from './command-reply.js'
 import { dailySummary } from './daily-summary.js'
 import { sortInbox } from './sort-inbox.js'
 import type { TaskContext } from './types.js'
@@ -19,4 +20,5 @@ export const TASK_HANDLERS: Partial<Record<JobType, TaskHandler>> = {
   check_deadlines: checkDeadlines,
   daily_summary: dailySummary,
   sort_inbox: sortInbox,
+  command_reply: commandReply,
 }

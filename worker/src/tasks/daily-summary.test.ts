@@ -140,6 +140,10 @@ function makeContext(opts: {
         rec.notifications.push({ tenantId, text })
       },
     },
+    commandChat: {
+      async listRecent() { return [] },
+      async reply() {},
+    },
     tracer: { async trace(_n, _t, fn) { return fn('trace-1') } },
   }
 

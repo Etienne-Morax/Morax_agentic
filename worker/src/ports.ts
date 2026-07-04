@@ -222,6 +222,20 @@ export interface Notifier {
   notifyActionResult(tenantId: string, text: string): Promise<void>
 }
 
+export interface CommandMessageRow {
+  role: 'user' | 'agent'
+  body: string
+  createdAt: string
+}
+
+/** Historique + reponse du chat Centre de Commandement (command_messages). */
+export interface CommandChatRepository {
+  /** Derniers tours (asc par date), pour donner du contexte conversationnel au LLM. */
+  listRecent(tenantId: string, limit: number): Promise<CommandMessageRow[]>
+  /** Insere la reponse de l'agent (role='agent'). */
+  reply(tenantId: string, text: string): Promise<void>
+}
+
 /** Tracing Langfuse. */
 export interface Tracer {
   trace<T>(
@@ -246,5 +260,6 @@ export interface Ports {
   pushSubscriptions: PushSubscriptionRepository
   webPush: PushSender
   notifier: Notifier
+  commandChat: CommandChatRepository
   tracer: Tracer
 }

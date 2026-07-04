@@ -9,6 +9,8 @@ import { Langfuse } from 'langfuse'
 import type { Pack, TenantConfig } from '@morax/model-core'
 import type { WorkerConfig } from '../config.js'
 import type {
+  CommandChatRepository,
+  CommandMessageRow,
   CreditsRepository,
   DashboardQueryRepository,
   DaySummaryRow,
@@ -456,6 +458,29 @@ function makeReminders(db: SupabaseClient): ReminderQueryRepository {
   }
 }
 
+function makeCommandChat(db: SupabaseClient): CommandChatRepository {
+  return {
+    async listRecent(tenantId, limit) {
+      const { data, error } = await db
+        .from('command_messages')
+        .select('role, body, created_at')
+        .eq('tenant_id', tenantId)
+        .order('created_at', { ascending: false })
+        .limit(limit)
+      if (error) throw new Error(`[commandChat.listRecent] ${error.message}`)
+      return ((data ?? []) as Array<{ role: CommandMessageRow['role']; body: string; created_at: string }>)
+        .reverse()
+        .map((row) => ({ role: row.role, body: row.body, createdAt: row.created_at }))
+    },
+    async reply(tenantId, text) {
+      const { error } = await db
+        .from('command_messages')
+        .insert({ tenant_id: tenantId, role: 'agent', body: text })
+      if (error) throw new Error(`[commandChat.reply] ${error.message}`)
+    },
+  }
+}
+
 const DASHBOARD_UPCOMING_WINDOW_DAYS = 7
 
 function makeDashboard(db: SupabaseClient): DashboardQueryRepository {
@@ -649,6 +674,7 @@ export function createPorts(config: WorkerConfig): Ports {
     pushSubscriptions: makePushSubscriptions(db),
     webPush: makeWebPush(config),
     notifier: makeNotifier(config, db, makePushSubscriptions(db), makeWebPush(config)),
+    commandChat: makeCommandChat(db),
     tracer: makeTracer(config),
   }
 }

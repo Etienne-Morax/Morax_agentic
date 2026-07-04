@@ -14,6 +14,7 @@ import {
 import { entityKindSpec } from '@/lib/entity-kind'
 import { triggerShortcut } from './actions'
 import { useHaptics } from '@/lib/use-haptics'
+import { useRealtimeTable } from '@/lib/supabase/use-realtime-table'
 import type { LaunchpadShortcut } from '@/lib/command-center/types'
 import styles from './launchpad.module.css'
 
@@ -30,13 +31,21 @@ type TileState = 'idle' | 'triggering'
 
 interface LaunchpadGridProps {
   shortcuts: LaunchpadShortcut[]
+  tenantId: string
 }
 
-export function LaunchpadGrid({ shortcuts }: LaunchpadGridProps) {
+export function LaunchpadGrid({ shortcuts, tenantId }: LaunchpadGridProps) {
   const [tileStates, setTileStates] = useState<Record<string, TileState>>({})
   const [errors, setErrors] = useState<Record<string, string>>({})
   const haptics = useHaptics()
   const router = useRouter()
+
+  // job_runs passe de running a done/error sans action de l'utilisateur (le
+  // worker Cloud Run tourne en tache de fond) : sans Realtime, la tuile ne se
+  // met a jour qu'au prochain declenchement manuel (router.refresh() etait
+  // jusque-la uniquement post-clic). On rafraichit desormais des qu'une ligne
+  // job_runs du tenant change, peu importe le type (cout negligeable).
+  useRealtimeTable('job_runs', tenantId, () => router.refresh())
 
   async function handleTrigger(id: string) {
     haptics.tap()

@@ -18,6 +18,7 @@ export type JobType =
   | 'check_deadlines'
   | 'daily_summary'
   | 'sort_inbox'
+  | 'command_reply'
 
 export interface ReminderNotifyPayload {
   id: string

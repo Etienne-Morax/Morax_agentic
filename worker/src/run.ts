@@ -37,6 +37,7 @@ const TASK_JOB_TYPES = new Set<JobMessage['type']>([
   'check_deadlines',
   'daily_summary',
   'sort_inbox',
+  'command_reply',
 ])
 
 const JOB_TYPE_LABELS: Partial<Record<JobMessage['type'], string>> = {
@@ -44,6 +45,7 @@ const JOB_TYPE_LABELS: Partial<Record<JobMessage['type'], string>> = {
   check_deadlines: 'Vérification des échéances',
   daily_summary: 'Résumé du jour',
   sort_inbox: 'Classement de l’inbox',
+  command_reply: 'Réponse du chat',
   capture_document: 'Scan de document',
   capture_audio: 'Message vocal',
   draft_quote: 'Génération de devis',

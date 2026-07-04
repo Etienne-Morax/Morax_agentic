@@ -18,6 +18,7 @@ export type ActionCategory =
   | 'brouillon_devis'
   | 'devis_complexe'
   | 'envoi_document'
+  | 'chat_reply'
 
 /** Poids en crédits par catégorie d'action (grille-actions-poids.md). */
 export const ACTION_WEIGHTS: Readonly<Record<ActionCategory, number>> = {
@@ -32,6 +33,10 @@ export const ACTION_WEIGHTS: Readonly<Record<ActionCategory, number>> = {
   brouillon_devis: 3,
   devis_complexe: 5,
   envoi_document: 0.5,
+  // Reponse du chat (Centre de Commandement) : peut toucher montants/echeances
+  // (garde-fou financier -> role cerveau), mais reste un tour court, pas une
+  // redaction longue. Aligne sur resume_financier (meme famille cerveau-leger).
+  chat_reply: 1.5,
 }
 
 /** Crédits ajoutés par pack. Le pack `base` fixe le socle. */

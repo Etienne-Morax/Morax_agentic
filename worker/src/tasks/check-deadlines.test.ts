@@ -105,6 +105,10 @@ function makeContext(overdue: ReminderSummaryRow[], upcoming: ReminderSummaryRow
       },
       notifyActionResult: neverCalled('notifier.notifyActionResult'),
     },
+    commandChat: {
+      listRecent: neverCalled('commandChat.listRecent'),
+      reply: neverCalled('commandChat.reply'),
+    },
     tracer: { trace: neverCalled('tracer.trace') },
   }
 

@@ -1,5 +1,5 @@
 import Image from 'next/image'
-import { getLaunchpadShortcuts } from '@/lib/command-center/queries'
+import { getCurrentTenantId, getLaunchpadShortcuts } from '@/lib/command-center/queries'
 import { LaunchpadGrid } from './launchpad-grid'
 import { PushNotificationsToggle } from '../push-notifications-toggle'
 import styles from './launchpad.module.css'
@@ -7,7 +7,7 @@ import styles from './launchpad.module.css'
 export const dynamic = 'force-dynamic'
 
 export default async function LaunchpadPage() {
-  const shortcuts = await getLaunchpadShortcuts()
+  const [shortcuts, tenantId] = await Promise.all([getLaunchpadShortcuts(), getCurrentTenantId()])
 
   return (
     <section>
@@ -26,7 +26,7 @@ export default async function LaunchpadPage() {
         </div>
       </div>
       <PushNotificationsToggle />
-      <LaunchpadGrid shortcuts={shortcuts} />
+      <LaunchpadGrid shortcuts={shortcuts} tenantId={tenantId} />
     </section>
   )
 }

@@ -33,6 +33,7 @@ const JOB_TYPE_META: Record<JobType, { agent: string; action: string; kind: Enti
   check_deadlines: { agent: 'Archiviste', action: 'Verification echeances', kind: 'reminder' },
   daily_summary: { agent: 'Archiviste', action: 'Resume du jour', kind: 'job_run' },
   sort_inbox: { agent: 'Archiviste', action: 'Classement inbox', kind: 'document' },
+  command_reply: { agent: 'Copilote', action: 'Reponse chat', kind: 'job_run' },
 }
 
 /** JobType associe a chaque raccourci de type 'job' (voir shortcuts.ts). */
@@ -120,6 +121,16 @@ export async function getOperationsFeed(limit = 20): Promise<OpsFeedEntry[]> {
       detail: row.error ?? undefined,
     }
   })
+}
+
+/** Tenant courant (RPC current_tenant_id(), meme lecture que les Server Actions). Sert au filtre Realtime cote client. */
+export async function getCurrentTenantId(): Promise<string> {
+  const supabase = await createClient()
+  const { data, error } = await supabase.rpc('current_tenant_id')
+  if (error || !data) {
+    throw new Error(`[getCurrentTenantId] ${error?.message ?? 'tenant introuvable'}`)
+  }
+  return data as string
 }
 
 export async function getChatMessages(limit = 50): Promise<ChatMessage[]> {
