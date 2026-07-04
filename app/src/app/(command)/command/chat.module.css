@@ -48,6 +48,30 @@
   border-top: 1px solid var(--glass-border);
 }
 
+.bannerError {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: calc(var(--tabBarHeight) + var(--input-bar-height) + env(safe-area-inset-bottom));
+  margin: 0;
+  padding: var(--space-xs) var(--space-md);
+  font-size: var(--text-xs);
+  color: var(--color-danger);
+  background: var(--color-surface);
+}
+
+.voiceStatus {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: calc(var(--tabBarHeight) + var(--input-bar-height) + env(safe-area-inset-bottom));
+  margin: 0;
+  padding: var(--space-xs) var(--space-md);
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  background: var(--color-surface);
+}
+
 .iconButton {
   display: inline-flex;
   align-items: center;
@@ -70,6 +94,11 @@
 .iconButton:disabled {
   opacity: 0.45;
   cursor: not-allowed;
+}
+
+.iconButton[data-recording] {
+  background: var(--color-danger);
+  color: var(--color-surface);
 }
 
 .input {

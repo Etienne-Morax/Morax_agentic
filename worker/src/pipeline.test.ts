@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from 'vitest'
 import type { TenantConfig } from '@morax/model-core'
 import { LlmClient } from './llm.js'
 import type { MediaRepository, Notifier } from './ports.js'
-import { draftDocument, ocrDocument, planTasks, type PipelineContext } from './pipeline.js'
+import { draftDocument, ocrDocument, transcribeAudio, type PipelineContext } from './pipeline.js'
 import type { ExtractedFields, JobMessage } from './types.js'
 
 function baseTenant(): TenantConfig {
@@ -41,13 +41,25 @@ interface Recorded {
   statuses: string[]
   saved: ExtractedFields[]
   reminders: string[]
+  actionResults: string[]
+  postedUser: string[]
+  sentJobs: JobMessage[]
 }
 
-function makeContext(opts: { fetchImpl: typeof fetch }): { ctx: PipelineContext; rec: Recorded } {
-  const rec: Recorded = { statuses: [], saved: [], reminders: [] }
+function makeContext(
+  opts: { fetchImpl: typeof fetch; mediaContentType?: string },
+): { ctx: PipelineContext; rec: Recorded } {
+  const rec: Recorded = {
+    statuses: [],
+    saved: [],
+    reminders: [],
+    actionResults: [],
+    postedUser: [],
+    sentJobs: [],
+  }
   const media: MediaRepository = {
     async getObject() {
-      return { bytes: new Uint8Array([1, 2, 3]), contentType: 'image/png' }
+      return { bytes: new Uint8Array([1, 2, 3]), contentType: opts.mediaContentType ?? 'image/png' }
     },
   }
   const notifier: Notifier = {
@@ -56,6 +68,10 @@ function makeContext(opts: { fetchImpl: typeof fetch }): { ctx: PipelineContext;
     async proposeReminderValidation(_tenantId, _documentId, summary) {
       rec.reminders.push(summary)
     },
+    async notifyReminderDue() {},
+    async notifyActionResult(_tenantId, text) {
+      rec.actionResults.push(text)
+    },
   }
   const llm = new LlmClient({ anthropicApiKey: 'k', openrouterApiKey: 'k' }, opts.fetchImpl)
   const ctx: PipelineContext = {
@@ -63,7 +79,12 @@ function makeContext(opts: { fetchImpl: typeof fetch }): { ctx: PipelineContext;
     jobRunId: 'jr-1',
     llm,
     ports: {
-      queue: { async read() { return [] }, async delete() {}, async archive() {} },
+      queue: {
+        async read() { return [] },
+        async send(message) { rec.sentJobs.push(message) },
+        async delete() {},
+        async archive() {},
+      },
       tenants: { async load() { return baseTenant() } },
       documents: {
         async setStatus(_t, _d, status) {
@@ -84,6 +105,14 @@ function makeContext(opts: { fetchImpl: typeof fetch }): { ctx: PipelineContext;
         async consumedThisPeriod() { return 0 },
       },
       pendingActions: { async enqueue() { return { pendingActionId: 'pa-1' } } },
+      commandChat: {
+        async listRecent() { return [] },
+        async reply() {},
+        async postUser(_tenantId, text) {
+          rec.postedUser.push(text)
+          return { id: 'cm-1' }
+        },
+      },
       notifier,
       tracer: { async trace(_n, _t, fn) { return fn('trace-1') } },
     },
@@ -151,29 +180,38 @@ describe('ocrDocument', () => {
   })
 })
 
-describe('planTasks', () => {
-  it('decompose job.text via le LLM et propage le cout', async () => {
-    const fetchImpl = vi.fn().mockResolvedValue(openRouterResponse('1. Ouvrir la facture\n2. Payer'))
-    const { ctx } = makeContext({ fetchImpl })
-    const job = baseJob({ type: 'capture_audio', text: 'paye la facture EDF et appelle le plombier' })
+describe('transcribeAudio', () => {
+  it('transcrit l\'audio, poste un tour utilisateur et enfile command_reply', async () => {
+    const fetchImpl = vi.fn().mockResolvedValue(openRouterResponse('Paye la facture EDF stp'))
+    const { ctx, rec } = makeContext({ fetchImpl, mediaContentType: 'audio/wav' })
+    const job = baseJob({ type: 'capture_audio', source: 'app', media_key: 'tenants/morax-test/voice/v1.wav' })
 
-    const outcome = await planTasks(ctx, job)
+    const outcome = await transcribeAudio(ctx, job, 'tenants/morax-test/voice/v1.wav')
 
     expect(fetchImpl).toHaveBeenCalledTimes(1)
-    expect(outcome.category).toBe('classification')
+    expect(outcome.category).toBe('transcription_vocale')
     expect(outcome.tokensIn).toBe(30)
     expect(outcome.tokensOut).toBe(12)
+    expect(rec.postedUser).toEqual(['Paye la facture EDF stp'])
+    expect(rec.sentJobs).toHaveLength(1)
+    expect(rec.sentJobs[0]).toMatchObject({
+      type: 'command_reply',
+      tenant_id: 'morax-test',
+      idempotency_key: 'command-reply:cm-1',
+    })
+    expect(rec.actionResults).toHaveLength(0)
   })
 
-  it('sans texte : aucun appel LLM', async () => {
-    const fetchImpl = vi.fn()
-    const { ctx } = makeContext({ fetchImpl })
-    const job = baseJob({ type: 'capture_audio' })
+  it('transcription vide (audio inintelligible) : notifie, ne poste rien, n\'enfile rien', async () => {
+    const fetchImpl = vi.fn().mockResolvedValue(openRouterResponse('   '))
+    const { ctx, rec } = makeContext({ fetchImpl, mediaContentType: 'audio/wav' })
+    const job = baseJob({ type: 'capture_audio', media_key: 'tenants/morax-test/voice/v2.wav' })
 
-    const outcome = await planTasks(ctx, job)
+    await transcribeAudio(ctx, job, 'tenants/morax-test/voice/v2.wav')
 
-    expect(fetchImpl).not.toHaveBeenCalled()
-    expect(outcome.tokensIn).toBe(0)
+    expect(rec.postedUser).toHaveLength(0)
+    expect(rec.sentJobs).toHaveLength(0)
+    expect(rec.actionResults).toEqual(['Message vocal non compris. Réessaie ou écris ta demande.'])
   })
 })
 

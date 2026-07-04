@@ -27,6 +27,7 @@ Chaque catégorie d'action a un poids fixe en "crédits d'action". Ce poids refl
 | **Devis complexe** (plusieurs postes, négociation) | 5 | cerveau | Usage étendu du brain model, itérations |
 | **Envoi de document** (devis/facture, gate HIGH) | 0,5 | aucun | Pas de LLM (relai Telegram/Postmark), poids symbolique de suivi d'usage |
 | **Réponse chat** (Centre de Commandement) | 1,5 | cerveau | Peut référencer montant/échéance (garde-fou financier) ; tour court, pas une rédaction longue |
+| **Transcription vocale** | 0,5 | micro (épinglé Gemini Flash-Lite) | Audio natif, coût marginal quasi-nul ; suivie d'une réponse chat_reply distincte |
 
 ### Règle financier critique (garde-fou ADHD)
 > Toute action qui lit ou produit une **date d'échéance, un montant, ou une pénalité** utilise **obligatoirement le cerveau**, quel que soit le palier du tenant. Ce surcoût est absorbé dans la marge, jamais répercuté en crédits supplémentaires.

@@ -7,13 +7,20 @@
  *  - action HIGH -> jamais directe, passe par le gate pending_actions.
  */
 
-import { resolveModel } from '@morax/model-core'
+import { resolveModel, resolveTranscriptionModel } from '@morax/model-core'
 import type { ModelConfig, TenantConfig } from '@morax/model-core'
 import type { ActionCategory } from '@morax/model-core'
 import { creditCost } from '@morax/model-core'
 import type { LlmClient, LlmResult } from './llm.js'
 import type { Ports } from './ports.js'
-import { DRAFT_SYSTEM, OCR_INSTRUCTION, OCR_SYSTEM, PLANNER_SYSTEM, parseExtractedFields } from './prompts.js'
+import {
+  DRAFT_SYSTEM,
+  OCR_INSTRUCTION,
+  OCR_SYSTEM,
+  TRANSCRIBE_INSTRUCTION,
+  TRANSCRIBE_SYSTEM,
+  parseExtractedFields,
+} from './prompts.js'
 import type { ExtractedFields, JobMessage } from './types.js'
 
 export interface StageOutcome {
@@ -90,24 +97,49 @@ export async function ocrDocument(
   return toOutcome('scan_document', modelConfig, llmResult)
 }
 
-/** Décompose un brain dump en micro-actions < 5 min (Planificateur TDAH). */
-export async function planTasks(
+/**
+ * Transcrit un message vocal (Gemini Flash-Lite epingle, audio natif via
+ * OpenRouter) puis poste le texte comme tour utilisateur normal dans le chat,
+ * en enfilant un command_reply -- meme chemin que le chat texte (WS3), la
+ * voix n'est qu'une autre porte d'entree vers la meme conversation.
+ */
+export async function transcribeAudio(
   ctx: PipelineContext,
   job: JobMessage,
+  mediaKey: string,
 ): Promise<StageOutcome> {
-  const modelConfig = resolveModel({ tenantConfig: ctx.tenant, role: 'workhorse' })
-  if (!job.text) {
-    return toOutcome('classification', modelConfig)
-  }
+  const modelConfig = resolveTranscriptionModel()
+  const media = await ctx.ports.media.getObject(mediaKey)
   const llmResult = await ctx.llm.complete({
     modelConfig,
     messages: [
-      { role: 'system', content: PLANNER_SYSTEM },
-      { role: 'user', content: job.text },
+      { role: 'system', content: TRANSCRIBE_SYSTEM },
+      { role: 'user', content: TRANSCRIBE_INSTRUCTION },
     ],
+    attachments: [{ bytes: media.bytes, mediaType: media.contentType }],
     hasPersonalData: true,
   })
-  return toOutcome('classification', modelConfig, llmResult)
+
+  const transcript = llmResult.text.trim()
+  if (!transcript) {
+    await ctx.ports.notifier.notifyActionResult(
+      ctx.tenant.tenant_id,
+      'Message vocal non compris. Réessaie ou écris ta demande.',
+    )
+    return toOutcome('transcription_vocale', modelConfig, llmResult)
+  }
+
+  const posted = await ctx.ports.commandChat.postUser(ctx.tenant.tenant_id, transcript)
+  await ctx.ports.queue.send({
+    schema_version: 1,
+    type: 'command_reply',
+    tenant_id: ctx.tenant.tenant_id,
+    source: job.source,
+    idempotency_key: `command-reply:${posted.id}`,
+    enqueued_at: new Date().toISOString(),
+  })
+
+  return toOutcome('transcription_vocale', modelConfig, llmResult)
 }
 
 /** Brouillon de devis/facture dans la voix client (cerveau non-finance). */

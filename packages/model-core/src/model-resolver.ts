@@ -50,6 +50,7 @@ const FINANCE_CRITICAL_ROLES = new Set(guardrails.finance_critical_roles)
 const FINANCE_PIN = guardrails.finance_critical_pin
 const PLANNER_ROLES = new Set(guardrails.planner_roles)
 const PLANNER_PIN = guardrails.planner_pin
+const TRANSCRIPTION_PIN = guardrails.transcription_pin
 
 // ─── Resolver principal ───────────────────────────────────────────────────────
 
@@ -113,6 +114,16 @@ export function resolveModel(params: ResolveModelParams): ModelConfig {
   const tier = mapOffreToTier(params.tenantConfig.offre)
   const roleConfig = readRoleConfig(tier, params.role)
   return toModelConfig(roleConfig, false, false)
+}
+
+/**
+ * Transcription vocale : toujours le même modèle (Gemini Flash-Lite, épinglage
+ * transcription_pin), quel que soit le palier du tenant. Infra, pas un rôle
+ * de routage par offre -- pas de paramètre tenant/role ici.
+ */
+export function resolveTranscriptionModel(): ModelConfig {
+  const pinned = readRoleConfig(TRANSCRIPTION_PIN.tier, TRANSCRIPTION_PIN.role)
+  return toModelConfig(pinned, false, false)
 }
 
 // ─── Fallback borné ───────────────────────────────────────────────────────────

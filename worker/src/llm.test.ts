@@ -143,6 +143,53 @@ describe('LlmClient.complete - OpenRouter', () => {
     expect(result.tokensIn).toBe(7)
     expect(result.tokensOut).toBe(3)
   })
+
+  it('attache l\'audio au premier message user (bloc input_audio, transcription)', async () => {
+    const fetchImpl = vi.fn().mockResolvedValue(
+      jsonResponse({
+        choices: [{ message: { content: 'Transcription du message vocal.' } }],
+        usage: { prompt_tokens: 12, completion_tokens: 6 },
+      }),
+    )
+    const client = new LlmClient({ anthropicApiKey: 'k', openrouterApiKey: 'k' }, fetchImpl)
+
+    await client.complete({
+      modelConfig: openrouterModel({ model: 'google/gemini-2.5-flash-lite', provider: 'google' }),
+      messages: [{ role: 'system', content: 'Transcris.' }, { role: 'user', content: 'Transcris ceci.' }],
+      attachments: [{ bytes: new Uint8Array([1, 2, 3]), mediaType: 'audio/wav' }],
+      hasPersonalData: true,
+    })
+
+    const [, init] = fetchImpl.mock.calls[0] as [string, RequestInit]
+    const body = JSON.parse(init.body as string) as {
+      messages: Array<{ role: string; content: unknown }>
+    }
+    const userMessage = body.messages.find((m) => m.role === 'user') as {
+      content: Array<{ type: string; text?: string; input_audio?: { data: string; format: string } }>
+    }
+    expect(userMessage.content[0]).toEqual({ type: 'text', text: 'Transcris ceci.' })
+    expect(userMessage.content[1]?.type).toBe('input_audio')
+    expect(userMessage.content[1]?.input_audio?.format).toBe('wav')
+    expect(typeof userMessage.content[1]?.input_audio?.data).toBe('string')
+    // Le message system ne doit pas etre touche par l'attachement.
+    const systemMessage = body.messages.find((m) => m.role === 'system')
+    expect(systemMessage?.content).toBe('Transcris.')
+  })
+
+  it('rejette un format audio non supporte par OpenRouter avant tout appel reseau', async () => {
+    const fetchImpl = vi.fn()
+    const client = new LlmClient({ anthropicApiKey: 'k', openrouterApiKey: 'k' }, fetchImpl)
+
+    await expect(
+      client.complete({
+        modelConfig: openrouterModel({ model: 'google/gemini-2.5-flash-lite', provider: 'google' }),
+        messages: [{ role: 'user', content: 'Transcris ceci.' }],
+        attachments: [{ bytes: new Uint8Array([1, 2, 3]), mediaType: 'audio/webm' }],
+        hasPersonalData: true,
+      }),
+    ).rejects.toThrow(/Format audio non supporte/)
+    expect(fetchImpl).not.toHaveBeenCalled()
+  })
 })
 
 describe('LlmClient.complete - retry', () => {

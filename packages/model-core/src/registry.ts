@@ -51,6 +51,7 @@ export interface Guardrails {
   finance_critical_pin: FinanceCriticalPin
   planner_roles: string[]
   planner_pin: FinanceCriticalPin
+  transcription_pin: FinanceCriticalPin
   fallback_order: Record<string, string>
   promotion_policy: PromotionPolicy
 }
@@ -106,6 +107,9 @@ function validateRegistry(raw: unknown): Registry {
   }
   if (!g.planner_pin || typeof g.planner_pin !== 'object') {
     throw new Error('[registry] guardrails.planner_pin manquant.')
+  }
+  if (!g.transcription_pin || typeof g.transcription_pin !== 'object') {
+    throw new Error('[registry] guardrails.transcription_pin manquant.')
   }
   return raw as Registry
 }

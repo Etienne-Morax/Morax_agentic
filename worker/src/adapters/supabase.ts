@@ -478,6 +478,15 @@ function makeCommandChat(db: SupabaseClient): CommandChatRepository {
         .insert({ tenant_id: tenantId, role: 'agent', body: text })
       if (error) throw new Error(`[commandChat.reply] ${error.message}`)
     },
+    async postUser(tenantId, text) {
+      const { data, error } = await db
+        .from('command_messages')
+        .insert({ tenant_id: tenantId, role: 'user', body: text })
+        .select('id')
+        .single()
+      if (error) throw new Error(`[commandChat.postUser] ${error.message}`)
+      return { id: (data as { id: string }).id }
+    },
   }
 }
 

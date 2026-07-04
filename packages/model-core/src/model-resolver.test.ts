@@ -8,6 +8,7 @@ import {
   mapOffreToTier,
   resolveModel,
   resolveModelWithFallback,
+  resolveTranscriptionModel,
 } from './model-resolver.js'
 import type { ModelConfig } from './model-resolver.js'
 import { registry } from './registry.js'
@@ -205,6 +206,17 @@ describe('resolveModel - épinglage planificateur (Sonnet toujours)', () => {
     expect(
       isPlannerCritical({ tenantConfig: tenant('base'), role: 'micro', actionRole: 'deadline_extraction' }),
     ).toBe(false)
+  })
+})
+
+describe('resolveTranscriptionModel - épinglage transcription (Gemini Flash-Lite toujours)', () => {
+  it('route vers gemini-2.5-flash-lite via OpenRouter, independamment du tenant', () => {
+    const m = resolveTranscriptionModel()
+    expect(m.model).toBe('gemini-2.5-flash-lite')
+    expect(m.openrouterModel).toBe('google/gemini-2.5-flash-lite')
+    expect(m.provider).toBe('google')
+    expect(m.financePinned).toBe(false)
+    expect(m.plannerPinned).toBe(false)
   })
 
   it('routage normal sans actionRole planificateur reste non pinné', () => {

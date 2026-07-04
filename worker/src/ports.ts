@@ -234,6 +234,8 @@ export interface CommandChatRepository {
   listRecent(tenantId: string, limit: number): Promise<CommandMessageRow[]>
   /** Insere la reponse de l'agent (role='agent'). */
   reply(tenantId: string, text: string): Promise<void>
+  /** Insere un tour utilisateur (role='user') -- ex. transcription vocale. Retourne l'id (idempotency_key du command_reply). */
+  postUser(tenantId: string, text: string): Promise<{ id: string }>
 }
 
 /** Tracing Langfuse. */

@@ -17,10 +17,12 @@ describe('poids des actions (grille-actions-poids.md)', () => {
     expect(creditCost('brouillon_devis')).toBe(3)
     expect(creditCost('devis_complexe')).toBe(5)
     expect(creditCost('envoi_document')).toBe(0.5)
+    expect(creditCost('chat_reply')).toBe(1.5)
+    expect(creditCost('transcription_vocale')).toBe(0.5)
   })
 
-  it('couvre les 11 catégories', () => {
-    expect(Object.keys(ACTION_WEIGHTS)).toHaveLength(11)
+  it('couvre les 13 catégories', () => {
+    expect(Object.keys(ACTION_WEIGHTS)).toHaveLength(13)
   })
 })
 

@@ -194,6 +194,7 @@ function makePorts(
     commandChat: {
       async listRecent() { return [] },
       async reply() {},
+      async postUser() { return { id: 'cm-1' } },
     },
     tracer: {
       async trace(_name, _tags, fn) {

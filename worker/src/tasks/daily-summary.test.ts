@@ -143,6 +143,7 @@ function makeContext(opts: {
     commandChat: {
       async listRecent() { return [] },
       async reply() {},
+      async postUser() { return { id: 'cm-1' } },
     },
     tracer: { async trace(_n, _t, fn) { return fn('trace-1') } },
   }

@@ -19,6 +19,7 @@ export type ActionCategory =
   | 'devis_complexe'
   | 'envoi_document'
   | 'chat_reply'
+  | 'transcription_vocale'
 
 /** Poids en crédits par catégorie d'action (grille-actions-poids.md). */
 export const ACTION_WEIGHTS: Readonly<Record<ActionCategory, number>> = {
@@ -37,6 +38,9 @@ export const ACTION_WEIGHTS: Readonly<Record<ActionCategory, number>> = {
   // (garde-fou financier -> role cerveau), mais reste un tour court, pas une
   // redaction longue. Aligne sur resume_financier (meme famille cerveau-leger).
   chat_reply: 1.5,
+  // Transcription d'un message vocal (avant sa reponse chat_reply) : modele
+  // micro epingle (Gemini Flash-Lite), cout marginal quasi-nul.
+  transcription_vocale: 0.5,
 }
 
 /** Crédits ajoutés par pack. Le pack `base` fixe le socle. */

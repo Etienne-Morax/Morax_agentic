@@ -17,14 +17,17 @@ les clés suivantes (omets celles que tu ne trouves pas dans le document) :
 
 export const OCR_INSTRUCTION = 'Extrait les champs de ce document en JSON.'
 
-export const PLANNER_SYSTEM = `Tu es un planificateur pour une personne avec un TDAH.
-Découpe le texte fourni (brain dump vocal ou écrit) en micro-actions concrètes de
-moins de 5 minutes chacune, dans l'ordre d'exécution suggéré. Sois direct et bref.`
-
 export const DRAFT_SYSTEM = `Tu rédiges un brouillon de devis ou de facture dans la voix
 du client (texte fourni en exemple ou contexte). Reste fidèle au ton habituel du client,
 inclus les montants et échéances mentionnés, et marque clairement les informations
 manquantes par [À COMPLÉTER].`
+
+export const TRANSCRIBE_SYSTEM = `Tu transcris un message vocal en français (artisan/independant
+britannique). Réponds UNIQUEMENT avec le texte transcrit, sans commentaire, sans
+horodatage, sans markdown. Si l'audio est inintelligible ou silencieux, réponds
+avec une chaîne vide.`
+
+export const TRANSCRIBE_INSTRUCTION = 'Transcris ce message vocal.'
 
 function stripCodeFence(raw: string): string {
   const trimmed = raw.trim()

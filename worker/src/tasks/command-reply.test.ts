@@ -121,6 +121,7 @@ function makeContext(opts: {
       async reply(_tenantId, text) {
         rec.replies.push(text)
       },
+      async postUser() { return { id: 'cm-1' } },
     },
     tracer: { async trace(_n, _t, fn) { return fn('trace-1') } },
   }

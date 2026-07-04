@@ -100,6 +100,44 @@ function attachmentToAnthropicBlock(attachment: LlmAttachment): Record<string, u
   }
 }
 
+/** Formats audio acceptes par OpenRouter (input_audio.format) -- cf. docs OpenRouter. */
+const SUPPORTED_OPENROUTER_AUDIO_FORMATS = new Set([
+  'wav',
+  'mp3',
+  'aiff',
+  'aac',
+  'ogg',
+  'flac',
+  'm4a',
+  'pcm16',
+  'pcm24',
+])
+
+/** Format OpenAI-compatible attendu par OpenRouter pour l'audio (ex. 'audio/wav' -> 'wav'). */
+function audioFormatFromMediaType(mediaType: string): string {
+  const format = mediaType.split('/')[1] ?? mediaType
+  if (!SUPPORTED_OPENROUTER_AUDIO_FORMATS.has(format)) {
+    throw new Error(`[llm] Format audio non supporte par OpenRouter : ${mediaType}`)
+  }
+  return format
+}
+
+function attachmentToOpenRouterBlock(attachment: LlmAttachment): Record<string, unknown> {
+  if (attachment.mediaType.startsWith('audio/')) {
+    return {
+      type: 'input_audio',
+      input_audio: {
+        data: bytesToBase64(attachment.bytes),
+        format: audioFormatFromMediaType(attachment.mediaType),
+      },
+    }
+  }
+  return {
+    type: 'image_url',
+    image_url: { url: `data:${attachment.mediaType};base64,${bytesToBase64(attachment.bytes)}` },
+  }
+}
+
 function buildAnthropicBody(
   req: LlmRequest,
   modelName: string,
@@ -131,10 +169,21 @@ function buildAnthropicBody(
 }
 
 function buildOpenRouterBody(req: LlmRequest, modelName: string): Record<string, unknown> {
+  let attached = false
+  const messages = req.messages.map((m) => {
+    if (!attached && m.role === 'user' && req.attachments && req.attachments.length > 0) {
+      attached = true
+      const blocks: unknown[] = [{ type: 'text', text: m.content }]
+      blocks.push(...req.attachments.map(attachmentToOpenRouterBlock))
+      return { role: m.role, content: blocks }
+    }
+    return { role: m.role, content: m.content }
+  })
+
   return {
     model: modelName,
     max_tokens: req.maxOutputTokens ?? 1024,
-    messages: req.messages.map((m) => ({ role: m.role, content: m.content })),
+    messages,
   }
 }
 

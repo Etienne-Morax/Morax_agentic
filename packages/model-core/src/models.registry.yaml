@@ -171,6 +171,13 @@ guardrails:
     tier: premium
     role: workhorse        # claude-sonnet-4-6
 
+  # Epinglage transcription vocale : contrainte dure "transcription = Gemini Flash-Lite,
+  # toujours", quel que soit le palier du tenant. Cout marginal (micro model, audio
+  # natif) -- infra, pas une offre payante a degrader/upgrader avec l'offre.
+  transcription_pin:
+    tier: economique
+    role: micro            # gemini-2.5-flash-lite
+
   # Ordre de fallback si le modèle primaire est indisponible ou hors quota
   fallback_order:
     1: intra_tier          # essayer l'autre modèle du même palier (workhorse → micro)

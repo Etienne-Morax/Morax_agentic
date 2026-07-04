@@ -108,6 +108,7 @@ function makeContext(overdue: ReminderSummaryRow[], upcoming: ReminderSummaryRow
     commandChat: {
       listRecent: neverCalled('commandChat.listRecent'),
       reply: neverCalled('commandChat.reply'),
+      postUser: neverCalled('commandChat.postUser'),
     },
     tracer: { trace: neverCalled('tracer.trace') },
   }

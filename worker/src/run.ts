@@ -12,7 +12,7 @@ import {
   draftDocument,
   ocrDocument,
   outcomeCredits,
-  planTasks,
+  transcribeAudio,
   type PipelineContext,
   type StageOutcome,
 } from './pipeline.js'
@@ -148,7 +148,7 @@ export async function processEnvelope(
             outcome = await ocrDocument(ctx, msg, requireDocId(msg.document_id))
             break
           case 'capture_audio':
-            outcome = await planTasks(ctx, msg)
+            outcome = await transcribeAudio(ctx, msg, requireMediaKey(msg.media_key))
             break
           case 'draft_quote':
             outcome = await draftDocument(ctx, msg, 'brouillon_devis')
@@ -498,6 +498,13 @@ function requireDocId(documentId: string | undefined): string {
     throw new Error('[run] capture_document sans document_id')
   }
   return documentId
+}
+
+function requireMediaKey(mediaKey: string | undefined): string {
+  if (!mediaKey) {
+    throw new Error('[run] capture_audio sans media_key')
+  }
+  return mediaKey
 }
 
 function requirePendingActionId(pendingActionId: string | undefined): string {
