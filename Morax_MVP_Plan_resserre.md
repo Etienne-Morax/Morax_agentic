@@ -1,7 +1,9 @@
 # Morax, Plan MVP resserré (v2)
 
 Date : 30 juin 2026
-Statut : proposition de remplacement du plan en 6 phases
+Statut : **Figé** — plan d'origine du MVP, accepté et globalement implémenté. Ne décrit pas
+l'état courant du système ; voir `docs/ETAT-IMPLANTATION.md` pour l'avancement vérifié.
+Conservé comme référence historique de la décision de périmètre.
 Principe directeur : un MVP doit tenir en une phrase exécutable. Tout le reste est de la v1.1+.
 
 ---

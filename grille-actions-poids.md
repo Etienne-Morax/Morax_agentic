@@ -1,6 +1,8 @@
 # Grille de poids par catégorie d'action — Morax Agentic System
 **Version** : 2026-06 | **Devise** : GBP | **Modèle de facturation** : Mixte par catégorie
 
+**Statut** : Canonique · **Propriétaire logique** : Etienne · **Dernière vérification** : 2026-07-05 (audit documentaire) · **Prochaine révision** : tout changement de tarification ou de calibrage Langfuse.
+
 ---
 
 ## Principe du modèle mixte

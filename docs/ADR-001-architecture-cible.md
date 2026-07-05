@@ -1,10 +1,11 @@
 # ADR-001 : Architecture cible Morax
 
-**Statut** : Accepté
+**Statut** : Accepté (canonique — décisions d'architecture figées)
 **Date** : 30 juin 2026
 **Décideur** : Etienne Moreau
 **Portée** : produit Morax (assistant admin agentic vendu aux clients). Hors périmètre : plateforme OpenClaw (outillage interne, voir `docs/PLATFORM-AND-TOOLS.md`).
 **Complète** : `Morax_MVP_Plan_resserre.md`, `grille-actions-poids.md`, mémoire `project-morax-decisions`.
+**Dernière vérification** : 2026-07-05 (audit documentaire, commit `1a0c345`) — décisions toujours en vigueur, aucune contradiction avec l'implémentation. Remplacement prévu : sections « vision » à réévaluer lors de la refonte produit (voir `docs/VISION/README.md`).
 
 ---
 

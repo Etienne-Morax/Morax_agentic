@@ -1,6 +1,9 @@
 # MVP User Stories — Morax Admin Copilot (Tier Base)
 **Version** : 2026-06 | **Scope** : 4 fonctions confirmées | **Stack** : Next.js / Supabase / n8n / Langfuse
 
+**Statut** : **Figé** — spec produit d'origine. Ne décrit pas l'état courant ; voir
+`docs/ETAT-IMPLANTATION.md` pour l'avancement vérifié.
+
 ---
 
 ## Périmètre confirmé du MVP

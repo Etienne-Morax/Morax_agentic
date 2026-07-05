@@ -5,6 +5,8 @@
 > Périmètre : la **plateforme et l'outillage** (ce qui sert à construire), pas le **produit Morax** (l'assistant admin vendu aux clients ; voir la mémoire `project-morax-context`).
 >
 > Statut source : agrégé depuis la mémoire canonique `platform-openclaw-infra` et le plan validé. À recouper avec `PLATFORM-BRIEF.md` / `OPENCLAW-PROJECT-SNIPPET.md` (sources d'origine) si divergence.
+>
+> **Statut** : Canonique · **Propriétaire logique** : Etienne · **Dernière vérification** : 2026-07-05 (audit documentaire) · **Prochaine révision** : tout changement de topologie plateforme (nouveaux MCP, gate, budget).
 
 ---
 

@@ -29,18 +29,16 @@ vivent que dans le worker, jamais côté edge ou client.
 Base de données locale : `supabase start` applique `supabase/migrations/` et le seed
 synthétique (`supabase/seed.sql`). Données synthétiques uniquement hors production.
 
-## État d'avancement (Phase 1)
+## État d'avancement
 
-Fondations posées et vérifiées : `packages/model-core` (resolver + garde-fous + crédits,
-27 tests), `worker` (orchestration, idempotence, Max Loops, gate HIGH, 5 tests),
-webhooks edge `app` (validation + empilage < 1s, 5 tests), migrations Supabase
-(schéma multi-tenant + RLS + pgmq). Le provisioning cloud (Supabase, Vercel, Cloud Run,
-R2, Langfuse, Postmark) et les appels LLM réels restent à brancher (Phases 2 à 4).
+Voir [`docs/README.md`](docs/README.md) — carte documentaire complète — puis
+[`docs/ETAT-IMPLANTATION.md`](docs/ETAT-IMPLANTATION.md), la source de vérité sur
+l'avancement réel (codé, testé, déployé, vérifié en live).
 
 ## Références
 
+- Carte documentaire : `docs/README.md`
 - Architecture cible : `docs/ADR-001-architecture-cible.md`
-- Schéma infra détaillé : `docs/architecture-cible-morax.svg`
 - Règles de travail des agents : `CLAUDE.md`
 
 Repo distinct de la plateforme interne `morax-os` et du site `Morax-Master`. Aucune donnée client réelle hors production (cloud managé UE) ; jamais sur le NAS.
