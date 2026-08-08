@@ -9,6 +9,7 @@
     "node": ">=22"
   },
   "scripts": {
+    "dev": "pnpm --filter @morax/model-core build && pnpm --filter @morax/app dev",
     "build": "pnpm -r build",
     "typecheck": "pnpm -r typecheck",
     "test": "pnpm -r test",

@@ -1,4 +1,4 @@
-# Project Working Agreement for Claude Code
+# Project Working Agreement for Codex
 
 This repo has two operating regimes. Behave according to the active one.
 
@@ -38,7 +38,7 @@ This is guidance, not configuration. It does not set the model, the effort level
 
 Ce projet tourne dans la plateforme agentic always-on d'Etienne. Avant toute tâche
 d'ampleur ou à effet de bord, lire le brief complet :
-`/Users/etienne/Documents/Claude/Projects/Morax Agentic system/docs/PLATFORM-AND-TOOLS.md`
+`/Users/etienne/Documents/Codex/Projects/Morax Agentic system/docs/PLATFORM-AND-TOOLS.md`
 (et `morax-os/deploy/openclaw/PLATFORM-BRIEF.md` ; conteneur `/work/morax-os/...`).
 
 5 règles non négociables :
@@ -50,14 +50,14 @@ d'ampleur ou à effet de bord, lire le brief complet :
 3. Sérialisation par repo : jamais 2 agents sur le même index git. Pour Morax-Master
    (/Users/etienne/Pictures/Website 2026/Morax-Master, arbre dirty), worktree + patch
    depuis origin/main. Jamais `git add .`.
-4. CLAUDE.md = read-only pour agents headless : proposer les changements, ne pas forcer.
+4. AGENTS.md = read-only pour agents headless : proposer les changements, ne pas forcer.
 5. Budget-aware : 1 siège Max partagé, quota Codex serré. Lire les budget guards
    (openclaw_get_max_state / openclaw_get_codex_state) avant de lancer du lourd.
 
 Git : conventional commits, attribution off, gate avant push externe.
 Tools : beaucoup sont déférés -> redécouvrir via ToolSearch (Supabase, Gmail, Notion,
-Ahrefs, Vercel, Cloudflare, FreeAgent, Buffer, Higgsfield...). Agents : ~/.claude/agents/.
-Règles code : ~/.claude/rules/ecc/ (langage > common).
+Ahrefs, Vercel, Cloudflare, FreeAgent, Buffer, Higgsfield...). Agents : ~/.Codex/agents/.
+Règles code : ~/.Codex/rules/ecc/ (langage > common).
 
 ## Structure du monorepo produit
 
@@ -73,14 +73,11 @@ Règles code : ~/.claude/rules/ecc/ (langage > common).
 
 Ne JAMAIS demander à Etienne de valider sur `localhost`. L'app est derrière un mur
 d'auth : sans session, toute page protégée redirige vers `/login`, donc un preview
-local « ne montre rien » tant que le login local n'est pas débloqué.
+local ne montre rien tant que le login local n'est pas débloqué.
 
-Boucle de validation par défaut : modif -> commit -> push sur la branche `preview`
--> donner à Etienne l'URL Vercel preview
-(`https://morax-app-git-preview-moraxs-projects-87e060cc.vercel.app`) -> il valide
-là-dessus. La prod (`main` -> `morax-app.vercel.app`) n'est touchée qu'après
-validation. Le push reste une action externe soumise au gate.
+Boucle par défaut : modif -> commit -> push sur la branche `preview` -> donner l'URL
+Vercel preview (`https://morax-app-git-preview-moraxs-projects-87e060cc.vercel.app`)
+-> Etienne valide là-dessus. La prod (`main` -> `morax-app.vercel.app`) n'est touchée
+qu'après validation. Le push reste une action externe soumise au gate.
 
-Local (itération rapide, optionnel) : `pnpm dev` à la racine (build model-core puis
-next dev). Login local : nécessite `http://localhost:3000/**` dans les Redirect URLs
-Supabase Auth (détails dans docs/PREVIEW.md).
+## Imported Claude Cowork project instructions

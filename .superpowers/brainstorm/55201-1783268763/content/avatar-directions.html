@@ -1,0 +1,85 @@
+<style>
+  .avatar-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:18px; margin-top:24px; }
+  .avatar-card { border:1px solid var(--border); border-radius:20px; overflow:hidden; cursor:pointer; background:var(--surface); transition:.2s ease; }
+  .avatar-card:hover { transform:translateY(-3px); border-color:var(--accent); }
+  .avatar-card.selected { outline:3px solid var(--accent); }
+  .scene { height:330px; position:relative; display:flex; align-items:flex-end; justify-content:center; overflow:hidden; }
+  .scene-a { background:linear-gradient(160deg,#fff4dc 0%,#ffd9c8 52%,#b8d6c7 100%); }
+  .scene-b { background:linear-gradient(160deg,#d8e9ff 0%,#a2b6dc 55%,#3e506f 100%); }
+  .scene-c { background:linear-gradient(160deg,#f8f1ff 0%,#e1cff8 55%,#bbd5ff 100%); }
+  .body { width:145px; height:205px; border-radius:72px 72px 25px 25px; position:relative; margin-bottom:-28px; box-shadow:0 20px 38px rgba(45,35,60,.18); }
+  .body:before,.body:after { content:""; position:absolute; width:38px; height:155px; top:33px; border-radius:30px; background:inherit; }
+  .body:before { left:-27px; transform:rotate(7deg); } .body:after { right:-27px; transform:rotate(-7deg); }
+  .body-a { background:linear-gradient(90deg,#ff7a66,#ffac7f); }
+  .body-b { width:156px; background:linear-gradient(90deg,#506985,#7892ad); }
+  .body-c { background:linear-gradient(90deg,#7259a7,#a67bc7); }
+  .head { width:118px; height:142px; border-radius:52% 48% 46% 46%; position:absolute; top:33px; left:50%; transform:translateX(-50%); z-index:3; background:linear-gradient(145deg,#d4a17e,#9e694b); box-shadow:0 8px 18px rgba(40,20,12,.22); }
+  .head:before { content:""; position:absolute; inset:9px 13px auto; height:42px; background:#2f211e; border-radius:60% 45% 30% 30%; transform:rotate(-5deg); }
+  .eye { position:absolute; top:66px; width:10px; height:7px; border-radius:50%; background:#241917; }
+  .eye.left { left:29px; } .eye.right { right:29px; }
+  .smile { position:absolute; width:35px; height:15px; border-bottom:4px solid #6e332f; border-radius:50%; bottom:25px; left:41px; }
+  .real-badge { position:absolute; top:14px; left:14px; padding:7px 10px; border-radius:999px; font-size:11px; font-weight:700; letter-spacing:.04em; background:rgba(255,255,255,.85); color:#342d3c; backdrop-filter:blur(8px); }
+  .expression-row { position:absolute; right:12px; bottom:13px; display:flex; gap:7px; z-index:4; }
+  .expression { width:38px; height:38px; border-radius:50%; background:linear-gradient(145deg,#d4a17e,#9e694b); border:2px solid rgba(255,255,255,.88); position:relative; box-shadow:0 3px 8px rgba(0,0,0,.15); }
+  .expression:before { content:"••"; letter-spacing:8px; position:absolute; left:8px; top:5px; color:#2b1c18; font-size:9px; }
+  .expression.happy:after { content:"◡"; position:absolute; left:11px; top:12px; font-size:18px; color:#6e332f; }
+  .expression.proud:after { content:"⌣"; position:absolute; left:11px; top:13px; font-size:17px; color:#6e332f; }
+  .portrait-frame { position:absolute; top:40px; width:150px; height:170px; border-radius:28px; background:rgba(255,255,255,.35); border:5px solid rgba(255,255,255,.8); box-shadow:0 14px 30px rgba(70,45,100,.2); }
+  .portrait-frame .head { top:14px; }
+  .card-copy { padding:18px 18px 20px; }
+  .card-copy h3 { margin:0 0 7px; }
+  .card-copy p { margin:0 0 13px; min-height:62px; }
+  .tag { display:inline-block; font-size:11px; font-weight:700; padding:5px 8px; border-radius:8px; background:var(--accent-soft); color:var(--accent); }
+  .recommend { background:#153c2d; color:#d7ffeb; }
+  .note { margin-top:22px; padding:15px 18px; border-radius:14px; background:var(--surface-2); color:var(--muted); }
+  @media(max-width:850px){.avatar-grid{grid-template-columns:1fr}.scene{height:285px}.card-copy p{min-height:0}}
+</style>
+
+<h2>Comment intégrer le vrai visage dans l’avatar&nbsp;?</h2>
+<p class="subtitle">Dans les trois directions, une photo d’onboarding crée une identité faciale stable. L’IA génère ensuite les expressions sans remplacer la personne par un visage différent.</p>
+
+<div class="avatar-grid">
+  <div class="avatar-card" data-choice="hybrid" onclick="toggleSelect(this)">
+    <div class="scene scene-a">
+      <span class="real-badge">VISAGE RÉEL · CORPS STYLISÉ</span>
+      <div class="body body-a"></div>
+      <div class="head"><i class="eye left"></i><i class="eye right"></i><i class="smile"></i></div>
+      <div class="expression-row"><div class="expression happy"></div><div class="expression proud"></div></div>
+    </div>
+    <div class="card-copy">
+      <h3>A · Hybride 2.5D</h3>
+      <p>La vraie tête reste reconnaissable; le corps, les vêtements et l’environnement évoluent de façon ludique.</p>
+      <span class="tag recommend">RECOMMANDÉ · COHÉRENT ET ABORDABLE</span>
+    </div>
+  </div>
+
+  <div class="avatar-card" data-choice="digital-twin" onclick="toggleSelect(this)">
+    <div class="scene scene-b">
+      <span class="real-badge">JUMEAU NUMÉRIQUE</span>
+      <div class="body body-b"></div>
+      <div class="head" style="filter:saturate(.78) contrast(1.08)"><i class="eye left"></i><i class="eye right"></i><i class="smile"></i></div>
+      <div class="expression-row"><div class="expression happy"></div><div class="expression proud"></div></div>
+    </div>
+    <div class="card-copy">
+      <h3>B · Semi-réaliste complet</h3>
+      <p>Le visage et le corps cherchent le photoréalisme. Effet spectaculaire, mais davantage de coût et de risque « uncanny ».</p>
+      <span class="tag">PREMIUM · PLUS COMPLEXE</span>
+    </div>
+  </div>
+
+  <div class="avatar-card" data-choice="portrait-first" onclick="toggleSelect(this)">
+    <div class="scene scene-c">
+      <span class="real-badge">PORTRAIT D’ABORD</span>
+      <div class="body body-c"></div>
+      <div class="portrait-frame"><div class="head"><i class="eye left"></i><i class="eye right"></i><i class="smile"></i></div></div>
+      <div class="expression-row"><div class="expression happy"></div><div class="expression proud"></div></div>
+    </div>
+    <div class="card-copy">
+      <h3>C · Portrait vivant</h3>
+      <p>Le vrai visage domine l’écran; les progrès apparaissent surtout par l’expression, la tenue, les badges et le décor.</p>
+      <span class="tag">IDENTITÉ FORTE · MOINS CORPOREL</span>
+    </div>
+  </div>
+</div>
+
+<div class="note"><strong>Règle commune :</strong> ne jamais modifier les traits identitaires, la couleur de peau ou “embellir” automatiquement. L’utilisateur contrôle les expressions générées et peut supprimer son identité faciale.</div>

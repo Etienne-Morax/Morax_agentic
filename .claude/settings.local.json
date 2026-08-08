@@ -1,0 +1,23 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git remote *)",
+      "Bash(echo \"EXIT=$?\")",
+      "Bash(cat app/tsconfig.json)",
+      "Bash(cat tsconfig.base.json)",
+      "Bash(git check-ignore *)",
+      "Bash(echo \"---exit:$?\")",
+      "Bash(git fetch *)",
+      "Bash(gh pr *)",
+      "Bash(gh run *)",
+      "Bash(NODE_PATH=\"$\\(pwd\\)/node_modules\" node \"/private/tmp/claude-501/-Users-etienne-Documents-Claude-Projects-Morax-Agentic-system/50c6675a-3659-4c89-8dc2-0ced456a56df/scratchpad/gen-login-link.mjs\")",
+      "mcp__claude-in-chrome__tabs_context_mcp",
+      "mcp__05b289d9-946c-46fc-ac0c-92e678c8d08b__apply_migration",
+      "Bash(git -C \"/Users/etienne/Documents/Claude/Projects/Morax Agentic system/.claude/worktrees/agent-a3af5255c0dfd7464\" worktree list)",
+      "WebSearch",
+      "Bash(node -e \"console.log\\(JSON.stringify\\(require\\('web-push'\\).generateVAPIDKeys\\(\\)\\)\\)\")",
+      "Bash(xargs -I{} basename {})",
+      "mcp__05b289d9-946c-46fc-ac0c-92e678c8d08b__list_projects"
+    ]
+  }
+}

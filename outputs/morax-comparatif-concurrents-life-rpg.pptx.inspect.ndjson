@@ -1,0 +1,601 @@
+{"kind":"deck","id":"pr/eg92qs","name":"Deck"}
+{"kind":"layout","layoutId":"a0323210-c533-446a-9535-424e0ff21683","name":"Master","type":"master"}
+{"kind":"layout","layoutId":"58267531-d596-4e44-b63c-f9ae4ab0995d","name":"Title Slide","type":"title"}
+{"kind":"slide","id":"sl/9d8uwo","slide":1,"title":"Morax Life RPG","textShapes":4}
+{"kind":"textbox","id":"sh/a1gvy90j","slide":1,"text":"Morax Life RPG","textPreview":"Morax Life RPG","textChars":14,"textLines":1,"bbox":[42,44,520,38]}
+{"kind":"textbox","id":"sh/hoza1gvy","slide":1,"text":"Comparatif concurrentiel\nLife RPG, focus games et productivité ADHD","textPreview":"Comparatif concurrentiel | Life RPG, focus games et productivité ADHD","textChars":67,"textLines":2,"bbox":[42,168,820,188]}
+{"kind":"textbox","id":"sh/s36hcrmh","slide":1,"text":"Lecture visuelle et stratégique pour cadrer la planification produit.","textPreview":"Lecture visuelle et stratégique pour cadrer la planification produit.","textChars":69,"textLines":1,"bbox":[42,390,640,44]}
+{"kind":"shape","id":"sh/za1gvy90","slide":1,"bbox":[810,118,360,450]}
+{"kind":"textbox","id":"sh/svu9knih","slide":1,"text":"Positionnement cible : avatar 3D personnel + quêtes vérifiées + Station Focus ADHD-friendly.","textPreview":"Positionnement cible : avatar 3D personnel + quêtes vérifiées + Station Focus ADHD-friendly.","textChars":92,"textLines":1,"bbox":[810,590,390,54]}
+{"kind":"image","id":"im/vixczed8","slide":1,"name":"","alt":"gogh screenshot","bbox":[835,144,310,190]}
+{"kind":"image","id":"im/k3q5o7qp","slide":1,"name":"","alt":"spirit-city screenshot","bbox":[835,358,310,170]}
+{"kind":"notes","id":"nt/9d8uwo","slide":1,"text":""}
+{"kind":"slide","id":"sl/vu068i","slide":2,"title":"SYNTHÈSE","textShapes":11}
+{"kind":"textbox","id":"sh/qtcj6tov","slide":2,"text":"SYNTHÈSE","textPreview":"SYNTHÈSE","textChars":8,"textLines":1,"bbox":[42,34,360,24]}
+{"kind":"textbox","id":"sh/1gvy90je","slide":2,"text":"Le marché est riche visuellement, mais fragmenté fonctionnellement","textPreview":"Le marché est riche visuellement, mais fragmenté fonctionnellement","textChars":66,"textLines":1,"bbox":[42,58,1080,88]}
+{"kind":"shape","id":"sh/8z25kb6x","slide":2,"bbox":[42,154,1196,1]}
+{"kind":"textbox","id":"sh/fmlkjm1c","slide":2,"text":"Focus games","textPreview":"Focus games","textChars":11,"textLines":1,"bbox":[70,168,260,32]}
+{"kind":"textbox","id":"sh/q1orytsv","slide":2,"text":"gogh, Spirit City, Focus Friend, Forest et Focus Traveller créent une présence visuelle pendant le travail, mais restent centrés sur la session.","textPreview":"gogh, Spirit City, Focus Friend, Forest et Focus Traveller créent une présence visuelle pendant le travail, mais restent centrés sur la s...","textChars":144,"textLines":1,"bbox":[360,168,780,54]}
+{"kind":"textbox","id":"sh/xs72x4na","slide":2,"text":"Life RPG","textPreview":"Life RPG","textChars":8,"textLines":1,"bbox":[70,280,260,32]}
+{"kind":"textbox","id":"sh/87ed8bat","slide":2,"text":"Habitica, TaskHero, Do It Now et LifeUp structurent tâches, XP et récompenses, mais la plupart reposent sur saisie manuelle et avatars génériques.","textPreview":"Habitica, TaskHero, Do It Now et LifeUp structurent tâches, XP et récompenses, mais la plupart reposent sur saisie manuelle et avatars gé...","textChars":146,"textLines":1,"bbox":[360,280,780,54]}
+{"kind":"textbox","id":"sh/fyxobm58","slide":2,"text":"ADHD productivity","textPreview":"ADHD productivity","textChars":17,"textLines":1,"bbox":[70,392,260,32]}
+{"kind":"textbox","id":"sh/qd4vmtwr","slide":2,"text":"Routinery, Amazing Marvin, Lunatask et Habitomic réduisent la friction exécutive, mais n’ont pas de monde vivant ni de preuve d’accomplissement.","textPreview":"Routinery, Amazing Marvin, Lunatask et Habitomic réduisent la friction exécutive, mais n’ont pas de monde vivant ni de preuve d’accomplis...","textChars":144,"textLines":1,"bbox":[360,392,780,54]}
+{"kind":"textbox","id":"sh/sfil0rqd","slide":2,"text":"White space Morax","textPreview":"White space Morax","textChars":17,"textLines":1,"bbox":[70,504,260,32]}
+{"kind":"textbox","id":"sh/h0fepkzu","slide":2,"text":"Combiner avatar 3D ressemblant, quêtes réelles, preuves photo/voix/HealthKit et focus doux crée un territoire distinct.","textPreview":"Combiner avatar 3D ressemblant, quêtes réelles, preuves photo/voix/HealthKit et focus doux crée un territoire distinct.","textChars":119,"textLines":1,"bbox":[360,504,780,54]}
+{"kind":"shape","id":"sh/a9w3m94f","slide":2,"bbox":[42,650,1196,1]}
+{"kind":"textbox","id":"sh/zupwb2hw","slide":2,"text":"Implication : Morax ne doit pas choisir entre “outil ADHD” et “jeu”. Il doit faire du jeu une couche de régulation attentionnelle.","textPreview":"Implication : Morax ne doit pas choisir entre “outil ADHD” et “jeu”. Il doit faire du jeu une couche de régulation attentionnelle.","textChars":130,"textLines":1,"bbox":[70,664,1090,28]}
+{"kind":"notes","id":"nt/vu068i","slide":2,"text":""}
+{"kind":"slide","id":"sl/4woqc6","slide":3,"title":"CARTE CONCURRENTIELLE","textShapes":18}
+{"kind":"textbox","id":"sh/2hwfyxob","slide":3,"text":"CARTE CONCURRENTIELLE","textPreview":"CARTE CONCURRENTIELLE","textChars":21,"textLines":1,"bbox":[42,34,360,24]}
+{"kind":"textbox","id":"sh/94fu18jq","slide":3,"text":"Morax peut viser le quadrant encore peu occupé","textPreview":"Morax peut viser le quadrant encore peu occupé","textChars":46,"textLines":1,"bbox":[42,58,1080,88]}
+{"kind":"shape","id":"sh/kjm1cfa9","slide":3,"bbox":[42,154,1196,1]}
+{"kind":"shape","id":"sh/ra5gbq1o","slide":3,"bbox":[145,175,900,390]}
+{"kind":"shape","id":"sh/2p8nqxs7","slide":3,"bbox":[595,175,1,390]}
+{"kind":"shape","id":"sh/9gr2p8nq","slide":3,"bbox":[145,370,900,1]}
+{"kind":"textbox","id":"sh/gvy90je9","slide":3,"text":"Faible présence visuelle","textPreview":"Faible présence visuelle","textChars":24,"textLines":1,"bbox":[145,583,250,26]}
+{"kind":"textbox","id":"sh/re1w7mp0","slide":3,"text":"Compagnon / monde vivant","textPreview":"Compagnon / monde vivant","textChars":24,"textLines":1,"bbox":[785,583,260,26]}
+{"kind":"textbox","id":"sh/2t83itgf","slide":3,"text":"Session focus","textPreview":"Session focus","textChars":13,"textLines":1,"bbox":[40,535,120,26]}
+{"kind":"textbox","id":"sh/sneloj2t","slide":3,"text":"Life RPG\nlong terme","textPreview":"Life RPG | long terme","textChars":19,"textLines":2,"bbox":[40,171,120,44]}
+{"kind":"shape","id":"sh/l87ed8ba","slide":3,"bbox":[391,449.8,12,12]}
+{"kind":"textbox","id":"sh/ahoza1gv","slide":3,"text":"Forest","textPreview":"Forest","textChars":6,"textLines":1,"bbox":[407,445.8,140,24]}
+{"kind":"shape","id":"sh/32lszqtc","slide":3,"bbox":[301,414.7,12,12]}
+{"kind":"textbox","id":"sh/szqtcj6t","slide":3,"text":"Routinery","textPreview":"Routinery","textChars":9,"textLines":1,"bbox":[317,410.7,140,24]}
+{"kind":"shape","id":"sh/lkjm1cfa","slide":3,"bbox":[301,317.2,12,12]}
+{"kind":"textbox","id":"sh/at47y1kr","slide":3,"text":"Amazing Marvin","textPreview":"Amazing Marvin","textChars":14,"textLines":1,"bbox":[317,313.2,140,24]}
+{"kind":"shape","id":"sh/3ex0nuxc","slide":3,"bbox":[571,266.5,12,12]}
+{"kind":"textbox","id":"sh/w3m94fu1","slide":3,"text":"Habitica","textPreview":"Habitica","textChars":8,"textLines":1,"bbox":[587,262.5,140,24]}
+{"kind":"shape","id":"sh/loj2t83i","slide":3,"bbox":[634,278.2,12,12]}
+{"kind":"textbox","id":"sh/p8nqxs72","slide":3,"text":"TaskHero","textPreview":"TaskHero","textChars":8,"textLines":1,"bbox":[650,274.2,140,24]}
+{"kind":"shape","id":"sh/0nuxc3yl","slide":3,"bbox":[805,371.8,12,12]}
+{"kind":"textbox","id":"sh/72x4nap4","slide":3,"text":"Finch","textPreview":"Finch","textChars":5,"textLines":1,"bbox":[821,367.8,140,24]}
+{"kind":"shape","id":"sh/ih4byhgn","slide":3,"bbox":[787,449.8,12,12]}
+{"kind":"textbox","id":"sh/pkzupwb2","slide":3,"text":"Focus Friend","textPreview":"Focus Friend","textChars":12,"textLines":1,"bbox":[803,445.8,140,24]}
+{"kind":"shape","id":"sh/0z61032l","slide":3,"bbox":[877,410.8,12,12]}
+{"kind":"textbox","id":"sh/7ed8bat4","slide":3,"text":"Spirit City","textPreview":"Spirit City","textChars":11,"textLines":1,"bbox":[893,406.8,140,24]}
+{"kind":"shape","id":"sh/itgfmlkj","slide":3,"bbox":[913,383.5,12,12]}
+{"kind":"textbox","id":"sh/pwb2hwfy","slide":3,"text":"gogh","textPreview":"gogh","textChars":4,"textLines":1,"bbox":[929,379.5,140,24]}
+{"kind":"shape","id":"sh/0bi9s36h","slide":3,"bbox":[931,364,12,12]}
+{"kind":"textbox","id":"sh/ulwval87","slide":3,"text":"On-Together","textPreview":"On-Together","textChars":11,"textLines":1,"bbox":[947,360,140,24]}
+{"kind":"shape","id":"sh/j6tovaho","slide":3,"bbox":[931,239.2,18,18]}
+{"kind":"textbox","id":"sh/crmhk3q5","slide":3,"text":"Morax cible","textPreview":"Morax cible","textChars":11,"textLines":1,"bbox":[947,235.2,140,24]}
+{"kind":"textbox","id":"sh/1cfa9w3m","slide":3,"text":"Le territoire gagnant n’est pas “plus de gamification”. C’est une présence visuelle personnelle qui aide à démarrer, tenir et valider les actions réelles.","textPreview":"Le territoire gagnant n’est pas “plus de gamification”. C’est une présence visuelle personnelle qui aide à démarrer, tenir et valider les...","textChars":154,"textLines":1,"bbox":[140,610,900,54]}
+{"kind":"notes","id":"nt/4woqc6","slide":3,"text":""}
+{"kind":"slide","id":"sl/i0p0os","slide":4,"title":"MATRICE","textShapes":30}
+{"kind":"textbox","id":"sh/vahoza1g","slide":4,"text":"MATRICE","textPreview":"MATRICE","textChars":7,"textLines":1,"bbox":[42,34,360,24]}
+{"kind":"textbox","id":"sh/ovahoza1","slide":4,"text":"Chaque famille concurrente apporte une brique, aucune ne les combine toutes","textPreview":"Chaque famille concurrente apporte une brique, aucune ne les combine toutes","textChars":75,"textLines":1,"bbox":[42,58,1080,88]}
+{"kind":"shape","id":"sh/dg7adsji","slide":4,"bbox":[42,154,1196,1]}
+{"kind":"shape","id":"sh/6hcrmhk3","slide":4,"bbox":[50,164,210,42]}
+{"kind":"textbox","id":"sh/z25kb6xk","slide":4,"text":"Famille","textPreview":"Famille","textChars":7,"textLines":1,"bbox":[62,174,186,22]}
+{"kind":"shape","id":"sh/onyd0z61","slide":4,"bbox":[260,164,260,42]}
+{"kind":"textbox","id":"sh/d8v6psfi","slide":4,"text":"Exemples","textPreview":"Exemples","textChars":8,"textLines":1,"bbox":[272,174,236,22]}
+{"kind":"shape","id":"sh/6dcbulwv","slide":4,"bbox":[520,164,330,42]}
+{"kind":"textbox","id":"sh/vy90je9c","slide":4,"text":"Ce qui marche","textPreview":"Ce qui marche","textChars":13,"textLines":1,"bbox":[532,174,306,22]}
+{"kind":"shape","id":"sh/nuxc3ylc","slide":4,"bbox":[850,164,330,42]}
+{"kind":"textbox","id":"sh/y90je9cv","slide":4,"text":"Limite","textPreview":"Limite","textChars":6,"textLines":1,"bbox":[862,174,306,22]}
+{"kind":"shape","id":"sh/5wjudg7a","slide":4,"bbox":[50,206,210,72]}
+{"kind":"textbox","id":"sh/gbq1oryt","slide":4,"text":"Avatar / monde focus","textPreview":"Avatar / monde focus","textChars":20,"textLines":1,"bbox":[62,218,186,54]}
+{"kind":"shape","id":"sh/n29gr2p8","slide":4,"bbox":[260,206,260,72]}
+{"kind":"textbox","id":"sh/yhgn29gr","slide":4,"text":"gogh, Spirit City, On-Together","textPreview":"gogh, Spirit City, On-Together","textChars":30,"textLines":1,"bbox":[272,218,236,54]}
+{"kind":"shape","id":"sh/58z25kb6","slide":4,"bbox":[520,206,330,72]}
+{"kind":"textbox","id":"sh/gn29gr2p","slide":4,"text":"Présence, ambiance, second-screen","textPreview":"Présence, ambiance, second-screen","textChars":33,"textLines":1,"bbox":[532,218,306,54]}
+{"kind":"shape","id":"sh/neloj2t8","slide":4,"bbox":[850,206,330,72]}
+{"kind":"textbox","id":"sh/ytsvu9kn","slide":4,"text":"Souvent détaché des objectifs réels","textPreview":"Souvent détaché des objectifs réels","textChars":35,"textLines":1,"bbox":[862,218,306,54]}
+{"kind":"shape","id":"sh/2x4nap4r","slide":4,"bbox":[50,278,210,72]}
+{"kind":"textbox","id":"sh/vixczed8","slide":4,"text":"Focus pets","textPreview":"Focus pets","textChars":10,"textLines":1,"bbox":[62,290,186,54]}
+{"kind":"shape","id":"sh/k3q5o7qp","slide":4,"bbox":[260,278,260,72]}
+{"kind":"textbox","id":"sh/donyd0z6","slide":4,"text":"Focus Friend, Study Bunny, Focus Dog","textPreview":"Focus Friend, Study Bunny, Focus Dog","textChars":36,"textLines":1,"bbox":[272,290,236,54]}
+{"kind":"shape","id":"sh/6psfil0r","slide":4,"bbox":[520,278,330,72]}
+{"kind":"textbox","id":"sh/val87ed8","slide":4,"text":"Attachement, timer, récompense simple","textPreview":"Attachement, timer, récompense simple","textChars":37,"textLines":1,"bbox":[532,290,306,54]}
+{"kind":"shape","id":"sh/kre1w7mp","slide":4,"bbox":[850,278,330,72]}
+{"kind":"textbox","id":"sh/dcbulwva","slide":4,"text":"Cible étroite et parfois culpabilisante","textPreview":"Cible étroite et parfois culpabilisante","textChars":39,"textLines":1,"bbox":[862,290,306,54]}
+{"kind":"shape","id":"sh/2lszqtcj","slide":4,"bbox":[50,350,210,72]}
+{"kind":"textbox","id":"sh/v6psfil0","slide":4,"text":"Life RPG","textPreview":"Life RPG","textChars":8,"textLines":1,"bbox":[62,362,186,54]}
+{"kind":"shape","id":"sh/h4byhgn2","slide":4,"bbox":[260,350,260,72]}
+{"kind":"textbox","id":"sh/sji5snel","slide":4,"text":"Habitica, TaskHero, Do It Now, LifeUp","textPreview":"Habitica, TaskHero, Do It Now, LifeUp","textChars":37,"textLines":1,"bbox":[272,362,236,54]}
+{"kind":"shape","id":"sh/3ylc7u54","slide":4,"bbox":[520,350,330,72]}
+{"kind":"textbox","id":"sh/adsji5sn","slide":4,"text":"Quêtes, XP, stats, progression","textPreview":"Quêtes, XP, stats, progression","textChars":30,"textLines":1,"bbox":[532,362,306,54]}
+{"kind":"shape","id":"sh/lszqtcj6","slide":4,"bbox":[850,350,330,72]}
+{"kind":"textbox","id":"sh/s72x4nap","slide":4,"text":"Saisie manuelle et UI dense","textPreview":"Saisie manuelle et UI dense","textChars":27,"textLines":1,"bbox":[862,362,306,54]}
+{"kind":"shape","id":"sh/3m94fu18","slide":4,"bbox":[50,422,210,72]}
+{"kind":"textbox","id":"sh/a5gbq1or","slide":4,"text":"ADHD OS","textPreview":"ADHD OS","textChars":7,"textLines":1,"bbox":[62,434,186,54]}
+{"kind":"shape","id":"sh/hoza1gvy","slide":4,"bbox":[260,422,260,72]}
+{"kind":"textbox","id":"sh/s36hcrmh","slide":4,"text":"Routinery, Marvin, Lunatask, Habitomic","textPreview":"Routinery, Marvin, Lunatask, Habitomic","textChars":38,"textLines":1,"bbox":[272,434,236,54]}
+{"kind":"shape","id":"sh/wval87ed","slide":4,"bbox":[520,422,330,72]}
+{"kind":"textbox","id":"sh/pg3ex0nu","slide":4,"text":"Réduction de friction exécutive","textPreview":"Réduction de friction exécutive","textChars":31,"textLines":1,"bbox":[532,434,306,54]}
+{"kind":"shape","id":"sh/epkzupwb","slide":4,"bbox":[850,422,330,72]}
+{"kind":"textbox","id":"sh/7adsji5s","slide":4,"text":"Peu d’émotion visuelle","textPreview":"Peu d’émotion visuelle","textChars":22,"textLines":1,"bbox":[862,434,306,54]}
+{"kind":"shape","id":"sh/w7mp0bi9","slide":4,"bbox":[50,494,210,72]}
+{"kind":"textbox","id":"sh/psfil0rq","slide":4,"text":"Body doubling","textPreview":"Body doubling","textChars":13,"textLines":1,"bbox":[62,506,186,54]}
+{"kind":"shape","id":"sh/e1w7mp0b","slide":4,"bbox":[260,494,260,72]}
+{"kind":"textbox","id":"sh/7mp0bi9s","slide":4,"text":"Focusmate, dubbii, On-Together","textPreview":"Focusmate, dubbii, On-Together","textChars":30,"textLines":1,"bbox":[272,506,236,54]}
+{"kind":"shape","id":"sh/wfyxobm5","slide":4,"bbox":[520,494,330,72]}
+{"kind":"textbox","id":"sh/l0rqd4vm","slide":4,"text":"Accountability et démarrage","textPreview":"Accountability et démarrage","textChars":27,"textLines":1,"bbox":[532,506,306,54]}
+{"kind":"shape","id":"sh/b2hwfyxo","slide":4,"bbox":[850,494,330,72]}
+{"kind":"textbox","id":"sh/mhk3q5o7","slide":4,"text":"Friction sociale ou calendrier","textPreview":"Friction sociale ou calendrier","textChars":30,"textLines":1,"bbox":[862,506,306,54]}
+{"kind":"shape","id":"sh/t83itgfm","slide":4,"bbox":[50,566,210,72]}
+{"kind":"textbox","id":"sh/4nap4r65","slide":4,"text":"Morax","textPreview":"Morax","textChars":5,"textLines":1,"bbox":[62,578,186,54]}
+{"kind":"shape","id":"sh/bq1oryts","slide":4,"bbox":[260,566,260,72]}
+{"kind":"textbox","id":"sh/m58z25kb","slide":4,"text":"Life RPG agentic","textPreview":"Life RPG agentic","textChars":16,"textLines":1,"bbox":[272,578,236,54]}
+{"kind":"shape","id":"sh/twra5gbq","slide":4,"bbox":[520,566,330,72]}
+{"kind":"textbox","id":"sh/4byhgn29","slide":4,"text":"Avatar 3D personnel + preuves + focus","textPreview":"Avatar 3D personnel + preuves + focus","textChars":37,"textLines":1,"bbox":[532,578,306,54]}
+{"kind":"shape","id":"sh/bm58z25k","slide":4,"bbox":[850,566,330,72]}
+{"kind":"textbox","id":"sh/m1cfa9w3","slide":4,"text":"Risque : complexité à masquer en V1","textPreview":"Risque : complexité à masquer en V1","textChars":35,"textLines":1,"bbox":[862,578,306,54]}
+{"kind":"notes","id":"nt/i0p0os","slide":4,"text":""}
+{"kind":"slide","id":"sl/f5yfph","slide":5,"title":"FICHES CONCURRENTES","textShapes":22}
+{"kind":"textbox","id":"sh/sneloj2t","slide":5,"text":"FICHES CONCURRENTES","textPreview":"FICHES CONCURRENTES","textChars":19,"textLines":1,"bbox":[42,34,360,24]}
+{"kind":"textbox","id":"sh/32lszqtc","slide":5,"text":"Les meilleurs concurrents vendent une présence, pas un tableau de bord","textPreview":"Les meilleurs concurrents vendent une présence, pas un tableau de bord","textChars":70,"textLines":1,"bbox":[42,58,1080,88]}
+{"kind":"shape","id":"sh/ahoza1gv","slide":5,"bbox":[42,154,1196,1]}
+{"kind":"shape","id":"sh/lkjm1cfa","slide":5,"bbox":[50,360,565,1]}
+{"kind":"textbox","id":"sh/szqtcj6t","slide":5,"text":"gogh","textPreview":"gogh","textChars":4,"textLines":1,"bbox":[50,374,327.7,30]}
+{"kind":"textbox","id":"sh/3ex0nuxc","slide":5,"text":"Avatar focus 3D","textPreview":"Avatar focus 3D","textChars":15,"textLines":1,"bbox":[383.35,379,231.65,24]}
+{"kind":"textbox","id":"sh/at47y1kr","slide":5,"text":"Avatar personnalisable, pièce 3D, lofi, Pomodoro, focus social.","textPreview":"Avatar personnalisable, pièce 3D, lofi, Pomodoro, focus social.","textChars":63,"textLines":1,"bbox":[50,408,565,46]}
+{"kind":"textbox","id":"sh/loj2t83i","slide":5,"text":"FORCES","textPreview":"FORCES","textChars":6,"textLines":1,"bbox":[50,470,180.33,24]}
+{"kind":"textbox","id":"sh/w3m94fu1","slide":5,"text":"Très proche du “compagnon de travail” vivant; forte valeur visuelle; ambiance personnalisable.","textPreview":"Très proche du “compagnon de travail” vivant; forte valeur visuelle; ambiance personnalisable.","textChars":94,"textLines":1,"bbox":[50,494,180.33,90]}
+{"kind":"textbox","id":"sh/udg7adsj","slide":5,"text":"FAIBLESSES","textPreview":"FAIBLESSES","textChars":10,"textLines":1,"bbox":[242.33,470,180.33,24]}
+{"kind":"textbox","id":"sh/nyd0z610","slide":5,"text":"Reste centré sur la session focus; peu de vraie progression de vie ou preuve IRL.","textPreview":"Reste centré sur la session focus; peu de vraie progression de vie ou preuve IRL.","textChars":81,"textLines":1,"bbox":[242.33,494,180.33,90]}
+{"kind":"textbox","id":"sh/cj6tovah","slide":5,"text":"RÉPONSE MORAX","textPreview":"RÉPONSE MORAX","textChars":13,"textLines":1,"bbox":[434.67,470,180.33,24]}
+{"kind":"textbox","id":"sh/54zidony","slide":5,"text":"Garder la présence 3D, mais l’attacher aux quêtes réelles, HealthKit et progression long terme.","textPreview":"Garder la présence 3D, mais l’attacher aux quêtes réelles, HealthKit et progression long terme.","textChars":95,"textLines":1,"bbox":[434.67,494,180.33,90]}
+{"kind":"textbox","id":"sh/upwb2hwf","slide":5,"text":"gogh.gg/","textPreview":"gogh.gg/","textChars":8,"textLines":1,"bbox":[50,614,565,18]}
+{"kind":"shape","id":"sh/nap4r65w","slide":5,"bbox":[665,360,565,1]}
+{"kind":"textbox","id":"sh/cvixczed","slide":5,"text":"On-Together","textPreview":"On-Together","textChars":11,"textLines":1,"bbox":[665,374,327.7,30]}
+{"kind":"textbox","id":"sh/5gbq1ory","slide":5,"text":"Coworking jeu social","textPreview":"Coworking jeu social","textChars":20,"textLines":1,"bbox":[998.35,379,231.65,24]}
+{"kind":"textbox","id":"sh/u18jqh0f","slide":5,"text":"Petit monde multiplayer qui reste à l’écran pendant le travail.","textPreview":"Petit monde multiplayer qui reste à l’écran pendant le travail.","textChars":63,"textLines":1,"bbox":[665,408,565,46]}
+{"kind":"textbox","id":"sh/jm1cfa9w","slide":5,"text":"FORCES","textPreview":"FORCES","textChars":6,"textLines":1,"bbox":[665,470,180.33,24]}
+{"kind":"textbox","id":"sh/bm58z25k","slide":5,"text":"Excellent body doubling ludique; avatars, lobbies, pauses et sentiment de présence.","textPreview":"Excellent body doubling ludique; avatars, lobbies, pauses et sentiment de présence.","textChars":83,"textLines":1,"bbox":[665,494,180.33,90]}
+{"kind":"textbox","id":"sh/m1cfa9w3","slide":5,"text":"FAIBLESSES","textPreview":"FAIBLESSES","textChars":10,"textLines":1,"bbox":[857.33,470,180.33,24]}
+{"kind":"textbox","id":"sh/tsvu9kni","slide":5,"text":"Produit desktop/social; moins adapté à une boucle mobile personnelle et santé/habitudes.","textPreview":"Produit desktop/social; moins adapté à une boucle mobile personnelle et santé/habitudes.","textChars":88,"textLines":1,"bbox":[857.33,494,180.33,90]}
+{"kind":"textbox","id":"sh/47y1kre1","slide":5,"text":"RÉPONSE MORAX","textPreview":"RÉPONSE MORAX","textChars":13,"textLines":1,"bbox":[1049.67,470,180.33,24]}
+{"kind":"textbox","id":"sh/bat47y1k","slide":5,"text":"Reprendre la sensation de lobby vivant, mais la rendre personnelle, mobile et non intrusive.","textPreview":"Reprendre la sensation de lobby vivant, mais la rendre personnelle, mobile et non intrusive.","textChars":92,"textLines":1,"bbox":[1049.67,494,180.33,90]}
+{"kind":"textbox","id":"sh/mp0bi9s3","slide":5,"text":"gigapuff.co/","textPreview":"gigapuff.co/","textChars":12,"textLines":1,"bbox":[665,614,565,18]}
+{"kind":"image","id":"im/65wjudg7","slide":5,"name":"","alt":"gogh screenshot","bbox":[50,164,565,192]}
+{"kind":"image","id":"im/zqtcj6to","slide":5,"name":"","alt":"on-together screenshot","bbox":[665,164,565,192]}
+{"kind":"notes","id":"nt/f5yfph","slide":5,"text":""}
+{"kind":"slide","id":"sl/dkgsz7","slide":6,"title":"FICHES CONCURRENTES","textShapes":22}
+{"kind":"textbox","id":"sh/6xkf6dcb","slide":6,"text":"FICHES CONCURRENTES","textPreview":"FICHES CONCURRENTES","textChars":19,"textLines":1,"bbox":[42,34,360,24]}
+{"kind":"textbox","id":"sh/hk3q5o7q","slide":6,"text":"Le lofi productif prouve que l’ambiance peut porter la rétention","textPreview":"Le lofi productif prouve que l’ambiance peut porter la rétention","textChars":64,"textLines":1,"bbox":[42,58,1080,88]}
+{"kind":"shape","id":"sh/oza1gvy9","slide":6,"bbox":[42,154,1196,1]}
+{"kind":"shape","id":"sh/zqtcj6to","slide":6,"bbox":[50,360,565,1]}
+{"kind":"textbox","id":"sh/65wjudg7","slide":6,"text":"Spirit City","textPreview":"Spirit City","textChars":11,"textLines":1,"bbox":[50,374,327.7,30]}
+{"kind":"textbox","id":"sh/hwfyxobm","slide":6,"text":"Lofi productivity game","textPreview":"Lofi productivity game","textChars":22,"textLines":1,"bbox":[383.35,379,231.65,24]}
+{"kind":"textbox","id":"sh/obm58z25","slide":6,"text":"Avatar, chambre cozy, musiques, tâches, timer et collection de créatures.","textPreview":"Avatar, chambre cozy, musiques, tâches, timer et collection de créatures.","textChars":73,"textLines":1,"bbox":[50,408,565,46]}
+{"kind":"textbox","id":"sh/zupwb2hw","slide":6,"text":"FORCES","textPreview":"FORCES","textChars":6,"textLines":1,"bbox":[50,470,180.33,24]}
+{"kind":"textbox","id":"sh/a9w3m94f","slide":6,"text":"Direction artistique très forte; récompenses cosmétiques; excellent second-screen.","textPreview":"Direction artistique très forte; récompenses cosmétiques; excellent second-screen.","textChars":82,"textLines":1,"bbox":[50,494,180.33,90]}
+{"kind":"textbox","id":"sh/8bat47y1","slide":6,"text":"FAIBLESSES","textPreview":"FAIBLESSES","textChars":10,"textLines":1,"bbox":[242.33,470,180.33,24]}
+{"kind":"textbox","id":"sh/1w7mp0bi","slide":6,"text":"Pas conçu comme assistant de vie mobile; faible preuve d’accomplissement réel.","textPreview":"Pas conçu comme assistant de vie mobile; faible preuve d’accomplissement réel.","textChars":78,"textLines":1,"bbox":[242.33,494,180.33,90]}
+{"kind":"textbox","id":"sh/q5o7qpg3","slide":6,"text":"RÉPONSE MORAX","textPreview":"RÉPONSE MORAX","textChars":13,"textLines":1,"bbox":[434.67,470,180.33,24]}
+{"kind":"textbox","id":"sh/jqh0fepk","slide":6,"text":"Aller plus RPG personnel : avatar ressemblant, quêtes vérifiées, scènes débloquées.","textPreview":"Aller plus RPG personnel : avatar ressemblant, quêtes vérifiées, scènes débloquées.","textChars":83,"textLines":1,"bbox":[434.67,494,180.33,90]}
+{"kind":"textbox","id":"sh/8nqxs72x","slide":6,"text":"store.steampowered.com/app/2113850/Spirit_City_Lofi_Sessions/","textPreview":"store.steampowered.com/app/2113850/Spirit_City_Lofi_Sessions/","textChars":61,"textLines":1,"bbox":[50,614,565,18]}
+{"kind":"shape","id":"sh/18jqh0fe","slide":6,"bbox":[665,360,565,1]}
+{"kind":"textbox","id":"sh/qh0fepkz","slide":6,"text":"Focus Friend","textPreview":"Focus Friend","textChars":12,"textLines":1,"bbox":[665,374,327.7,30]}
+{"kind":"textbox","id":"sh/j2t83itg","slide":6,"text":"ADHD focus companion","textPreview":"ADHD focus companion","textChars":20,"textLines":1,"bbox":[998.35,379,231.65,24]}
+{"kind":"textbox","id":"sh/crmhk3q5","slide":6,"text":"Timer cozy où un personnage travaille pendant que l’utilisateur se concentre.","textPreview":"Timer cozy où un personnage travaille pendant que l’utilisateur se concentre.","textChars":77,"textLines":1,"bbox":[665,408,565,46]}
+{"kind":"textbox","id":"sh/1cfa9w3m","slide":6,"text":"FORCES","textPreview":"FORCES","textChars":6,"textLines":1,"bbox":[665,470,180.33,24]}
+{"kind":"textbox","id":"sh/5wjudg7a","slide":6,"text":"Simple, émotionnel, ADHD-friendly; récompense visuelle claire après chaque session.","textPreview":"Simple, émotionnel, ADHD-friendly; récompense visuelle claire après chaque session.","textChars":83,"textLines":1,"bbox":[665,494,180.33,90]}
+{"kind":"textbox","id":"sh/gbq1oryt","slide":6,"text":"FAIBLESSES","textPreview":"FAIBLESSES","textChars":10,"textLines":1,"bbox":[857.33,470,180.33,24]}
+{"kind":"textbox","id":"sh/nuxc3ylc","slide":6,"text":"Scope très étroit; personnage générique; risque de culpabilité si interruption.","textPreview":"Scope très étroit; personnage générique; risque de culpabilité si interruption.","textChars":79,"textLines":1,"bbox":[857.33,494,180.33,90]}
+{"kind":"textbox","id":"sh/y90je9cv","slide":6,"text":"RÉPONSE MORAX","textPreview":"RÉPONSE MORAX","textChars":13,"textLines":1,"bbox":[1049.67,470,180.33,24]}
+{"kind":"textbox","id":"sh/58z25kb6","slide":6,"text":"Créer une Station Focus aussi simple, mais avec avatar utilisateur et ton non culpabilisant.","textPreview":"Créer une Station Focus aussi simple, mais avec avatar utilisateur et ton non culpabilisant.","textChars":92,"textLines":1,"bbox":[1049.67,494,180.33,90]}
+{"kind":"textbox","id":"sh/gn29gr2p","slide":6,"text":"www.yourfocusfriend.com/","textPreview":"www.yourfocusfriend.com/","textChars":24,"textLines":1,"bbox":[665,614,565,18]}
+{"kind":"image","id":"im/svu9knih","slide":6,"name":"","alt":"focus-friend screenshot","bbox":[665,164,565,192]}
+{"kind":"image","id":"im/hgn29gr2","slide":6,"name":"","alt":"spirit-city screenshot","bbox":[50,164,565,192]}
+{"kind":"notes","id":"nt/dkgsz7","slide":6,"text":""}
+{"kind":"slide","id":"sl/f0hi44","slide":7,"title":"FICHES CONCURRENTES","textShapes":22}
+{"kind":"textbox","id":"sh/9w3m94fu","slide":7,"text":"FICHES CONCURRENTES","textPreview":"FICHES CONCURRENTES","textChars":19,"textLines":1,"bbox":[42,34,360,24]}
+{"kind":"textbox","id":"sh/25kb6xkf","slide":7,"text":"Le focus devient plus fort quand il ressemble à un voyage partagé","textPreview":"Le focus devient plus fort quand il ressemble à un voyage partagé","textChars":65,"textLines":1,"bbox":[42,58,1080,88]}
+{"kind":"shape","id":"sh/rqd4vmtw","slide":7,"bbox":[42,154,1196,1]}
+{"kind":"shape","id":"sh/kzupwb2h","slide":7,"bbox":[50,360,565,1]}
+{"kind":"textbox","id":"sh/9knih4by","slide":7,"text":"Focus Traveller","textPreview":"Focus Traveller","textChars":15,"textLines":1,"bbox":[50,374,327.7,30]}
+{"kind":"textbox","id":"sh/2t83itgf","slide":7,"text":"Focus journey","textPreview":"Focus journey","textChars":13,"textLines":1,"bbox":[383.35,379,231.65,24]}
+{"kind":"textbox","id":"sh/re1w7mp0","slide":7,"text":"Les sessions de concentration deviennent un voyage animé avec paysages.","textPreview":"Les sessions de concentration deviennent un voyage animé avec paysages.","textChars":71,"textLines":1,"bbox":[50,408,565,46]}
+{"kind":"textbox","id":"sh/gvy90je9","slide":7,"text":"FORCES","textPreview":"FORCES","textChars":6,"textLines":1,"bbox":[50,470,180.33,24]}
+{"kind":"textbox","id":"sh/9gr2p8nq","slide":7,"text":"Très bonne métaphore de progression; visuels immersifs; musique et sessions de groupe.","textPreview":"Très bonne métaphore de progression; visuels immersifs; musique et sessions de groupe.","textChars":86,"textLines":1,"bbox":[50,494,180.33,90]}
+{"kind":"textbox","id":"sh/dg7adsji","slide":7,"text":"FAIBLESSES","textPreview":"FAIBLESSES","textChars":10,"textLines":1,"bbox":[242.33,470,180.33,24]}
+{"kind":"textbox","id":"sh/ovahoza1","slide":7,"text":"Focus-only; progression symbolique détachée des objectifs de vie.","textPreview":"Focus-only; progression symbolique détachée des objectifs de vie.","textChars":65,"textLines":1,"bbox":[242.33,494,180.33,90]}
+{"kind":"textbox","id":"sh/vahoza1g","slide":7,"text":"RÉPONSE MORAX","textPreview":"RÉPONSE MORAX","textChars":13,"textLines":1,"bbox":[434.67,470,180.33,24]}
+{"kind":"textbox","id":"sh/6tovahoz","slide":7,"text":"Utiliser le voyage comme décor de quête, pas comme unique boucle produit.","textPreview":"Utiliser le voyage comme décor de quête, pas comme unique boucle produit.","textChars":73,"textLines":1,"bbox":[434.67,494,180.33,90]}
+{"kind":"textbox","id":"sh/d8v6psfi","slide":7,"text":"focus-traveller.webflow.io/","textPreview":"focus-traveller.webflow.io/","textChars":27,"textLines":1,"bbox":[50,614,565,18]}
+{"kind":"shape","id":"sh/onyd0z61","slide":7,"bbox":[665,360,565,1]}
+{"kind":"textbox","id":"sh/z25kb6xk","slide":7,"text":"Focumon","textPreview":"Focumon","textChars":7,"textLines":1,"bbox":[665,374,327.7,30]}
+{"kind":"textbox","id":"sh/6hcrmhk3","slide":7,"text":"ADHD focus RPG social","textPreview":"ADHD focus RPG social","textChars":21,"textLines":1,"bbox":[998.35,379,231.65,24]}
+{"kind":"textbox","id":"sh/d4vmtwra","slide":7,"text":"Focus sessions, to-dos, habitudes et parties de groupe.","textPreview":"Focus sessions, to-dos, habitudes et parties de groupe.","textChars":55,"textLines":1,"bbox":[665,408,565,46]}
+{"kind":"textbox","id":"sh/oj2t83it","slide":7,"text":"FORCES","textPreview":"FORCES","textChars":6,"textLines":1,"bbox":[665,470,180.33,24]}
+{"kind":"textbox","id":"sh/gvy90je9","slide":7,"text":"Positionnement ADHD explicite; mélange focus + social + progression.","textPreview":"Positionnement ADHD explicite; mélange focus + social + progression.","textChars":68,"textLines":1,"bbox":[665,494,180.33,90]}
+{"kind":"textbox","id":"sh/9gr2p8nq","slide":7,"text":"FAIBLESSES","textPreview":"FAIBLESSES","textChars":10,"textLines":1,"bbox":[857.33,470,180.33,24]}
+{"kind":"textbox","id":"sh/2p8nqxs7","slide":7,"text":"Moins premium visuellement; promesse large encore proche de l’outil de productivité.","textPreview":"Moins premium visuellement; promesse large encore proche de l’outil de productivité.","textChars":84,"textLines":1,"bbox":[857.33,494,180.33,90]}
+{"kind":"textbox","id":"sh/ra5gbq1o","slide":7,"text":"RÉPONSE MORAX","textPreview":"RÉPONSE MORAX","textChars":13,"textLines":1,"bbox":[1049.67,470,180.33,24]}
+{"kind":"textbox","id":"sh/kjm1cfa9","slide":7,"text":"Se différencier par avatar 3D, preuve réelle et agentic planning.","textPreview":"Se différencier par avatar 3D, preuve réelle et agentic planning.","textChars":65,"textLines":1,"bbox":[1049.67,494,180.33,90]}
+{"kind":"textbox","id":"sh/94fu18jq","slide":7,"text":"www.focumon.com/","textPreview":"www.focumon.com/","textChars":16,"textLines":1,"bbox":[665,614,565,18]}
+{"kind":"image","id":"im/tovahoza","slide":7,"name":"","alt":"focumon screenshot","bbox":[665,164,565,192]}
+{"kind":"image","id":"im/032lszqt","slide":7,"name":"","alt":"focus-traveller screenshot","bbox":[50,164,565,192]}
+{"kind":"notes","id":"nt/f0hi44","slide":7,"text":""}
+{"kind":"slide","id":"sl/qrt1be","slide":8,"title":"FICHES CONCURRENTES","textShapes":22}
+{"kind":"textbox","id":"sh/1orytsvu","slide":8,"text":"FICHES CONCURRENTES","textPreview":"FICHES CONCURRENTES","textChars":19,"textLines":1,"bbox":[42,34,360,24]}
+{"kind":"textbox","id":"sh/u18jqh0f","slide":8,"text":"Le Life RPG existe déjà, mais il paraît souvent administré à la main","textPreview":"Le Life RPG existe déjà, mais il paraît souvent administré à la main","textChars":68,"textLines":1,"bbox":[42,58,1080,88]}
+{"kind":"shape","id":"sh/jm1cfa9w","slide":8,"bbox":[42,154,1196,1]}
+{"kind":"shape","id":"sh/cfa9w3m9","slide":8,"bbox":[50,360,565,1]}
+{"kind":"textbox","id":"sh/1032lszq","slide":8,"text":"Habitica","textPreview":"Habitica","textChars":8,"textLines":1,"bbox":[50,374,327.7,30]}
+{"kind":"textbox","id":"sh/u9knih4b","slide":8,"text":"Life RPG historique","textPreview":"Life RPG historique","textChars":19,"textLines":1,"bbox":[383.35,379,231.65,24]}
+{"kind":"textbox","id":"sh/judg7ads","slide":8,"text":"Tâches, habitudes, avatar pixel, XP, guildes et quêtes.","textPreview":"Tâches, habitudes, avatar pixel, XP, guildes et quêtes.","textChars":55,"textLines":1,"bbox":[50,408,565,46]}
+{"kind":"textbox","id":"sh/cj6tovah","slide":8,"text":"FORCES","textPreview":"FORCES","textChars":6,"textLines":1,"bbox":[50,470,180.33,24]}
+{"kind":"textbox","id":"sh/54zidony","slide":8,"text":"Référence du genre; boucle RPG complète; social et communauté installés.","textPreview":"Référence du genre; boucle RPG complète; social et communauté installés.","textChars":72,"textLines":1,"bbox":[50,494,180.33,90]}
+{"kind":"textbox","id":"sh/t47y1kre","slide":8,"text":"FAIBLESSES","textPreview":"FAIBLESSES","textChars":10,"textLines":1,"bbox":[242.33,470,180.33,24]}
+{"kind":"textbox","id":"sh/0je9cvix","slide":8,"text":"UI datée; saisie manuelle; la gamification peut devenir une couche de gestion.","textPreview":"UI datée; saisie manuelle; la gamification peut devenir une couche de gestion.","textChars":78,"textLines":1,"bbox":[242.33,494,180.33,90]}
+{"kind":"textbox","id":"sh/byhgn29g","slide":8,"text":"RÉPONSE MORAX","textPreview":"RÉPONSE MORAX","textChars":13,"textLines":1,"bbox":[434.67,470,180.33,24]}
+{"kind":"textbox","id":"sh/idonyd0z","slide":8,"text":"Faire moins tableur RPG et plus compagnon vivant avec validation multimodale.","textPreview":"Faire moins tableur RPG et plus compagnon vivant avec validation multimodale.","textChars":77,"textLines":1,"bbox":[434.67,494,180.33,90]}
+{"kind":"textbox","id":"sh/tcj6tova","slide":8,"text":"habitica.com/","textPreview":"habitica.com/","textChars":13,"textLines":1,"bbox":[50,614,565,18]}
+{"kind":"shape","id":"sh/0rqd4vmt","slide":8,"bbox":[665,360,565,1]}
+{"kind":"textbox","id":"sh/b6xkf6dc","slide":8,"text":"TaskHero","textPreview":"TaskHero","textChars":8,"textLines":1,"bbox":[665,374,327.7,30]}
+{"kind":"textbox","id":"sh/il0rqd4v","slide":8,"text":"Task & habit RPG","textPreview":"Task & habit RPG","textChars":16,"textLines":1,"bbox":[998.35,379,231.65,24]}
+{"kind":"textbox","id":"sh/tovahoza","slide":8,"text":"Héros, monstres, calendrier, timers et progression RPG.","textPreview":"Héros, monstres, calendrier, timers et progression RPG.","textChars":55,"textLines":1,"bbox":[665,408,565,46]}
+{"kind":"textbox","id":"sh/032lszqt","slide":8,"text":"FORCES","textPreview":"FORCES","textChars":6,"textLines":1,"bbox":[665,470,180.33,24]}
+{"kind":"textbox","id":"sh/czed8v6p","slide":8,"text":"Plus “jeu” que beaucoup de trackers; progression, combats et récompenses lisibles.","textPreview":"Plus “jeu” que beaucoup de trackers; progression, combats et récompenses lisibles.","textChars":82,"textLines":1,"bbox":[665,494,180.33,90]}
+{"kind":"textbox","id":"sh/5kb6xkf6","slide":8,"text":"FAIBLESSES","textPreview":"FAIBLESSES","textChars":10,"textLines":1,"bbox":[857.33,470,180.33,24]}
+{"kind":"textbox","id":"sh/ytsvu9kn","slide":8,"text":"Fantasy générique; reste un gestionnaire de tâches gamifié.","textPreview":"Fantasy générique; reste un gestionnaire de tâches gamifié.","textChars":59,"textLines":1,"bbox":[857.33,494,180.33,90]}
+{"kind":"textbox","id":"sh/neloj2t8","slide":8,"text":"RÉPONSE MORAX","textPreview":"RÉPONSE MORAX","textChars":13,"textLines":1,"bbox":[1049.67,470,180.33,24]}
+{"kind":"textbox","id":"sh/cbulwval","slide":8,"text":"Remplacer le héros générique par un double stylisé et une boucle Life RPG personnalisée.","textPreview":"Remplacer le héros générique par un double stylisé et une boucle Life RPG personnalisée.","textChars":88,"textLines":1,"bbox":[1049.67,494,180.33,90]}
+{"kind":"textbox","id":"sh/5sneloj2","slide":8,"text":"taskhero.app/","textPreview":"taskhero.app/","textChars":13,"textLines":1,"bbox":[665,614,565,18]}
+{"kind":"image","id":"im/h0fepkzu","slide":8,"name":"","alt":"habitica screenshot","bbox":[50,164,565,192]}
+{"kind":"image","id":"im/sfil0rqd","slide":8,"name":"","alt":"taskhero screenshot","bbox":[665,164,565,192]}
+{"kind":"notes","id":"nt/qrt1be","slide":8,"text":""}
+{"kind":"slide","id":"sl/sayls4","slide":9,"title":"FICHES CONCURRENTES","textShapes":22}
+{"kind":"textbox","id":"sh/cvixczed","slide":9,"text":"FICHES CONCURRENTES","textPreview":"FICHES CONCURRENTES","textChars":19,"textLines":1,"bbox":[42,34,360,24]}
+{"kind":"textbox","id":"sh/nap4r65w","slide":9,"text":"La profondeur RPG attire les power users, puis peut les fatiguer","textPreview":"La profondeur RPG attire les power users, puis peut les fatiguer","textChars":64,"textLines":1,"bbox":[42,58,1080,88]}
+{"kind":"shape","id":"sh/upwb2hwf","slide":9,"bbox":[42,154,1196,1]}
+{"kind":"shape","id":"sh/54zidony","slide":9,"bbox":[50,360,565,1]}
+{"kind":"textbox","id":"sh/cj6tovah","slide":9,"text":"Do It Now","textPreview":"Do It Now","textChars":9,"textLines":1,"bbox":[50,374,327.7,30]}
+{"kind":"textbox","id":"sh/nyd0z610","slide":9,"text":"RPG to-do list","textPreview":"RPG to-do list","textChars":14,"textLines":1,"bbox":[383.35,379,231.65,24]}
+{"kind":"textbox","id":"sh/udg7adsj","slide":9,"text":"To-do, calendrier, habitudes, skills, stats et niveaux.","textPreview":"To-do, calendrier, habitudes, skills, stats et niveaux.","textChars":55,"textLines":1,"bbox":[50,408,565,46]}
+{"kind":"textbox","id":"sh/1032lszq","slide":9,"text":"FORCES","textPreview":"FORCES","textChars":6,"textLines":1,"bbox":[50,470,180.33,24]}
+{"kind":"textbox","id":"sh/cfa9w3m9","slide":9,"text":"Très personnalisable; traduit bien l’idée “ma vie = RPG”.","textPreview":"Très personnalisable; traduit bien l’idée “ma vie = RPG”.","textChars":57,"textLines":1,"bbox":[50,494,180.33,90]}
+{"kind":"textbox","id":"sh/25kb6xkf","slide":9,"text":"FAIBLESSES","textPreview":"FAIBLESSES","textChars":10,"textLines":1,"bbox":[242.33,470,180.33,24]}
+{"kind":"textbox","id":"sh/rqd4vmtw","slide":9,"text":"Peut devenir complexe; visuel moins premium; forte charge de configuration.","textPreview":"Peut devenir complexe; visuel moins premium; forte charge de configuration.","textChars":75,"textLines":1,"bbox":[242.33,494,180.33,90]}
+{"kind":"textbox","id":"sh/kb6xkf6d","slide":9,"text":"RÉPONSE MORAX","textPreview":"RÉPONSE MORAX","textChars":13,"textLines":1,"bbox":[434.67,470,180.33,24]}
+{"kind":"textbox","id":"sh/9w3m94fu","slide":9,"text":"Automatiser la décomposition et garder 1-3 prochaines actions visibles.","textPreview":"Automatiser la décomposition et garder 1-3 prochaines actions visibles.","textChars":71,"textLines":1,"bbox":[434.67,494,180.33,90]}
+{"kind":"textbox","id":"sh/2t83itgf","slide":9,"text":"do-it-now.app/","textPreview":"do-it-now.app/","textChars":14,"textLines":1,"bbox":[50,614,565,18]}
+{"kind":"shape","id":"sh/re1w7mp0","slide":9,"bbox":[665,360,565,1]}
+{"kind":"textbox","id":"sh/kzupwb2h","slide":9,"text":"LifeUp","textPreview":"LifeUp","textChars":6,"textLines":1,"bbox":[665,374,327.7,30]}
+{"kind":"textbox","id":"sh/9knih4by","slide":9,"text":"Gamified to-do","textPreview":"Gamified to-do","textChars":14,"textLines":1,"bbox":[998.35,379,231.65,24]}
+{"kind":"textbox","id":"sh/2p8nqxs7","slide":9,"text":"Tâches, XP, monnaie, boutique, achievements et récompenses custom.","textPreview":"Tâches, XP, monnaie, boutique, achievements et récompenses custom.","textChars":66,"textLines":1,"bbox":[665,408,565,46]}
+{"kind":"textbox","id":"sh/ra5gbq1o","slide":9,"text":"FORCES","textPreview":"FORCES","textChars":6,"textLines":1,"bbox":[665,470,180.33,24]}
+{"kind":"textbox","id":"sh/nyd0z610","slide":9,"text":"Système de récompenses flexible; bonne base pour utilisateurs power-user.","textPreview":"Système de récompenses flexible; bonne base pour utilisateurs power-user.","textChars":73,"textLines":1,"bbox":[665,494,180.33,90]}
+{"kind":"textbox","id":"sh/udg7adsj","slide":9,"text":"FAIBLESSES","textPreview":"FAIBLESSES","textChars":10,"textLines":1,"bbox":[857.33,470,180.33,24]}
+{"kind":"textbox","id":"sh/54zidony","slide":9,"text":"Moins narratif; peu de présence émotionnelle; configuration lourde.","textPreview":"Moins narratif; peu de présence émotionnelle; configuration lourde.","textChars":67,"textLines":1,"bbox":[857.33,494,180.33,90]}
+{"kind":"textbox","id":"sh/cj6tovah","slide":9,"text":"RÉPONSE MORAX","textPreview":"RÉPONSE MORAX","textChars":13,"textLines":1,"bbox":[1049.67,470,180.33,24]}
+{"kind":"textbox","id":"sh/nap4r65w","slide":9,"text":"Offrir la même profondeur plus tard, mais masquer la complexité au départ.","textPreview":"Offrir la même profondeur plus tard, mais masquer la complexité au départ.","textChars":74,"textLines":1,"bbox":[1049.67,494,180.33,90]}
+{"kind":"textbox","id":"sh/upwb2hwf","slide":9,"text":"lifeup.ulives.io/","textPreview":"lifeup.ulives.io/","textChars":17,"textLines":1,"bbox":[665,614,565,18]}
+{"kind":"image","id":"im/m94fu18j","slide":9,"name":"","alt":"do-it-now screenshot","bbox":[50,164,565,192]}
+{"kind":"image","id":"im/fu18jqh0","slide":9,"name":"","alt":"lifeup screenshot","bbox":[665,164,565,192]}
+{"kind":"notes","id":"nt/sayls4","slide":9,"text":""}
+{"kind":"slide","id":"sl/b7vf0d","slide":10,"title":"FICHES CONCURRENTES","textShapes":22}
+{"kind":"textbox","id":"sh/rmhk3q5o","slide":10,"text":"FICHES CONCURRENTES","textPreview":"FICHES CONCURRENTES","textChars":19,"textLines":1,"bbox":[42,34,360,24]}
+{"kind":"textbox","id":"sh/g7adsji5","slide":10,"text":"Les quêtes doivent rester positives pour éviter la honte de l’échec","textPreview":"Les quêtes doivent rester positives pour éviter la honte de l’échec","textChars":67,"textLines":1,"bbox":[42,58,1080,88]}
+{"kind":"shape","id":"sh/9s36hcrm","slide":10,"bbox":[42,154,1196,1]}
+{"kind":"shape","id":"sh/yd0z6103","slide":10,"bbox":[50,360,565,1]}
+{"kind":"textbox","id":"sh/rytsvu9k","slide":10,"text":"Habit Hunter","textPreview":"Habit Hunter","textChars":12,"textLines":1,"bbox":[50,374,327.7,30]}
+{"kind":"textbox","id":"sh/gfmlkjm1","slide":10,"text":"Habit RPG adventure","textPreview":"Habit RPG adventure","textChars":19,"textLines":1,"bbox":[383.35,379,231.65,24]}
+{"kind":"textbox","id":"sh/90je9cvi","slide":10,"text":"Habitudes en quêtes, monstres, carte et trésors.","textPreview":"Habitudes en quêtes, monstres, carte et trésors.","textChars":48,"textLines":1,"bbox":[50,408,565,46]}
+{"kind":"textbox","id":"sh/ylc7u54z","slide":10,"text":"FORCES","textPreview":"FORCES","textChars":6,"textLines":1,"bbox":[50,470,180.33,24]}
+{"kind":"textbox","id":"sh/r65wjudg","slide":10,"text":"Métaphore RPG immédiate; map et combats donnent du relief aux habitudes.","textPreview":"Métaphore RPG immédiate; map et combats donnent du relief aux habitudes.","textChars":72,"textLines":1,"bbox":[50,494,180.33,90]}
+{"kind":"textbox","id":"sh/vahoza1g","slide":10,"text":"FAIBLESSES","textPreview":"FAIBLESSES","textChars":10,"textLines":1,"bbox":[242.33,470,180.33,24]}
+{"kind":"textbox","id":"sh/6tovahoz","slide":10,"text":"Boucle souvent extrinsèque; pas de preuve réelle; niche très fantasy.","textPreview":"Boucle souvent extrinsèque; pas de preuve réelle; niche très fantasy.","textChars":69,"textLines":1,"bbox":[242.33,494,180.33,90]}
+{"kind":"textbox","id":"sh/dg7adsji","slide":10,"text":"RÉPONSE MORAX","textPreview":"RÉPONSE MORAX","textChars":13,"textLines":1,"bbox":[434.67,470,180.33,24]}
+{"kind":"textbox","id":"sh/ovahoza1","slide":10,"text":"Adopter la clarté des quêtes, sans enfermer Morax dans un fantasy cartoon.","textPreview":"Adopter la clarté des quêtes, sans enfermer Morax dans un fantasy cartoon.","textChars":74,"textLines":1,"bbox":[434.67,494,180.33,90]}
+{"kind":"textbox","id":"sh/z25kb6xk","slide":10,"text":"habithunter.activeuser.co/","textPreview":"habithunter.activeuser.co/","textChars":26,"textLines":1,"bbox":[50,614,565,18]}
+{"kind":"shape","id":"sh/6hcrmhk3","slide":10,"bbox":[665,360,565,1]}
+{"kind":"textbox","id":"sh/d8v6psfi","slide":10,"text":"SuperBetter","textPreview":"SuperBetter","textChars":11,"textLines":1,"bbox":[665,374,327.7,30]}
+{"kind":"textbox","id":"sh/onyd0z61","slide":10,"text":"Gameful resilience","textPreview":"Gameful resilience","textChars":18,"textLines":1,"bbox":[998.35,379,231.65,24]}
+{"kind":"textbox","id":"sh/vy90je9c","slide":10,"text":"Quêtes, power-ups, epic wins, résilience et mental wellbeing.","textPreview":"Quêtes, power-ups, epic wins, résilience et mental wellbeing.","textChars":61,"textLines":1,"bbox":[665,408,565,46]}
+{"kind":"textbox","id":"sh/6dcbulwv","slide":10,"text":"FORCES","textPreview":"FORCES","textChars":6,"textLines":1,"bbox":[665,470,180.33,24]}
+{"kind":"textbox","id":"sh/ahoza1gv","slide":10,"text":"Fondation psychologique forte; langage positif; crédibilité historique.","textPreview":"Fondation psychologique forte; langage positif; crédibilité historique.","textChars":71,"textLines":1,"bbox":[665,494,180.33,90]}
+{"kind":"textbox","id":"sh/32lszqtc","slide":10,"text":"FAIBLESSES","textPreview":"FAIBLESSES","textChars":10,"textLines":1,"bbox":[857.33,470,180.33,24]}
+{"kind":"textbox","id":"sh/sneloj2t","slide":10,"text":"Moins visuel; moins productivité quotidienne; cible wellbeing/éducation.","textPreview":"Moins visuel; moins productivité quotidienne; cible wellbeing/éducation.","textChars":72,"textLines":1,"bbox":[857.33,494,180.33,90]}
+{"kind":"textbox","id":"sh/l87ed8ba","slide":10,"text":"RÉPONSE MORAX","textPreview":"RÉPONSE MORAX","textChars":13,"textLines":1,"bbox":[1049.67,470,180.33,24]}
+{"kind":"textbox","id":"sh/at47y1kr","slide":10,"text":"Garder la prudence santé mentale : motivation, pas promesse médicale.","textPreview":"Garder la prudence santé mentale : motivation, pas promesse médicale.","textChars":69,"textLines":1,"bbox":[1049.67,494,180.33,90]}
+{"kind":"textbox","id":"sh/3ex0nuxc","slide":10,"text":"superbetter.com/","textPreview":"superbetter.com/","textChars":16,"textLines":1,"bbox":[665,614,565,18]}
+{"kind":"image","id":"im/bulwval8","slide":10,"name":"","alt":"superbetter screenshot","bbox":[665,164,565,192]}
+{"kind":"image","id":"im/i9s36hcr","slide":10,"name":"","alt":"habit-hunter screenshot","bbox":[50,164,565,192]}
+{"kind":"notes","id":"nt/b7vf0d","slide":10,"text":""}
+{"kind":"slide","id":"sl/dh9hy1","slide":11,"title":"FICHES CONCURRENTES","textShapes":22}
+{"kind":"textbox","id":"sh/jqh0fepk","slide":11,"text":"FICHES CONCURRENTES","textPreview":"FICHES CONCURRENTES","textChars":19,"textLines":1,"bbox":[42,34,360,24]}
+{"kind":"textbox","id":"sh/8bat47y1","slide":11,"text":"Les timers iconiques gagnent par métaphore ultra simple","textPreview":"Les timers iconiques gagnent par métaphore ultra simple","textChars":55,"textLines":1,"bbox":[42,58,1080,88]}
+{"kind":"shape","id":"sh/1w7mp0bi","slide":11,"bbox":[42,154,1196,1]}
+{"kind":"shape","id":"sh/qh0fepkz","slide":11,"bbox":[50,360,565,1]}
+{"kind":"textbox","id":"sh/j2t83itg","slide":11,"text":"Forest","textPreview":"Forest","textChars":6,"textLines":1,"bbox":[50,374,327.7,30]}
+{"kind":"textbox","id":"sh/8nqxs72x","slide":11,"text":"Focus timer iconique","textPreview":"Focus timer iconique","textChars":20,"textLines":1,"bbox":[383.35,379,231.65,24]}
+{"kind":"textbox","id":"sh/18jqh0fe","slide":11,"text":"Chaque session plante un arbre; forêt, blocage distractions, statistiques.","textPreview":"Chaque session plante un arbre; forêt, blocage distractions, statistiques.","textChars":74,"textLines":1,"bbox":[50,408,565,46]}
+{"kind":"textbox","id":"sh/ulwval87","slide":11,"text":"FORCES","textPreview":"FORCES","textChars":6,"textLines":1,"bbox":[50,470,180.33,24]}
+{"kind":"textbox","id":"sh/j6tovaho","slide":11,"text":"Métaphore ultra simple; belle lisibilité; forte notoriété.","textPreview":"Métaphore ultra simple; belle lisibilité; forte notoriété.","textChars":58,"textLines":1,"bbox":[50,494,180.33,90]}
+{"kind":"textbox","id":"sh/j2t83itg","slide":11,"text":"FAIBLESSES","textPreview":"FAIBLESSES","textChars":10,"textLines":1,"bbox":[242.33,470,180.33,24]}
+{"kind":"textbox","id":"sh/qh0fepkz","slide":11,"text":"Punition visuelle possible; pas d’avatar ni de vraie planification.","textPreview":"Punition visuelle possible; pas d’avatar ni de vraie planification.","textChars":67,"textLines":1,"bbox":[242.33,494,180.33,90]}
+{"kind":"textbox","id":"sh/18jqh0fe","slide":11,"text":"RÉPONSE MORAX","textPreview":"RÉPONSE MORAX","textChars":13,"textLines":1,"bbox":[434.67,470,180.33,24]}
+{"kind":"textbox","id":"sh/8nqxs72x","slide":11,"text":"Reprendre la clarté du rituel, sans “tuer” le progrès en cas d’échec.","textPreview":"Reprendre la clarté du rituel, sans “tuer” le progrès en cas d’échec.","textChars":69,"textLines":1,"bbox":[434.67,494,180.33,90]}
+{"kind":"textbox","id":"sh/jqh0fepk","slide":11,"text":"forestapp.cc/","textPreview":"forestapp.cc/","textChars":13,"textLines":1,"bbox":[50,614,565,18]}
+{"kind":"shape","id":"sh/q5o7qpg3","slide":11,"bbox":[665,360,565,1]}
+{"kind":"textbox","id":"sh/1w7mp0bi","slide":11,"text":"Flora","textPreview":"Flora","textChars":5,"textLines":1,"bbox":[665,374,327.7,30]}
+{"kind":"textbox","id":"sh/8bat47y1","slide":11,"text":"Green focus","textPreview":"Green focus","textChars":11,"textLines":1,"bbox":[998.35,379,231.65,24]}
+{"kind":"textbox","id":"sh/ji5snelo","slide":11,"text":"Focus timer avec arbres, to-dos, habitudes et extension navigateur.","textPreview":"Focus timer avec arbres, to-dos, habitudes et extension navigateur.","textChars":67,"textLines":1,"bbox":[665,408,565,46]}
+{"kind":"textbox","id":"sh/uxc3ylc7","slide":11,"text":"FORCES","textPreview":"FORCES","textChars":6,"textLines":1,"bbox":[665,470,180.33,24]}
+{"kind":"textbox","id":"sh/2t83itgf","slide":11,"text":"Visuel clair; extension desktop; croissance végétale facile à comprendre.","textPreview":"Visuel clair; extension desktop; croissance végétale facile à comprendre.","textChars":73,"textLines":1,"bbox":[665,494,180.33,90]}
+{"kind":"textbox","id":"sh/re1w7mp0","slide":11,"text":"FAIBLESSES","textPreview":"FAIBLESSES","textChars":10,"textLines":1,"bbox":[857.33,470,180.33,24]}
+{"kind":"textbox","id":"sh/kzupwb2h","slide":11,"text":"Très proche de Forest; différenciation limitée; pas Life RPG.","textPreview":"Très proche de Forest; différenciation limitée; pas Life RPG.","textChars":61,"textLines":1,"bbox":[857.33,494,180.33,90]}
+{"kind":"textbox","id":"sh/9knih4by","slide":11,"text":"RÉPONSE MORAX","textPreview":"RÉPONSE MORAX","textChars":13,"textLines":1,"bbox":[1049.67,470,180.33,24]}
+{"kind":"textbox","id":"sh/25kb6xkf","slide":11,"text":"Créer une boucle plus personnelle que l’arbre : l’avatar vit la quête avec l’utilisateur.","textPreview":"Créer une boucle plus personnelle que l’arbre : l’avatar vit la quête avec l’utilisateur.","textChars":89,"textLines":1,"bbox":[1049.67,494,180.33,90]}
+{"kind":"textbox","id":"sh/rqd4vmtw","slide":11,"text":"flora.appfinca.com/en","textPreview":"flora.appfinca.com/en","textChars":21,"textLines":1,"bbox":[665,614,565,18]}
+{"kind":"image","id":"im/nqxs72x4","slide":11,"name":"","alt":"forest screenshot","bbox":[50,164,565,192]}
+{"kind":"image","id":"im/u54zidon","slide":11,"name":"","alt":"flora screenshot","bbox":[665,164,565,192]}
+{"kind":"notes","id":"nt/dh9hy1","slide":11,"text":""}
+{"kind":"slide","id":"sl/0ffvmv","slide":12,"title":"FICHES CONCURRENTES","textShapes":22}
+{"kind":"textbox","id":"sh/d8v6psfi","slide":12,"text":"FICHES CONCURRENTES","textPreview":"FICHES CONCURRENTES","textChars":19,"textLines":1,"bbox":[42,34,360,24]}
+{"kind":"textbox","id":"sh/6hcrmhk3","slide":12,"text":"Les pets prouvent l’attachement, mais Morax doit rester adulte","textPreview":"Les pets prouvent l’attachement, mais Morax doit rester adulte","textChars":62,"textLines":1,"bbox":[42,58,1080,88]}
+{"kind":"shape","id":"sh/z25kb6xk","slide":12,"bbox":[42,154,1196,1]}
+{"kind":"shape","id":"sh/ovahoza1","slide":12,"bbox":[50,360,565,1]}
+{"kind":"textbox","id":"sh/dg7adsji","slide":12,"text":"Study Bunny","textPreview":"Study Bunny","textChars":11,"textLines":1,"bbox":[50,374,327.7,30]}
+{"kind":"textbox","id":"sh/6tovahoz","slide":12,"text":"Study pet timer","textPreview":"Study pet timer","textChars":15,"textLines":1,"bbox":[383.35,379,231.65,24]}
+{"kind":"textbox","id":"sh/vahoza1g","slide":12,"text":"Lapin, timer d’étude, coins, boutique, musique et outils étudiants.","textPreview":"Lapin, timer d’étude, coins, boutique, musique et outils étudiants.","textChars":67,"textLines":1,"bbox":[50,408,565,46]}
+{"kind":"textbox","id":"sh/o7qpg3ex","slide":12,"text":"FORCES","textPreview":"FORCES","textChars":6,"textLines":1,"bbox":[50,470,180.33,24]}
+{"kind":"textbox","id":"sh/dsji5sne","slide":12,"text":"Très attachant; économie simple; cible étude claire.","textPreview":"Très attachant; économie simple; cible étude claire.","textChars":52,"textLines":1,"bbox":[50,494,180.33,90]}
+{"kind":"textbox","id":"sh/pwb2hwfy","slide":12,"text":"FAIBLESSES","textPreview":"FAIBLESSES","textChars":10,"textLines":1,"bbox":[242.33,470,180.33,24]}
+{"kind":"textbox","id":"sh/0bi9s36h","slide":12,"text":"Look très enfantin; moins adapté adultes/professionnels ADHD.","textPreview":"Look très enfantin; moins adapté adultes/professionnels ADHD.","textChars":61,"textLines":1,"bbox":[242.33,494,180.33,90]}
+{"kind":"textbox","id":"sh/7qpg3ex0","slide":12,"text":"RÉPONSE MORAX","textPreview":"RÉPONSE MORAX","textChars":13,"textLines":1,"bbox":[434.67,470,180.33,24]}
+{"kind":"textbox","id":"sh/i5sneloj","slide":12,"text":"Garder l’attachement, avec une DA adulte, premium et moins scolaire.","textPreview":"Garder l’attachement, avec une DA adulte, premium et moins scolaire.","textChars":68,"textLines":1,"bbox":[434.67,494,180.33,90]}
+{"kind":"textbox","id":"sh/p4r65wju","slide":12,"text":"www.superbyte.site/studybunny","textPreview":"www.superbyte.site/studybunny","textChars":29,"textLines":1,"bbox":[50,614,565,18]}
+{"kind":"shape","id":"sh/wjudg7ad","slide":12,"bbox":[665,360,565,1]}
+{"kind":"textbox","id":"sh/7y1kre1w","slide":12,"text":"Focus Dog","textPreview":"Focus Dog","textChars":9,"textLines":1,"bbox":[665,374,327.7,30]}
+{"kind":"textbox","id":"sh/ed8v6psf","slide":12,"text":"Pomodoro pet","textPreview":"Pomodoro pet","textChars":12,"textLines":1,"bbox":[998.35,379,231.65,24]}
+{"kind":"textbox","id":"sh/p8nqxs72","slide":12,"text":"Sessions focus qui nourrissent un chien virtuel et débloquent tenues.","textPreview":"Sessions focus qui nourrissent un chien virtuel et débloquent tenues.","textChars":69,"textLines":1,"bbox":[665,408,565,46]}
+{"kind":"textbox","id":"sh/0nuxc3yl","slide":12,"text":"FORCES","textPreview":"FORCES","textChars":6,"textLines":1,"bbox":[665,470,180.33,24]}
+{"kind":"textbox","id":"sh/wval87ed","slide":12,"text":"Lien émotionnel fort; récompense concrète; positionnement ADHD explicite.","textPreview":"Lien émotionnel fort; récompense concrète; positionnement ADHD explicite.","textChars":73,"textLines":1,"bbox":[665,494,180.33,90]}
+{"kind":"textbox","id":"sh/pg3ex0nu","slide":12,"text":"FAIBLESSES","textPreview":"FAIBLESSES","textChars":10,"textLines":1,"bbox":[857.33,470,180.33,24]}
+{"kind":"textbox","id":"sh/epkzupwb","slide":12,"text":"Peut basculer en culpabilité; scope limité au digital detox.","textPreview":"Peut basculer en culpabilité; scope limité au digital detox.","textChars":60,"textLines":1,"bbox":[857.33,494,180.33,90]}
+{"kind":"textbox","id":"sh/7adsji5s","slide":12,"text":"RÉPONSE MORAX","textPreview":"RÉPONSE MORAX","textChars":13,"textLines":1,"bbox":[1049.67,470,180.33,24]}
+{"kind":"textbox","id":"sh/w7mp0bi9","slide":12,"text":"Faire du compagnon un reflet encourageant de l’utilisateur, pas un animal à nourrir.","textPreview":"Faire du compagnon un reflet encourageant de l’utilisateur, pas un animal à nourrir.","textChars":84,"textLines":1,"bbox":[1049.67,494,180.33,90]}
+{"kind":"textbox","id":"sh/psfil0rq","slide":12,"text":"focusdog.app/","textPreview":"focusdog.app/","textChars":13,"textLines":1,"bbox":[665,614,565,18]}
+{"kind":"image","id":"im/h0fepkzu","slide":12,"name":"","alt":"study-bunny screenshot","bbox":[50,164,565,192]}
+{"kind":"image","id":"im/sfil0rqd","slide":12,"name":"","alt":"focus-dog screenshot","bbox":[665,164,565,192]}
+{"kind":"notes","id":"nt/0ffvmv","slide":12,"text":""}
+{"kind":"slide","id":"sl/jydat8","slide":13,"title":"FICHES CONCURRENTES","textShapes":22}
+{"kind":"textbox","id":"sh/gn29gr2p","slide":13,"text":"FICHES CONCURRENTES","textPreview":"FICHES CONCURRENTES","textChars":19,"textLines":1,"bbox":[42,34,360,24]}
+{"kind":"textbox","id":"sh/n29gr2p8","slide":13,"text":"La chambre et l’ambiance sont des récompenses compréhensibles","textPreview":"La chambre et l’ambiance sont des récompenses compréhensibles","textChars":61,"textLines":1,"bbox":[42,58,1080,88]}
+{"kind":"shape","id":"sh/yhgn29gr","slide":13,"bbox":[42,154,1196,1]}
+{"kind":"shape","id":"sh/5wjudg7a","slide":13,"bbox":[50,360,565,1]}
+{"kind":"textbox","id":"sh/gbq1oryt","slide":13,"text":"PuppyFocus","textPreview":"PuppyFocus","textChars":10,"textLines":1,"bbox":[50,374,327.7,30]}
+{"kind":"textbox","id":"sh/nuxc3ylc","slide":13,"text":"Pet + app blocker","textPreview":"Pet + app blocker","textChars":17,"textLines":1,"bbox":[383.35,379,231.65,24]}
+{"kind":"textbox","id":"sh/y90je9cv","slide":13,"text":"Pomodoro, pet companion, chambre, app blocker iOS.","textPreview":"Pomodoro, pet companion, chambre, app blocker iOS.","textChars":50,"textLines":1,"bbox":[50,408,565,46]}
+{"kind":"textbox","id":"sh/5sneloj2","slide":13,"text":"FORCES","textPreview":"FORCES","textChars":6,"textLines":1,"bbox":[50,470,180.33,24]}
+{"kind":"textbox","id":"sh/cbulwval","slide":13,"text":"Promesse claire “deep work to visual rewards”; forte boucle pet-room.","textPreview":"Promesse claire “deep work to visual rewards”; forte boucle pet-room.","textChars":69,"textLines":1,"bbox":[50,494,180.33,90]}
+{"kind":"textbox","id":"sh/e9cvixcz","slide":13,"text":"FAIBLESSES","textPreview":"FAIBLESSES","textChars":10,"textLines":1,"bbox":[242.33,470,180.33,24]}
+{"kind":"textbox","id":"sh/3q5o7qpg","slide":13,"text":"Encore très pet/timer; peu d’identité Life RPG.","textPreview":"Encore très pet/timer; peu d’identité Life RPG.","textChars":47,"textLines":1,"bbox":[242.33,494,180.33,90]}
+{"kind":"textbox","id":"sh/wb2hwfyx","slide":13,"text":"RÉPONSE MORAX","textPreview":"RÉPONSE MORAX","textChars":13,"textLines":1,"bbox":[434.67,470,180.33,24]}
+{"kind":"textbox","id":"sh/lwval87e","slide":13,"text":"Transformer la chambre/récompense en base d’avatar RPG et scènes de vie.","textPreview":"Transformer la chambre/récompense en base d’avatar RPG et scènes de vie.","textChars":72,"textLines":1,"bbox":[434.67,494,180.33,90]}
+{"kind":"textbox","id":"sh/ex0nuxc3","slide":13,"text":"puppyfocusapp.com/","textPreview":"puppyfocusapp.com/","textChars":18,"textLines":1,"bbox":[50,614,565,18]}
+{"kind":"shape","id":"sh/3itgfmlk","slide":13,"bbox":[665,360,565,1]}
+{"kind":"textbox","id":"sh/w3m94fu1","slide":13,"text":"Virtual Cottage","textPreview":"Virtual Cottage","textChars":15,"textLines":1,"bbox":[665,374,327.7,30]}
+{"kind":"textbox","id":"sh/loj2t83i","slide":13,"text":"Cozy lofi timer","textPreview":"Cozy lofi timer","textChars":15,"textLines":1,"bbox":[998.35,379,231.65,24]}
+{"kind":"textbox","id":"sh/at47y1kr","slide":13,"text":"Cottage, météo, lofi, timer et ambiance second-screen.","textPreview":"Cottage, météo, lofi, timer et ambiance second-screen.","textChars":54,"textLines":1,"bbox":[665,408,565,46]}
+{"kind":"textbox","id":"sh/3ex0nuxc","slide":13,"text":"FORCES","textPreview":"FORCES","textChars":6,"textLines":1,"bbox":[665,470,180.33,24]}
+{"kind":"textbox","id":"sh/z25kb6xk","slide":13,"text":"Très léger; presque zéro charge cognitive; bon mood productif.","textPreview":"Très léger; presque zéro charge cognitive; bon mood productif.","textChars":62,"textLines":1,"bbox":[665,494,180.33,90]}
+{"kind":"textbox","id":"sh/6hcrmhk3","slide":13,"text":"FAIBLESSES","textPreview":"FAIBLESSES","textChars":10,"textLines":1,"bbox":[857.33,470,180.33,24]}
+{"kind":"textbox","id":"sh/d8v6psfi","slide":13,"text":"Peu de mécanique; pas de mobile-first ni progression personnalisée.","textPreview":"Peu de mécanique; pas de mobile-first ni progression personnalisée.","textChars":67,"textLines":1,"bbox":[857.33,494,180.33,90]}
+{"kind":"textbox","id":"sh/onyd0z61","slide":13,"text":"RÉPONSE MORAX","textPreview":"RÉPONSE MORAX","textChars":13,"textLines":1,"bbox":[1049.67,470,180.33,24]}
+{"kind":"textbox","id":"sh/vahoza1g","slide":13,"text":"Offrir un mode calme équivalent dans la Station Focus, mais relié aux quêtes.","textPreview":"Offrir un mode calme équivalent dans la Station Focus, mais relié aux quêtes.","textChars":77,"textLines":1,"bbox":[1049.67,494,180.33,90]}
+{"kind":"textbox","id":"sh/6tovahoz","slide":13,"text":"store.steampowered.com/app/1369320/Virtual_Cottage/","textPreview":"store.steampowered.com/app/1369320/Virtual_Cottage/","textChars":51,"textLines":1,"bbox":[665,614,565,18]}
+{"kind":"image","id":"im/q1orytsv","slide":13,"name":"","alt":"puppyfocus screenshot","bbox":[50,164,565,192]}
+{"kind":"image","id":"im/fmlkjm1c","slide":13,"name":"","alt":"virtual-cottage screenshot","bbox":[665,164,565,192]}
+{"kind":"notes","id":"nt/jydat8","slide":13,"text":""}
+{"kind":"slide","id":"sl/s8nq3y","slide":14,"title":"FICHES CONCURRENTES","textShapes":22}
+{"kind":"textbox","id":"sh/gr2p8nqx","slide":14,"text":"FICHES CONCURRENTES","textPreview":"FICHES CONCURRENTES","textChars":19,"textLines":1,"bbox":[42,34,360,24]}
+{"kind":"textbox","id":"sh/r65wjudg","slide":14,"text":"Le self-care doux est puissant quand il ne punit pas","textPreview":"Le self-care doux est puissant quand il ne punit pas","textChars":52,"textLines":1,"bbox":[42,58,1080,88]}
+{"kind":"shape","id":"sh/ylc7u54z","slide":14,"bbox":[42,154,1196,1]}
+{"kind":"shape","id":"sh/5o7qpg3e","slide":14,"bbox":[50,360,565,1]}
+{"kind":"textbox","id":"sh/g3ex0nux","slide":14,"text":"Finch","textPreview":"Finch","textChars":5,"textLines":1,"bbox":[50,374,327.7,30]}
+{"kind":"textbox","id":"sh/nih4byhg","slide":14,"text":"Self-care pet","textPreview":"Self-care pet","textChars":13,"textLines":1,"bbox":[383.35,379,231.65,24]}
+{"kind":"textbox","id":"sh/yxobm58z","slide":14,"text":"Pet de self-care, exercices, objectifs doux et personnalisation.","textPreview":"Pet de self-care, exercices, objectifs doux et personnalisation.","textChars":64,"textLines":1,"bbox":[50,408,565,46]}
+{"kind":"textbox","id":"sh/9s36hcrm","slide":14,"text":"FORCES","textPreview":"FORCES","textChars":6,"textLines":1,"bbox":[50,470,180.33,24]}
+{"kind":"textbox","id":"sh/g7adsji5","slide":14,"text":"Rétention émotionnelle forte; ton bienveillant; excellente accessibilité.","textPreview":"Rétention émotionnelle forte; ton bienveillant; excellente accessibilité.","textChars":73,"textLines":1,"bbox":[50,494,180.33,90]}
+{"kind":"textbox","id":"sh/y1kre1w7","slide":14,"text":"FAIBLESSES","textPreview":"FAIBLESSES","textChars":10,"textLines":1,"bbox":[242.33,470,180.33,24]}
+{"kind":"textbox","id":"sh/rmhk3q5o","slide":14,"text":"Compagnon non ressemblant; self-care plus que productivité/quête IRL.","textPreview":"Compagnon non ressemblant; self-care plus que productivité/quête IRL.","textChars":69,"textLines":1,"bbox":[242.33,494,180.33,90]}
+{"kind":"textbox","id":"sh/g7adsji5","slide":14,"text":"RÉPONSE MORAX","textPreview":"RÉPONSE MORAX","textChars":13,"textLines":1,"bbox":[434.67,470,180.33,24]}
+{"kind":"textbox","id":"sh/9s36hcrm","slide":14,"text":"Adopter la douceur, mais avec avatar utilisateur 3D et objectifs concrets.","textPreview":"Adopter la douceur, mais avec avatar utilisateur 3D et objectifs concrets.","textChars":74,"textLines":1,"bbox":[434.67,494,180.33,90]}
+{"kind":"textbox","id":"sh/yd0z6103","slide":14,"text":"finchcare.com/","textPreview":"finchcare.com/","textChars":14,"textLines":1,"bbox":[50,614,565,18]}
+{"kind":"shape","id":"sh/rytsvu9k","slide":14,"bbox":[665,360,565,1]}
+{"kind":"textbox","id":"sh/gfmlkjm1","slide":14,"text":"Avocation","textPreview":"Avocation","textChars":9,"textLines":1,"bbox":[665,374,327.7,30]}
+{"kind":"textbox","id":"sh/90je9cvi","slide":14,"text":"Gentle habit growth","textPreview":"Gentle habit growth","textChars":19,"textLines":1,"bbox":[998.35,379,231.65,24]}
+{"kind":"textbox","id":"sh/ylc7u54z","slide":14,"text":"Habit tracker simple, plantes, leçons et absence de streak punitive.","textPreview":"Habit tracker simple, plantes, leçons et absence de streak punitive.","textChars":68,"textLines":1,"bbox":[665,408,565,46]}
+{"kind":"textbox","id":"sh/r65wjudg","slide":14,"text":"FORCES","textPreview":"FORCES","textChars":6,"textLines":1,"bbox":[665,470,180.33,24]}
+{"kind":"textbox","id":"sh/fa9w3m94","slide":14,"text":"Très bon modèle non culpabilisant; simplicité visuelle.","textPreview":"Très bon modèle non culpabilisant; simplicité visuelle.","textChars":55,"textLines":1,"bbox":[665,494,180.33,90]}
+{"kind":"textbox","id":"sh/qpg3ex0n","slide":14,"text":"FAIBLESSES","textPreview":"FAIBLESSES","textChars":10,"textLines":1,"bbox":[857.33,470,180.33,24]}
+{"kind":"textbox","id":"sh/xczed8v6","slide":14,"text":"Faible profondeur RPG; peu d’automatisation; visuel moins immersif.","textPreview":"Faible profondeur RPG; peu d’automatisation; visuel moins immersif.","textChars":67,"textLines":1,"bbox":[857.33,494,180.33,90]}
+{"kind":"textbox","id":"sh/8v6psfil","slide":14,"text":"RÉPONSE MORAX","textPreview":"RÉPONSE MORAX","textChars":13,"textLines":1,"bbox":[1049.67,470,180.33,24]}
+{"kind":"textbox","id":"sh/fyxobm58","slide":14,"text":"Conserver le principe “bad day safe” dans toute la progression.","textPreview":"Conserver le principe “bad day safe” dans toute la progression.","textChars":63,"textLines":1,"bbox":[1049.67,494,180.33,90]}
+{"kind":"textbox","id":"sh/qd4vmtwr","slide":14,"text":"avocation.app/","textPreview":"avocation.app/","textChars":14,"textLines":1,"bbox":[665,614,565,18]}
+{"kind":"image","id":"im/a9w3m94f","slide":14,"name":"","alt":"avocation screenshot","bbox":[665,164,565,192]}
+{"kind":"image","id":"im/zupwb2hw","slide":14,"name":"","alt":"finch screenshot","bbox":[50,164,565,192]}
+{"kind":"notes","id":"nt/s8nq3y","slide":14,"text":""}
+{"kind":"slide","id":"sl/sd68jr","slide":15,"title":"FICHES CONCURRENTES","textShapes":22}
+{"kind":"textbox","id":"sh/d8bat47y","slide":15,"text":"FICHES CONCURRENTES","textPreview":"FICHES CONCURRENTES","textChars":19,"textLines":1,"bbox":[42,34,360,24]}
+{"kind":"textbox","id":"sh/2lszqtcj","slide":15,"text":"Les apps ADHD gagnent quand elles retirent des décisions","textPreview":"Les apps ADHD gagnent quand elles retirent des décisions","textChars":56,"textLines":1,"bbox":[42,58,1080,88]}
+{"kind":"shape","id":"sh/v6psfil0","slide":15,"bbox":[42,154,1196,1]}
+{"kind":"shape","id":"sh/kf6dcbul","slide":15,"bbox":[50,360,565,1]}
+{"kind":"textbox","id":"sh/d0z61032","slide":15,"text":"Habitomic","textPreview":"Habitomic","textChars":9,"textLines":1,"bbox":[50,374,327.7,30]}
+{"kind":"textbox","id":"sh/29gr2p8n","slide":15,"text":"ADHD planner","textPreview":"ADHD planner","textChars":12,"textLines":1,"bbox":[383.35,379,231.65,24]}
+{"kind":"textbox","id":"sh/vu9knih4","slide":15,"text":"Planner, routine, focus, tâches et self-care pour ADHD.","textPreview":"Planner, routine, focus, tâches et self-care pour ADHD.","textChars":55,"textLines":1,"bbox":[50,408,565,46]}
+{"kind":"textbox","id":"sh/k3q5o7qp","slide":15,"text":"FORCES","textPreview":"FORCES","textChars":6,"textLines":1,"bbox":[50,470,180.33,24]}
+{"kind":"textbox","id":"sh/donyd0z6","slide":15,"text":"Positionnement ADHD direct; couvre routines, focus et organisation.","textPreview":"Positionnement ADHD direct; couvre routines, focus et organisation.","textChars":67,"textLines":1,"bbox":[50,494,180.33,90]}
+{"kind":"textbox","id":"sh/p0bi9s36","slide":15,"text":"FAIBLESSES","textPreview":"FAIBLESSES","textChars":10,"textLines":1,"bbox":[242.33,470,180.33,24]}
+{"kind":"textbox","id":"sh/0fepkzup","slide":15,"text":"Visuel plus utilitaire; moins différenciant côté game feel.","textPreview":"Visuel plus utilitaire; moins différenciant côté game feel.","textChars":59,"textLines":1,"bbox":[242.33,494,180.33,90]}
+{"kind":"textbox","id":"sh/bulwval8","slide":15,"text":"RÉPONSE MORAX","textPreview":"RÉPONSE MORAX","textChars":13,"textLines":1,"bbox":[434.67,470,180.33,24]}
+{"kind":"textbox","id":"sh/i9s36hcr","slide":15,"text":"Prendre l’ADHD comme principe UX, pas seulement comme argument marketing.","textPreview":"Prendre l’ADHD comme principe UX, pas seulement comme argument marketing.","textChars":73,"textLines":1,"bbox":[434.67,494,180.33,90]}
+{"kind":"textbox","id":"sh/tovahoza","slide":15,"text":"apps.apple.com/us/app/habitomic-adhd-friendly-habits/id1609261995","textPreview":"apps.apple.com/us/app/habitomic-adhd-friendly-habits/id1609261995","textChars":65,"textLines":1,"bbox":[50,614,565,18]}
+{"kind":"shape","id":"sh/032lszqt","slide":15,"bbox":[665,360,565,1]}
+{"kind":"textbox","id":"sh/bi9s36hc","slide":15,"text":"Amazing Marvin","textPreview":"Amazing Marvin","textChars":14,"textLines":1,"bbox":[665,374,327.7,30]}
+{"kind":"textbox","id":"sh/ixczed8v","slide":15,"text":"ADHD task OS","textPreview":"ADHD task OS","textChars":12,"textLines":1,"bbox":[998.35,379,231.65,24]}
+{"kind":"textbox","id":"sh/tcj6tova","slide":15,"text":"Task manager très configurable pour procrastination et ADHD.","textPreview":"Task manager très configurable pour procrastination et ADHD.","textChars":60,"textLines":1,"bbox":[665,408,565,46]}
+{"kind":"textbox","id":"sh/0rqd4vmt","slide":15,"text":"FORCES","textPreview":"FORCES","textChars":6,"textLines":1,"bbox":[665,470,180.33,24]}
+{"kind":"textbox","id":"sh/gfmlkjm1","slide":15,"text":"Profondeur énorme; stratégies multiples; adapté aux power users.","textPreview":"Profondeur énorme; stratégies multiples; adapté aux power users.","textChars":64,"textLines":1,"bbox":[665,494,180.33,90]}
+{"kind":"textbox","id":"sh/90je9cvi","slide":15,"text":"FAIBLESSES","textPreview":"FAIBLESSES","textChars":10,"textLines":1,"bbox":[857.33,470,180.33,24]}
+{"kind":"textbox","id":"sh/yd0z6103","slide":15,"text":"Courbe d’apprentissage élevée; surcharge possible pour ADHD.","textPreview":"Courbe d’apprentissage élevée; surcharge possible pour ADHD.","textChars":60,"textLines":1,"bbox":[857.33,494,180.33,90]}
+{"kind":"textbox","id":"sh/rytsvu9k","slide":15,"text":"RÉPONSE MORAX","textPreview":"RÉPONSE MORAX","textChars":13,"textLines":1,"bbox":[1049.67,470,180.33,24]}
+{"kind":"textbox","id":"sh/g7adsji5","slide":15,"text":"Faire l’inverse en V1 : peu de choix, puis profondeur progressive.","textPreview":"Faire l’inverse en V1 : peu de choix, puis profondeur progressive.","textChars":66,"textLines":1,"bbox":[1049.67,494,180.33,90]}
+{"kind":"textbox","id":"sh/9s36hcrm","slide":15,"text":"amazingmarvin.com/","textPreview":"amazingmarvin.com/","textChars":18,"textLines":1,"bbox":[665,614,565,18]}
+{"kind":"image","id":"im/hoza1gvy","slide":15,"name":"","alt":"habitomic screenshot","bbox":[50,164,565,192]}
+{"kind":"image","id":"im/s36hcrmh","slide":15,"name":"","alt":"amazing-marvin screenshot","bbox":[665,164,565,192]}
+{"kind":"notes","id":"nt/sd68jr","slide":15,"text":""}
+{"kind":"slide","id":"sl/6hikkx","slide":16,"title":"FICHES CONCURRENTES","textShapes":22}
+{"kind":"textbox","id":"sh/1032lszq","slide":16,"text":"FICHES CONCURRENTES","textPreview":"FICHES CONCURRENTES","textChars":19,"textLines":1,"bbox":[42,34,360,24]}
+{"kind":"textbox","id":"sh/u9knih4b","slide":16,"text":"La productivité mature manque souvent d’un moteur émotionnel","textPreview":"La productivité mature manque souvent d’un moteur émotionnel","textChars":60,"textLines":1,"bbox":[42,58,1080,88]}
+{"kind":"shape","id":"sh/judg7ads","slide":16,"bbox":[42,154,1196,1]}
+{"kind":"shape","id":"sh/c7u54zid","slide":16,"bbox":[50,360,565,1]}
+{"kind":"textbox","id":"sh/1orytsvu","slide":16,"text":"Lunatask","textPreview":"Lunatask","textChars":8,"textLines":1,"bbox":[50,374,327.7,30]}
+{"kind":"textbox","id":"sh/u18jqh0f","slide":16,"text":"Neurodivergent productivity","textPreview":"Neurodivergent productivity","textChars":27,"textLines":1,"bbox":[383.35,379,231.65,24]}
+{"kind":"textbox","id":"sh/jm1cfa9w","slide":16,"text":"To-do, habits, notes, journal, life tracking et chiffrement.","textPreview":"To-do, habits, notes, journal, life tracking et chiffrement.","textChars":60,"textLines":1,"bbox":[50,408,565,46]}
+{"kind":"textbox","id":"sh/cvixczed","slide":16,"text":"FORCES","textPreview":"FORCES","textChars":6,"textLines":1,"bbox":[50,470,180.33,24]}
+{"kind":"textbox","id":"sh/5gbq1ory","slide":16,"text":"Ton mature; tout-en-un; confidentialité et neurodivergence crédibles.","textPreview":"Ton mature; tout-en-un; confidentialité et neurodivergence crédibles.","textChars":69,"textLines":1,"bbox":[50,494,180.33,90]}
+{"kind":"textbox","id":"sh/18jqh0fe","slide":16,"text":"FAIBLESSES","textPreview":"FAIBLESSES","textChars":10,"textLines":1,"bbox":[242.33,470,180.33,24]}
+{"kind":"textbox","id":"sh/8nqxs72x","slide":16,"text":"Moins ludique; pas de compagnon visuel; pas de preuve photo/voix.","textPreview":"Moins ludique; pas de compagnon visuel; pas de preuve photo/voix.","textChars":65,"textLines":1,"bbox":[242.33,494,180.33,90]}
+{"kind":"textbox","id":"sh/j2t83itg","slide":16,"text":"RÉPONSE MORAX","textPreview":"RÉPONSE MORAX","textChars":13,"textLines":1,"bbox":[434.67,470,180.33,24]}
+{"kind":"textbox","id":"sh/qh0fepkz","slide":16,"text":"Garder la maturité et la privacy, ajouter présence et motivation RPG.","textPreview":"Garder la maturité et la privacy, ajouter présence et motivation RPG.","textChars":69,"textLines":1,"bbox":[434.67,494,180.33,90]}
+{"kind":"textbox","id":"sh/1w7mp0bi","slide":16,"text":"lunatask.app/","textPreview":"lunatask.app/","textChars":13,"textLines":1,"bbox":[50,614,565,18]}
+{"kind":"shape","id":"sh/8bat47y1","slide":16,"bbox":[665,360,565,1]}
+{"kind":"textbox","id":"sh/jqh0fepk","slide":16,"text":"Routinery","textPreview":"Routinery","textChars":9,"textLines":1,"bbox":[665,374,327.7,30]}
+{"kind":"textbox","id":"sh/q5o7qpg3","slide":16,"text":"Routine guide","textPreview":"Routine guide","textChars":13,"textLines":1,"bbox":[998.35,379,231.65,24]}
+{"kind":"textbox","id":"sh/1kre1w7m","slide":16,"text":"Routines guidées étape par étape, timers et notifications.","textPreview":"Routines guidées étape par étape, timers et notifications.","textChars":58,"textLines":1,"bbox":[665,408,565,46]}
+{"kind":"textbox","id":"sh/c3ylc7u5","slide":16,"text":"FORCES","textPreview":"FORCES","textChars":6,"textLines":1,"bbox":[665,470,180.33,24]}
+{"kind":"textbox","id":"sh/orytsvu9","slide":16,"text":"Très bon pour initiation d’action; réduit la décision; adapté ADHD.","textPreview":"Très bon pour initiation d’action; réduit la décision; adapté ADHD.","textChars":67,"textLines":1,"bbox":[665,494,180.33,90]}
+{"kind":"textbox","id":"sh/hcrmhk3q","slide":16,"text":"FAIBLESSES","textPreview":"FAIBLESSES","textChars":10,"textLines":1,"bbox":[857.33,470,180.33,24]}
+{"kind":"textbox","id":"sh/al87ed8b","slide":16,"text":"Peu de jeu; boucle émotionnelle faible; tâches plus linéaires.","textPreview":"Peu de jeu; boucle émotionnelle faible; tâches plus linéaires.","textChars":62,"textLines":1,"bbox":[857.33,494,180.33,90]}
+{"kind":"textbox","id":"sh/z61032ls","slide":16,"text":"RÉPONSE MORAX","textPreview":"RÉPONSE MORAX","textChars":13,"textLines":1,"bbox":[1049.67,470,180.33,24]}
+{"kind":"textbox","id":"sh/sfil0rqd","slide":16,"text":"Intégrer les routines comme mini-quêtes guidées dans la Station Focus.","textPreview":"Intégrer les routines comme mini-quêtes guidées dans la Station Focus.","textChars":70,"textLines":1,"bbox":[1049.67,494,180.33,90]}
+{"kind":"textbox","id":"sh/h0fepkzu","slide":16,"text":"www.routinery.app/","textPreview":"www.routinery.app/","textChars":18,"textLines":1,"bbox":[665,614,565,18]}
+{"kind":"image","id":"im/d4vmtwra","slide":16,"name":"","alt":"lunatask screenshot","bbox":[50,164,565,192]}
+{"kind":"image","id":"im/oj2t83it","slide":16,"name":"","alt":"routinery screenshot","bbox":[665,164,565,192]}
+{"kind":"notes","id":"nt/6hikkx","slide":16,"text":""}
+{"kind":"slide","id":"sl/9wb3p9","slide":17,"title":"FICHES CONCURRENTES","textShapes":22}
+{"kind":"textbox","id":"sh/m58z25kb","slide":17,"text":"FICHES CONCURRENTES","textPreview":"FICHES CONCURRENTES","textChars":19,"textLines":1,"bbox":[42,34,360,24]}
+{"kind":"textbox","id":"sh/twra5gbq","slide":17,"text":"Le vidage mental visuel aide, mais ne suffit pas à créer un monde","textPreview":"Le vidage mental visuel aide, mais ne suffit pas à créer un monde","textChars":65,"textLines":1,"bbox":[42,58,1080,88]}
+{"kind":"shape","id":"sh/4byhgn29","slide":17,"bbox":[42,154,1196,1]}
+{"kind":"shape","id":"sh/b2hwfyxo","slide":17,"bbox":[50,360,565,1]}
+{"kind":"textbox","id":"sh/mhk3q5o7","slide":17,"text":"WaterDo","textPreview":"WaterDo","textChars":7,"textLines":1,"bbox":[50,374,327.7,30]}
+{"kind":"textbox","id":"sh/t83itgfm","slide":17,"text":"Visual to-do","textPreview":"Visual to-do","textChars":12,"textLines":1,"bbox":[383.35,379,231.65,24]}
+{"kind":"textbox","id":"sh/4nap4r65","slide":17,"text":"Tâches transformées en bulles d’eau à éclater.","textPreview":"Tâches transformées en bulles d’eau à éclater.","textChars":46,"textLines":1,"bbox":[50,408,565,46]}
+{"kind":"textbox","id":"sh/bat47y1k","slide":17,"text":"FORCES","textPreview":"FORCES","textChars":6,"textLines":1,"bbox":[50,470,180.33,24]}
+{"kind":"textbox","id":"sh/mp0bi9s3","slide":17,"text":"Très scanable; satisfaction immédiate; bonne métaphore de vidage mental.","textPreview":"Très scanable; satisfaction immédiate; bonne métaphore de vidage mental.","textChars":72,"textLines":1,"bbox":[50,494,180.33,90]}
+{"kind":"textbox","id":"sh/4byhgn29","slide":17,"text":"FAIBLESSES","textPreview":"FAIBLESSES","textChars":10,"textLines":1,"bbox":[242.33,470,180.33,24]}
+{"kind":"textbox","id":"sh/twra5gbq","slide":17,"text":"Gamification légère; pas de personnage ni arc narratif.","textPreview":"Gamification légère; pas de personnage ni arc narratif.","textChars":55,"textLines":1,"bbox":[242.33,494,180.33,90]}
+{"kind":"textbox","id":"sh/m58z25kb","slide":17,"text":"RÉPONSE MORAX","textPreview":"RÉPONSE MORAX","textChars":13,"textLines":1,"bbox":[434.67,470,180.33,24]}
+{"kind":"textbox","id":"sh/bq1oryts","slide":17,"text":"S’inspirer du traitement visuel des tâches pour une inbox moins anxiogène.","textPreview":"S’inspirer du traitement visuel des tâches pour une inbox moins anxiogène.","textChars":74,"textLines":1,"bbox":[434.67,494,180.33,90]}
+{"kind":"textbox","id":"sh/4nap4r65","slide":17,"text":"waterdo.seekrtech.com/en","textPreview":"waterdo.seekrtech.com/en","textChars":24,"textLines":1,"bbox":[50,614,565,18]}
+{"kind":"shape","id":"sh/t83itgfm","slide":17,"bbox":[665,360,565,1]}
+{"kind":"textbox","id":"sh/mhk3q5o7","slide":17,"text":"Rabit","textPreview":"Rabit","textChars":5,"textLines":1,"bbox":[665,374,327.7,30]}
+{"kind":"textbox","id":"sh/b2hwfyxo","slide":17,"text":"Plant habit tracker","textPreview":"Plant habit tracker","textChars":19,"textLines":1,"bbox":[998.35,379,231.65,24]}
+{"kind":"textbox","id":"sh/4vmtwra5","slide":17,"text":"Habitudes sous forme de plantes et streaks.","textPreview":"Habitudes sous forme de plantes et streaks.","textChars":43,"textLines":1,"bbox":[665,408,565,46]}
+{"kind":"textbox","id":"sh/tgfmlkjm","slide":17,"text":"FORCES","textPreview":"FORCES","textChars":6,"textLines":1,"bbox":[665,470,180.33,24]}
+{"kind":"textbox","id":"sh/xc3ylc7u","slide":17,"text":"Métaphore facile; visuel doux; onboarding simple.","textPreview":"Métaphore facile; visuel doux; onboarding simple.","textChars":49,"textLines":1,"bbox":[665,494,180.33,90]}
+{"kind":"textbox","id":"sh/4r65wjud","slide":17,"text":"FAIBLESSES","textPreview":"FAIBLESSES","textChars":10,"textLines":1,"bbox":[857.33,470,180.33,24]}
+{"kind":"textbox","id":"sh/f6dcbulw","slide":17,"text":"La plante qui meurt peut culpabiliser; peu de productivité profonde.","textPreview":"La plante qui meurt peut culpabiliser; peu de productivité profonde.","textChars":68,"textLines":1,"bbox":[857.33,494,180.33,90]}
+{"kind":"textbox","id":"sh/mlkjm1cf","slide":17,"text":"RÉPONSE MORAX","textPreview":"RÉPONSE MORAX","textChars":13,"textLines":1,"bbox":[1049.67,470,180.33,24]}
+{"kind":"textbox","id":"sh/xkf6dcbu","slide":17,"text":"Éviter toute dégradation punitive de l’avatar ou de l’environnement.","textPreview":"Éviter toute dégradation punitive de l’avatar ou de l’environnement.","textChars":68,"textLines":1,"bbox":[1049.67,494,180.33,90]}
+{"kind":"textbox","id":"sh/4zidonyd","slide":17,"text":"play.google.com/store/apps/details?id=com.blu.rabito","textPreview":"play.google.com/store/apps/details?id=com.blu.rabito","textChars":52,"textLines":1,"bbox":[665,614,565,18]}
+{"kind":"image","id":"im/4nap4r65","slide":17,"name":"","alt":"waterdo screenshot","bbox":[50,164,565,192]}
+{"kind":"image","id":"im/t83itgfm","slide":17,"name":"","alt":"rabit screenshot","bbox":[665,164,565,192]}
+{"kind":"notes","id":"nt/9wb3p9","slide":17,"text":""}
+{"kind":"slide","id":"sl/ysxnju","slide":18,"title":"FICHES CONCURRENTES","textShapes":22}
+{"kind":"textbox","id":"sh/fil0rqd4","slide":18,"text":"FICHES CONCURRENTES","textPreview":"FICHES CONCURRENTES","textChars":19,"textLines":1,"bbox":[42,34,360,24]}
+{"kind":"textbox","id":"sh/83itgfml","slide":18,"text":"Le body doubling montre que la présence peut débloquer l’action","textPreview":"Le body doubling montre que la présence peut débloquer l’action","textChars":63,"textLines":1,"bbox":[42,58,1080,88]}
+{"kind":"shape","id":"sh/xobm58z2","slide":18,"bbox":[42,154,1196,1]}
+{"kind":"shape","id":"sh/m94fu18j","slide":18,"bbox":[50,360,565,1]}
+{"kind":"textbox","id":"sh/fu18jqh0","slide":18,"text":"Focusmate","textPreview":"Focusmate","textChars":9,"textLines":1,"bbox":[50,374,327.7,30]}
+{"kind":"textbox","id":"sh/4fu18jqh","slide":18,"text":"Body doubling humain","textPreview":"Body doubling humain","textChars":20,"textLines":1,"bbox":[383.35,379,231.65,24]}
+{"kind":"textbox","id":"sh/x0nuxc3y","slide":18,"text":"Sessions vidéo avec un partenaire pour démarrer et tenir une tâche.","textPreview":"Sessions vidéo avec un partenaire pour démarrer et tenir une tâche.","textChars":67,"textLines":1,"bbox":[50,408,565,46]}
+{"kind":"textbox","id":"sh/mlkjm1cf","slide":18,"text":"FORCES","textPreview":"FORCES","textChars":6,"textLines":1,"bbox":[50,470,180.33,24]}
+{"kind":"textbox","id":"sh/f6dcbulw","slide":18,"text":"Très efficace pour accountability ADHD; rituel simple; preuve sociale réelle.","textPreview":"Très efficace pour accountability ADHD; rituel simple; preuve sociale réelle.","textChars":77,"textLines":1,"bbox":[50,494,180.33,90]}
+{"kind":"textbox","id":"sh/vixczed8","slide":18,"text":"FAIBLESSES","textPreview":"FAIBLESSES","textChars":10,"textLines":1,"bbox":[242.33,470,180.33,24]}
+{"kind":"textbox","id":"sh/2x4nap4r","slide":18,"text":"Friction de planification; pas un jeu; demande caméra et disponibilité.","textPreview":"Friction de planification; pas un jeu; demande caméra et disponibilité.","textChars":71,"textLines":1,"bbox":[242.33,494,180.33,90]}
+{"kind":"textbox","id":"sh/donyd0z6","slide":18,"text":"RÉPONSE MORAX","textPreview":"RÉPONSE MORAX","textChars":13,"textLines":1,"bbox":[434.67,470,180.33,24]}
+{"kind":"textbox","id":"sh/k3q5o7qp","slide":18,"text":"Créer un body doubling léger via avatar/party avant d’aller vers humain.","textPreview":"Créer un body doubling léger via avatar/party avant d’aller vers humain.","textChars":72,"textLines":1,"bbox":[434.67,494,180.33,90]}
+{"kind":"textbox","id":"sh/val87ed8","slide":18,"text":"www.focusmate.com/","textPreview":"www.focusmate.com/","textChars":18,"textLines":1,"bbox":[50,614,565,18]}
+{"kind":"shape","id":"sh/6psfil0r","slide":18,"bbox":[665,360,565,1]}
+{"kind":"textbox","id":"sh/dcbulwva","slide":18,"text":"dubbii","textPreview":"dubbii","textChars":6,"textLines":1,"bbox":[665,374,327.7,30]}
+{"kind":"textbox","id":"sh/kre1w7mp","slide":18,"text":"ADHD body-double videos","textPreview":"ADHD body-double videos","textChars":23,"textLines":1,"bbox":[998.35,379,231.65,24]}
+{"kind":"textbox","id":"sh/v6psfil0","slide":18,"text":"Vidéos de personnes qui accompagnent tâches ménagères, admin et self-care.","textPreview":"Vidéos de personnes qui accompagnent tâches ménagères, admin et self-care.","textChars":74,"textLines":1,"bbox":[665,408,565,46]}
+{"kind":"textbox","id":"sh/2lszqtcj","slide":18,"text":"FORCES","textPreview":"FORCES","textChars":6,"textLines":1,"bbox":[665,470,180.33,24]}
+{"kind":"textbox","id":"sh/ap4r65wj","slide":18,"text":"Aide concrète au démarrage; très adapté tâches évitées/ennuyeuses.","textPreview":"Aide concrète au démarrage; très adapté tâches évitées/ennuyeuses.","textChars":66,"textLines":1,"bbox":[665,494,180.33,90]}
+{"kind":"textbox","id":"sh/za1gvy90","slide":18,"text":"FAIBLESSES","textPreview":"FAIBLESSES","textChars":10,"textLines":1,"bbox":[857.33,470,180.33,24]}
+{"kind":"textbox","id":"sh/svu9knih","slide":18,"text":"Bibliothèque vidéo plutôt que monde vivant; faible personnalisation RPG.","textPreview":"Bibliothèque vidéo plutôt que monde vivant; faible personnalisation RPG.","textChars":72,"textLines":1,"bbox":[857.33,494,180.33,90]}
+{"kind":"textbox","id":"sh/hgn29gr2","slide":18,"text":"RÉPONSE MORAX","textPreview":"RÉPONSE MORAX","textChars":13,"textLines":1,"bbox":[1049.67,470,180.33,24]}
+{"kind":"textbox","id":"sh/a1gvy90j","slide":18,"text":"Transformer les tâches difficiles en quêtes guidées avec compagnon actif.","textPreview":"Transformer les tâches difficiles en quêtes guidées avec compagnon actif.","textChars":73,"textLines":1,"bbox":[1049.67,494,180.33,90]}
+{"kind":"textbox","id":"sh/zidonyd0","slide":18,"text":"play.google.com/store/apps/details?id=com.gravitywell.adhdlove","textPreview":"play.google.com/store/apps/details?id=com.gravitywell.adhdlove","textChars":62,"textLines":1,"bbox":[665,614,565,18]}
+{"kind":"image","id":"im/j2t83itg","slide":18,"name":"","alt":"dubbii screenshot","bbox":[665,164,565,192]}
+{"kind":"image","id":"im/qh0fepkz","slide":18,"name":"","alt":"focusmate screenshot","bbox":[50,164,565,192]}
+{"kind":"notes","id":"nt/ysxnju","slide":18,"text":""}
+{"kind":"slide","id":"sl/tut3cv","slide":19,"title":"POSITIONNEMENT","textShapes":11}
+{"kind":"textbox","id":"sh/bat47y1k","slide":19,"text":"POSITIONNEMENT","textPreview":"POSITIONNEMENT","textChars":14,"textLines":1,"bbox":[42,34,360,24]}
+{"kind":"textbox","id":"sh/4vmtwra5","slide":19,"text":"Morax doit se positionner comme un compagnon Life RPG, pas comme un tracker de plus","textPreview":"Morax doit se positionner comme un compagnon Life RPG, pas comme un tracker de plus","textChars":83,"textLines":1,"bbox":[42,58,1080,88]}
+{"kind":"shape","id":"sh/tgfmlkjm","slide":19,"bbox":[42,154,1196,1]}
+{"kind":"textbox","id":"sh/m1cfa9w3","slide":19,"text":"Promesse","textPreview":"Promesse","textChars":8,"textLines":1,"bbox":[70,175,270,30]}
+{"kind":"shape","id":"sh/bm58z25k","slide":19,"bbox":[70,217,270,2]}
+{"kind":"textbox","id":"sh/47y1kre1","slide":19,"text":"“Ton double RPG t’aide à transformer tes intentions en actions visibles, une quête à la fois.”","textPreview":"“Ton double RPG t’aide à transformer tes intentions en actions visibles, une quête à la fois.”","textChars":94,"textLines":1,"bbox":[70,241,270,250]}
+{"kind":"textbox","id":"sh/tsvu9kni","slide":19,"text":"Différenciation","textPreview":"Différenciation","textChars":15,"textLines":1,"bbox":[364,175,270,30]}
+{"kind":"shape","id":"sh/m58z25kb","slide":19,"bbox":[364,217,270,2]}
+{"kind":"textbox","id":"sh/bq1oryts","slide":19,"text":"Avatar 3D ressemblant + quêtes vérifiées + Station Focus + ton ADHD-friendly non culpabilisant.","textPreview":"Avatar 3D ressemblant + quêtes vérifiées + Station Focus + ton ADHD-friendly non culpabilisant.","textChars":95,"textLines":1,"bbox":[364,241,270,250]}
+{"kind":"textbox","id":"sh/3ex0nuxc","slide":19,"text":"Contre-position","textPreview":"Contre-position","textChars":15,"textLines":1,"bbox":[658,175,270,30]}
+{"kind":"shape","id":"sh/at47y1kr","slide":19,"bbox":[658,217,270,2]}
+{"kind":"textbox","id":"sh/lkjm1cfa","slide":19,"text":"Pas un pet générique, pas une to-do fantasy dense, pas un Pomodoro isolé, pas un planner ADHD austère.","textPreview":"Pas un pet générique, pas une to-do fantasy dense, pas un Pomodoro isolé, pas un planner ADHD austère.","textChars":102,"textLines":1,"bbox":[658,241,270,250]}
+{"kind":"textbox","id":"sh/szqtcj6t","slide":19,"text":"Risque à maîtriser","textPreview":"Risque à maîtriser","textChars":18,"textLines":1,"bbox":[952,175,270,30]}
+{"kind":"shape","id":"sh/32lszqtc","slide":19,"bbox":[952,217,270,2]}
+{"kind":"textbox","id":"sh/ahoza1gv","slide":19,"text":"La richesse visuelle ne doit jamais devenir une nouvelle distraction ni une couche de réglages.","textPreview":"La richesse visuelle ne doit jamais devenir une nouvelle distraction ni une couche de réglages.","textChars":95,"textLines":1,"bbox":[952,241,270,250]}
+{"kind":"textbox","id":"sh/l87ed8ba","slide":19,"text":"Principe de design : “toujours vivant, jamais exigeant”. L’avatar bouge, accompagne et célèbre; il ne juge pas, ne se dégrade pas et ne transforme pas l’échec en honte.","textPreview":"Principe de design : “toujours vivant, jamais exigeant”. L’avatar bouge, accompagne et célèbre; il ne juge pas, ne se dégrade pas et ne t...","textChars":168,"textLines":1,"bbox":[90,585,1080,60]}
+{"kind":"notes","id":"nt/tut3cv","slide":19,"text":""}
+{"kind":"slide","id":"sl/agqq52","slide":20,"title":"IMPLICATIONS PRODUIT","textShapes":17}
+{"kind":"textbox","id":"sh/5wjudg7a","slide":20,"text":"IMPLICATIONS PRODUIT","textPreview":"IMPLICATIONS PRODUIT","textChars":20,"textLines":1,"bbox":[42,34,360,24]}
+{"kind":"textbox","id":"sh/y90je9cv","slide":20,"text":"La feuille de route V1 doit choisir peu de boucles, mais les rendre mémorables","textPreview":"La feuille de route V1 doit choisir peu de boucles, mais les rendre mémorables","textChars":78,"textLines":1,"bbox":[42,58,1080,88]}
+{"kind":"shape","id":"sh/nuxc3ylc","slide":20,"bbox":[42,154,1196,1]}
+{"kind":"textbox","id":"sh/gn29gr2p","slide":20,"text":"01","textPreview":"01","textChars":2,"textLines":1,"bbox":[70,162,60,32]}
+{"kind":"textbox","id":"sh/58z25kb6","slide":20,"text":"Avatar 3D idle","textPreview":"Avatar 3D idle","textChars":14,"textLines":1,"bbox":[145,162,280,32]}
+{"kind":"textbox","id":"sh/yhgn29gr","slide":20,"text":"Inspiré de gogh / Spirit City / lobby games. Toujours actif, mais calme, avec états visuels subtils.","textPreview":"Inspiré de gogh / Spirit City / lobby games. Toujours actif, mais calme, avec états visuels subtils.","textChars":100,"textLines":1,"bbox":[455,164,690,48]}
+{"kind":"textbox","id":"sh/n29gr2p8","slide":20,"text":"02","textPreview":"02","textChars":2,"textLines":1,"bbox":[70,252,60,32]}
+{"kind":"textbox","id":"sh/czed8v6p","slide":20,"text":"Station Focus","textPreview":"Station Focus","textChars":13,"textLines":1,"bbox":[145,252,280,32]}
+{"kind":"textbox","id":"sh/5kb6xkf6","slide":20,"text":"Inspirée de Focus Friend / Forest / Virtual Cottage. Une quête, un timer, une ambiance, une validation simple.","textPreview":"Inspirée de Focus Friend / Forest / Virtual Cottage. Une quête, un timer, une ambiance, une validation simple.","textChars":110,"textLines":1,"bbox":[455,254,690,48]}
+{"kind":"textbox","id":"sh/x4nap4r6","slide":20,"text":"03","textPreview":"03","textChars":2,"textLines":1,"bbox":[70,342,60,32]}
+{"kind":"textbox","id":"sh/8jqh0fep","slide":20,"text":"Progression non punitive","textPreview":"Progression non punitive","textChars":24,"textLines":1,"bbox":[145,342,280,32]}
+{"kind":"textbox","id":"sh/fyxobm58","slide":20,"text":"Inspirée de Finch / Avocation / SuperBetter. Reprise douce, aucun avatar abîmé, pas de honte de streak.","textPreview":"Inspirée de Finch / Avocation / SuperBetter. Reprise douce, aucun avatar abîmé, pas de honte de streak.","textChars":103,"textLines":1,"bbox":[455,344,690,48]}
+{"kind":"textbox","id":"sh/qd4vmtwr","slide":20,"text":"04","textPreview":"04","textChars":2,"textLines":1,"bbox":[70,432,60,32]}
+{"kind":"textbox","id":"sh/xczed8v6","slide":20,"text":"Preuve réelle","textPreview":"Preuve réelle","textChars":13,"textLines":1,"bbox":[145,432,280,32]}
+{"kind":"textbox","id":"sh/8v6psfil","slide":20,"text":"Différenciation Morax. Photo, voix, HealthKit et confirmations transforment les tâches en accomplissements crédibles.","textPreview":"Différenciation Morax. Photo, voix, HealthKit et confirmations transforment les tâches en accomplissements crédibles.","textChars":117,"textLines":1,"bbox":[455,434,690,48]}
+{"kind":"textbox","id":"sh/fa9w3m94","slide":20,"text":"05","textPreview":"05","textChars":2,"textLines":1,"bbox":[70,522,60,32]}
+{"kind":"textbox","id":"sh/qpg3ex0n","slide":20,"text":"Complexité progressive","textPreview":"Complexité progressive","textChars":22,"textLines":1,"bbox":[145,522,280,32]}
+{"kind":"textbox","id":"sh/1gvy90je","slide":20,"text":"Inspirée des limites de Marvin / LifeUp. Les options se débloquent; l’utilisateur ne configure pas tout au départ.","textPreview":"Inspirée des limites de Marvin / LifeUp. Les options se débloquent; l’utilisateur ne configure pas tout au départ.","textChars":114,"textLines":1,"bbox":[455,524,690,48]}
+{"kind":"notes","id":"nt/agqq52","slide":20,"text":""}
+{"kind":"slide","id":"sl/3vm1eo","slide":21,"title":"ANNEXE","textShapes":31}
+{"kind":"textbox","id":"sh/jqh0fepk","slide":21,"text":"ANNEXE","textPreview":"ANNEXE","textChars":6,"textLines":1,"bbox":[42,34,360,24]}
+{"kind":"textbox","id":"sh/8bat47y1","slide":21,"text":"Sources visuelles utilisées","textPreview":"Sources visuelles utilisées","textChars":27,"textLines":1,"bbox":[42,58,1080,88]}
+{"kind":"shape","id":"sh/1w7mp0bi","slide":21,"bbox":[42,154,1196,1]}
+{"kind":"textbox","id":"sh/qh0fepkz","slide":21,"text":"Captures réalisées depuis les sites publics officiels ou pages store accessibles au 7 juillet 2026. Les visuels servent à comparer les directions produit et ne sont pas destinés à être réutilisés comme assets Morax.","textPreview":"Captures réalisées depuis les sites publics officiels ou pages store accessibles au 7 juillet 2026. Les visuels servent à comparer les di...","textChars":215,"textLines":1,"bbox":[70,152,1080,46]}
+{"kind":"textbox","id":"sh/j2t83itg","slide":21,"text":"gogh: gogh.gg/","textPreview":"gogh: gogh.gg/","textChars":14,"textLines":1,"bbox":[70,220,540,18]}
+{"kind":"textbox","id":"sh/8nqxs72x","slide":21,"text":"On-Together: gigapuff.co/","textPreview":"On-Together: gigapuff.co/","textChars":25,"textLines":1,"bbox":[70,244,540,18]}
+{"kind":"textbox","id":"sh/18jqh0fe","slide":21,"text":"Spirit City: store.steampowered.com/app/2113850/Spirit_City_Lofi_Sessions/","textPreview":"Spirit City: store.steampowered.com/app/2113850/Spirit_City_Lofi_Sessions/","textChars":74,"textLines":1,"bbox":[70,268,540,18]}
+{"kind":"textbox","id":"sh/ulwval87","slide":21,"text":"Focus Friend: www.yourfocusfriend.com/","textPreview":"Focus Friend: www.yourfocusfriend.com/","textChars":38,"textLines":1,"bbox":[70,292,540,18]}
+{"kind":"textbox","id":"sh/j6tovaho","slide":21,"text":"Focus Traveller: focus-traveller.webflow.io/","textPreview":"Focus Traveller: focus-traveller.webflow.io/","textChars":44,"textLines":1,"bbox":[70,316,540,18]}
+{"kind":"textbox","id":"sh/j2t83itg","slide":21,"text":"Focumon: www.focumon.com/","textPreview":"Focumon: www.focumon.com/","textChars":25,"textLines":1,"bbox":[70,340,540,18]}
+{"kind":"textbox","id":"sh/qh0fepkz","slide":21,"text":"Habitica: habitica.com/","textPreview":"Habitica: habitica.com/","textChars":23,"textLines":1,"bbox":[70,364,540,18]}
+{"kind":"textbox","id":"sh/18jqh0fe","slide":21,"text":"TaskHero: taskhero.app/","textPreview":"TaskHero: taskhero.app/","textChars":23,"textLines":1,"bbox":[70,388,540,18]}
+{"kind":"textbox","id":"sh/8nqxs72x","slide":21,"text":"Do It Now: do-it-now.app/","textPreview":"Do It Now: do-it-now.app/","textChars":25,"textLines":1,"bbox":[70,412,540,18]}
+{"kind":"textbox","id":"sh/jqh0fepk","slide":21,"text":"LifeUp: lifeup.ulives.io/","textPreview":"LifeUp: lifeup.ulives.io/","textChars":25,"textLines":1,"bbox":[70,436,540,18]}
+{"kind":"textbox","id":"sh/q5o7qpg3","slide":21,"text":"Habit Hunter: habithunter.activeuser.co/","textPreview":"Habit Hunter: habithunter.activeuser.co/","textChars":40,"textLines":1,"bbox":[70,460,540,18]}
+{"kind":"textbox","id":"sh/1w7mp0bi","slide":21,"text":"SuperBetter: superbetter.com/","textPreview":"SuperBetter: superbetter.com/","textChars":29,"textLines":1,"bbox":[70,484,540,18]}
+{"kind":"textbox","id":"sh/8bat47y1","slide":21,"text":"Forest: forestapp.cc/","textPreview":"Forest: forestapp.cc/","textChars":21,"textLines":1,"bbox":[70,508,540,18]}
+{"kind":"textbox","id":"sh/ji5snelo","slide":21,"text":"Flora: flora.appfinca.com/en","textPreview":"Flora: flora.appfinca.com/en","textChars":28,"textLines":1,"bbox":[70,532,540,18]}
+{"kind":"textbox","id":"sh/uxc3ylc7","slide":21,"text":"Study Bunny: www.superbyte.site/studybunny","textPreview":"Study Bunny: www.superbyte.site/studybunny","textChars":42,"textLines":1,"bbox":[650,220,540,18]}
+{"kind":"textbox","id":"sh/2t83itgf","slide":21,"text":"Focus Dog: focusdog.app/","textPreview":"Focus Dog: focusdog.app/","textChars":24,"textLines":1,"bbox":[650,244,540,18]}
+{"kind":"textbox","id":"sh/re1w7mp0","slide":21,"text":"PuppyFocus: puppyfocusapp.com/","textPreview":"PuppyFocus: puppyfocusapp.com/","textChars":30,"textLines":1,"bbox":[650,268,540,18]}
+{"kind":"textbox","id":"sh/kzupwb2h","slide":21,"text":"Virtual Cottage: store.steampowered.com/app/1369320/Virtual_Cottage/","textPreview":"Virtual Cottage: store.steampowered.com/app/1369320/Virtual_Cottage/","textChars":68,"textLines":1,"bbox":[650,292,540,18]}
+{"kind":"textbox","id":"sh/9knih4by","slide":21,"text":"Finch: finchcare.com/","textPreview":"Finch: finchcare.com/","textChars":21,"textLines":1,"bbox":[650,316,540,18]}
+{"kind":"textbox","id":"sh/25kb6xkf","slide":21,"text":"Habitomic: apps.apple.com/us/app/habitomic-adhd-friendly-habits/id1609261995","textPreview":"Habitomic: apps.apple.com/us/app/habitomic-adhd-friendly-habits/id1609261995","textChars":76,"textLines":1,"bbox":[650,340,540,18]}
+{"kind":"textbox","id":"sh/rqd4vmtw","slide":21,"text":"Amazing Marvin: amazingmarvin.com/","textPreview":"Amazing Marvin: amazingmarvin.com/","textChars":34,"textLines":1,"bbox":[650,364,540,18]}
+{"kind":"textbox","id":"sh/kb6xkf6d","slide":21,"text":"Lunatask: lunatask.app/","textPreview":"Lunatask: lunatask.app/","textChars":23,"textLines":1,"bbox":[650,388,540,18]}
+{"kind":"textbox","id":"sh/9w3m94fu","slide":21,"text":"Routinery: www.routinery.app/","textPreview":"Routinery: www.routinery.app/","textChars":29,"textLines":1,"bbox":[650,412,540,18]}
+{"kind":"textbox","id":"sh/2hwfyxob","slide":21,"text":"Avocation: avocation.app/","textPreview":"Avocation: avocation.app/","textChars":25,"textLines":1,"bbox":[650,436,540,18]}
+{"kind":"textbox","id":"sh/r2p8nqxs","slide":21,"text":"WaterDo: waterdo.seekrtech.com/en","textPreview":"WaterDo: waterdo.seekrtech.com/en","textChars":33,"textLines":1,"bbox":[650,460,540,18]}
+{"kind":"textbox","id":"sh/1gvy90je","slide":21,"text":"Rabit: play.google.com/store/apps/details?id=com.blu.rabito","textPreview":"Rabit: play.google.com/store/apps/details?id=com.blu.rabito","textChars":59,"textLines":1,"bbox":[650,484,540,18]}
+{"kind":"textbox","id":"sh/8z25kb6x","slide":21,"text":"Focusmate: www.focusmate.com/","textPreview":"Focusmate: www.focusmate.com/","textChars":29,"textLines":1,"bbox":[650,508,540,18]}
+{"kind":"textbox","id":"sh/je9cvixc","slide":21,"text":"dubbii: play.google.com/store/apps/details?id=com.gravitywell.adhdlove","textPreview":"dubbii: play.google.com/store/apps/details?id=com.gravitywell.adhdlove","textChars":70,"textLines":1,"bbox":[650,532,540,18]}
+{"kind":"notes","id":"nt/3vm1eo","slide":21,"text":""}
