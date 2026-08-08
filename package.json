@@ -14,6 +14,8 @@
     "typecheck": "pnpm -r typecheck",
     "test": "pnpm -r test",
     "lint": "eslint .",
+    "db:verify": "node scripts/db-verify.mjs",
+    "verify": "pnpm --filter @morax/model-core build && pnpm lint && pnpm typecheck && pnpm --filter @morax/model-core test && pnpm --filter @morax/app test && pnpm --filter @morax/worker test && pnpm --filter @morax/app build && pnpm --filter @morax/worker build",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
   },
