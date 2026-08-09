@@ -26,4 +26,12 @@ export default tseslint.config(
       'no-undef': 'off',
     },
   },
+  {
+    files: ['app/public/sw.js'],
+    languageOptions: { globals: { self: 'readonly', caches: 'readonly', fetch: 'readonly' } },
+  },
+  {
+    files: ['packages/model-core/scripts/*.mjs'],
+    languageOptions: { globals: { console: 'readonly', process: 'readonly' } },
+  },
 )

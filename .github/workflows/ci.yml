@@ -23,20 +23,8 @@ jobs:
       - name: Install
         run: pnpm install --frozen-lockfile
 
-      - name: Build model-core (types partagés)
-        run: pnpm --filter @morax/model-core build
-
-      - name: Lint
-        run: pnpm lint
-
-      - name: Typecheck
-        run: pnpm -r typecheck
-
-      - name: Test
-        run: pnpm -r test
-
-      - name: Build worker
-        run: pnpm --filter @morax/worker build
+      - name: Verify application, worker, and shared package
+        run: pnpm verify
 
   migrations:
     runs-on: ubuntu-latest
